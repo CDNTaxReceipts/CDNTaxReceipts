@@ -1,5 +1,5 @@
 -- CDN Tax Receipts Extension
--- last change: 1.0.beta1
+-- last change: 0.9.beta1
 
 -- NOTE: We avoid direct foreign keys to CiviCRM schema because this log should
 -- remain intact even if a particular contact or contribution is deleted (for
