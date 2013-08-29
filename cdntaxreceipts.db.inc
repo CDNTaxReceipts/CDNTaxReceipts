@@ -53,24 +53,14 @@ function cdntaxreceipts_annual_issued_on($contactId, $year) {
 
 function cdntaxreceipts_contributions_not_receipted($contactId, $year) {
 
-  $eligibility = cdntaxreceipts_eligibleForReceiptSQL('where');
-  $eligibilitySQL = implode(' AND ', $eligibility);
-
-  $additionalTables = cdntaxreceipts_eligibleForReceiptSQL('from');
-  $fromSQL = '';
-  foreach ( $additionalTables as $table ) {
-    $fromSQL .= "LEFT JOIN " . $table['name'] . " " . $table['alias'] .
-      " ON " . $table['alias'] . ".entity_id = contrib.id";
-  }
-
   $sql = "SELECT contrib.id as contribution_id, contrib.total_amount,
         ifnull(contrib.non_deductible_amount, 0) as non_deductible_amount, contrib.receive_date
     FROM civicrm_contribution contrib
     INNER JOIN civicrm_financial_type contrib_type
             ON contrib.financial_type_id = contrib_type.id
     LEFT  JOIN cdntaxreceipts_log_contributions cdntax_c
-            ON contrib.id = cdntax_c.contribution_id $fromSQL
-    WHERE cdntax_c.receipt_id IS NULL AND $eligibilitySQL AND contrib_type.name <> 'In-kind'
+            ON contrib.id = cdntax_c.contribution_id 
+    WHERE cdntax_c.receipt_id IS NULL AND contrib_type.name <> 'In-kind'
       AND contrib.contact_id = $contactId AND YEAR(contrib.receive_date) = $year
     ORDER BY contrib.id";
 
@@ -82,12 +72,14 @@ function cdntaxreceipts_contributions_not_receipted($contactId, $year) {
   // lot of database calls versus loading each contribution object individually.
 
   while ( $dao->fetch() ) {
-    $contributions[] = array(
+    if ( cdntaxreceipts_eligibleForReceipt($dao->contribution_id) ) {
+      $contributions[] = array(
         'contribution_id' => $dao->contribution_id,
         'total_amount' => $dao->total_amount,
         'non_deductible_amount' => $dao->non_deductible_amount,
         'receive_date' => $dao->receive_date,
-    );
+      );
+    }
   } 
 
   return $contributions;

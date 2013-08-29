@@ -118,9 +118,7 @@ class CRM_Cdntaxreceipts_Form_Report_ReceiptsNotIssued extends CRM_Report_Form {
     return $errors;
   }
 
-  function from() {
-
-    $additionalTables = cdntaxreceipts_eligibleForReceiptSQL('from');
+  function from($includeTemp = TRUE) {
 
     $this->_from = "
         FROM civicrm_contact {$this->_aliases['civicrm_contact']}
@@ -131,30 +129,32 @@ class CRM_Cdntaxreceipts_Form_Report_ReceiptsNotIssued extends CRM_Report_Form {
                 ON {$this->_aliases['civicrm_contribution']}.financial_type_id ={$this->_aliases['civicrm_financial_type']}.id 
         LEFT  JOIN cdntaxreceipts_log_contributions cdntax_c
                 ON {$this->_aliases['civicrm_contribution']}.id = cdntax_c.contribution_id ";
-    
-    foreach ( $additionalTables as $table ) {
-      $this->_from .= "LEFT JOIN " . $table['name'] . " " . $table['alias'] .
-        " ON " . $table['alias'] . ".entity_id = {$this->_aliases['civicrm_contribution']}.id";
-    }
 
+    if ($includeTemp) {
+      $this->_from .= "
+        LEFT JOIN cdntaxreceipts_temp_civireport_eligible cdntax_t
+                ON {$this->_aliases['civicrm_contribution']}.id = cdntax_t.contribution_id ";
+    }
+    
   }
 
-  function where() {
+  function where($includeTemp = TRUE) {
 
     parent::where();
-    
-    $eligibility = cdntaxreceipts_eligibleForReceiptSQL('where');
-    foreach ( $eligibility as $clause ) {
-      $this->_where .= " AND "  . $clause;
-    }
-
     $this->_where .= " AND cdntax_c.id IS NULL AND {$this->_aliases['civicrm_contact']}.is_deleted = 0 ";
+
+    if ($includeTemp) {
+      $this->_where .= " AND cdntax_t.contribution_id IS NOT NULL ";
+    }
 
   }
 
   function postProcess() {
 
     $this->beginPostProcess();
+
+    // set up the temporary tables to do eligibility calculations
+    $this->createTempEligibilityTable();
 
     $sql = $this->buildQuery(TRUE);
 
@@ -164,6 +164,27 @@ class CRM_Cdntaxreceipts_Form_Report_ReceiptsNotIssued extends CRM_Report_Form {
     $this->formatDisplay($rows);
     $this->doTemplateAssignment($rows);
     $this->endPostProcess($rows);
+  }
+
+  function createTempEligibilityTable() {
+    $sql = "
+CREATE TEMPORARY TABLE cdntaxreceipts_temp_civireport_eligible (
+  contribution_id int unsigned
+) ENGINE=HEAP DEFAULT CHARACTER SET utf8 COLLATE utf8_unicode_ci";
+    CRM_Core_DAO::executeQuery($sql);
+
+    $this->from(FALSE);
+    $this->where(FALSE);
+
+    $sql = "SELECT {$this->_aliases['civicrm_contribution']}.id $this->_from $this->_where";
+    $dao = CRM_Core_DAO::executeQuery($sql);
+
+    while ( $dao->fetch() ) {
+      if ( cdntaxreceipts_eligibleForReceipt($dao->id) ) {
+        $sql = "INSERT INTO cdntaxreceipts_temp_civireport_eligible (contribution_id) VALUES ($dao->id)";
+        CRM_Core_DAO::executeQuery($sql);
+      }
+    } 
   }
 
   function alterDisplay(&$rows) {

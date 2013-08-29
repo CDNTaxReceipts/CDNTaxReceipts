@@ -590,17 +590,20 @@ function cdntaxreceipts_eligibleForReceipt( $contributionId ) {
     CRM_Core_Error::fatal( "CDNTaxReceipts: Could not find status of this Contribution." );
   }
 
-  $results = module_invoke_all('cdntaxreceipts_eligible', $contribution);
+  // invoke hook_cdntaxreceipts_eligible:
+  //   module implementations should return an array containing a single item,
+  //   either TRUE or FALSE. assumes TRUE until we receive a FALSE. one FALSE
+  //   disqualifies the contribution for a tax receipt.
+  $results = CRM_Utils_Hook::singleton()->invoke(1, $contribution, CRM_Utils_Hook::$_nullObject, CRM_Utils_Hook::$_nullObject, CRM_Utils_Hook::$_nullObject, CRM_Utils_Hook::$_nullObject, 'cdntaxreceipts_eligible');
   $hookOk = TRUE;
-  foreach ( $results as $result ) {
-    if ( $result == FALSE ) {
-      $hookOk = FALSE;
+
+  if (is_array($results)) {
+    foreach ( $results as $result ) {
+      if ( $result == FALSE ) {
+        $hookOk = FALSE;
+      }
     }
   }
-
-  // WARNING
-  // IF these criteria change, BE SURE to update the SQL query below as well.  The SQL
-  // query determines eligibility for the Tax Receipt Dashboard and the reports.
 
   if ( $contributionType->is_deductible && $contributionStatus == '1' && $contribution->is_test == 0 && $deductibleAmount > 0 && $hookOk ) {
     return TRUE;
@@ -610,27 +613,6 @@ function cdntaxreceipts_eligibleForReceipt( $contributionId ) {
   }
 
 }
-
-function cdntaxreceipts_eligibleForReceiptSQL($mode = 'where') {
-  if ( $mode == 'where' ) {
-    $where = array(
-      'is_deductible = 1',
-      'contribution_status_id = 1',
-      'total_amount - ifnull(non_deductible_amount,0) > 0',
-      'is_test = 0',
-    );
-    drupal_alter('cdntaxreceipts_eligibleSQL_where', $where);
-    return $where;
-  }
-  else {
-    // assumes join on civicrm_contribution (e.g. entity_id = contribution.id)
-    // we could make this more robust later to include other tables
-    $from = array();
-    drupal_alter('cdntaxreceipts_eligibleSQL_from', $from);
-    return $from;
-  }
-}
-
 
 /**
  * issueAnnualTaxReceipt()
