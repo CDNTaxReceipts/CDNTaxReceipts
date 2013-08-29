@@ -123,7 +123,8 @@ function cdntaxreceipts_generateFormattedReceipt( $receipt, &$collectedPdf = NUL
 
   $line_1 = "This is your Official Receipt for income tax purposes.";
 
-  $pdf_file = file_directory_temp() . '/' . 'Receipt-' . $receipt['receipt_no'] . '.pdf';
+  $config = CRM_Core_Config::singleton();
+  $pdf_file = $config->customFileUploadDir . 'Receipt-' . $receipt['receipt_no'] . '.pdf';
   $user_friendly = 'Receipt-' . $receipt['receipt_no'] . '.pdf';
 
   $pdf = new TCPDF(PDF_PAGE_ORIENTATION, PDF_UNIT, PDF_PAGE_FORMAT, TRUE, 'UTF-8', FALSE);
