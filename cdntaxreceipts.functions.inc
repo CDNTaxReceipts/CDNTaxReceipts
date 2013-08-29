@@ -1,5 +1,7 @@
 <?php
 
+require_once 'tcpdf/tcpdf.php';
+
 /**
  * processTaxReceipt()
  * Accepts an associative array containing receipt variables, and:
@@ -123,19 +125,6 @@ function cdntaxreceipts_generateFormattedReceipt( $receipt, &$collectedPdf = NUL
 
   $pdf_file = file_directory_temp() . '/' . 'Receipt-' . $receipt['receipt_no'] . '.pdf';
   $user_friendly = 'Receipt-' . $receipt['receipt_no'] . '.pdf';
-
-  $pdf_tool = variable_get('cdntaxreceipts_pdf_tool', 'CIVICRM_CDNTAXRECEIPTS_PDF_TOOL_DEFAULT');
-
-  if (!empty($pdf_tool)) {
-    $drupal_root = $_SERVER['DOCUMENT_ROOT'] . base_path();
-    $tcpdfpath = $drupal_root . dirname( '/' . $pdf_tool);
-    require_once($tcpdfpath . '/config/lang/eng.php');
-    require_once($drupal_root . '/' . $pdf_tool);
-  }
-  else {
-    drupal_set_message('error', "Could not generate PDF tax receipt. Check that TCPDF is in your sites library path and that you selected it in this module's settings.");
-    return;
-  }
 
   $pdf = new TCPDF(PDF_PAGE_ORIENTATION, PDF_UNIT, PDF_PAGE_FORMAT, TRUE, 'UTF-8', FALSE);
   $pdf->Open();
@@ -751,19 +740,6 @@ function cdntaxreceipts_openCollectedPDF() {
   static $pdf;
 
   if ( ! isset($pdf) ) {
-
-    $pdf_tool = variable_get('cdntaxreceipts_pdf_tool', 'CIVICRM_CDNTAXRECEIPTS_PDF_TOOL_DEFAULT');
-
-    if (!empty($pdf_tool)) {
-      $drupal_root = $_SERVER['DOCUMENT_ROOT'] . base_path();
-      $tcpdfpath = $drupal_root . dirname( '/' . $pdf_tool);
-      require_once($tcpdfpath . '/config/lang/eng.php');
-      require_once($drupal_root . '/' . $pdf_tool);
-    }
-    else {
-      drupal_set_message('error', "Could not generate PDF tax receipt. Check that tcpdf is in your sites library path and that you selected it in this module's settings.");
-     return;
-    }
 
     $pdf = new TCPDF(PDF_PAGE_ORIENTATION, PDF_UNIT, PDF_PAGE_FORMAT, TRUE, 'UTF-8', FALSE);
     $pdf->Open();
