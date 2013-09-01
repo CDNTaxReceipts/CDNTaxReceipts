@@ -132,7 +132,6 @@ function cdntaxreceipts_civicrm_permissions( &$permissions ) {
 }
 */
 
-
 /**
  * Implementation of hook_civicrm_config
  */
@@ -167,6 +166,42 @@ function cdntaxreceipts_civicrm_uninstall() {
  * Implementation of hook_civicrm_enable
  */
 function cdntaxreceipts_civicrm_enable() {
+
+  // add a menu item to the Administer > CiviContribute menu
+  require_once 'CRM/Core/BAO/Navigation.php';
+
+  // check there is no admin item
+  $cdntax_search = array('url' => 'civicrm/cdntaxreceipts/settings?reset=1');
+  $cdntax_item = array();
+  CRM_Core_BAO_Navigation::retrieve($cdntax_search, $cdntax_item);
+
+  if ( ! empty($cdntax_item) ) {
+    return;
+  }
+
+  // get path to Administer > CiviContribute and place admin item there
+  $administer_search = array('label' => 'Administer');
+  $administer_item = array();
+  CRM_Core_BAO_Navigation::retrieve($administer_search, $administer_item);
+
+  if ($administer_item) {
+    $contribute_search = array('label' => 'CiviContribute', 'parent_id' => $administer_item['id']);
+    $contribute_item = array();
+    CRM_Core_BAO_Navigation::retrieve($contribute_search, $contribute_item);
+
+    if ($contribute_item) {
+      $new_item = array(
+        'name' => 'CDN Tax Receipts',
+        'label' => 'CDN Tax Receipts',
+        'url' => 'civicrm/cdntaxreceipts/settings?reset=1',
+        'permission' => 'administer CiviCRM',
+        'parent_id' => $contribute_item['id'],
+        'is_active' => TRUE,
+      );
+      CRM_Core_BAO_Navigation::add($new_item);
+    }
+  }
+
   return _cdntaxreceipts_civix_civicrm_enable();
 }
 

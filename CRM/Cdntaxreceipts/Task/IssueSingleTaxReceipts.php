@@ -187,7 +187,7 @@ class CRM_Cdntaxreceipts_Task_IssueSingleTaxReceipts extends CRM_Contribute_Form
       $status[] = ts('%1 tax receipt(s) failed to process.', array(1=>$failCount));
     }
 
-    CRM_Core_Session::setStatus($status);
+    CRM_Core_Session::setStatus($status, '', 'info');
 
     // Issue 1895204: Reset geocoding
     $config->geocodeMethod = $oldGeocode;

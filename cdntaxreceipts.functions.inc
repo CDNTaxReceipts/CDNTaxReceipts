@@ -390,8 +390,6 @@ function cdntaxreceipts_createPDF(&$pdf, $pdf_variables) {
 
 function cdntaxreceipts_configure_inkind_fields() {
 
-  civicrm_initialize();
-
   // check if the In-kind contribtion type exists.  if not, create it.
   $dao = _cdntaxreceipts_get_contribution_dao();
   $dao->name = 'In-kind';

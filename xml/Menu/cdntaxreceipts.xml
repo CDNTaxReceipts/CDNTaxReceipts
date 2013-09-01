@@ -4,6 +4,12 @@
     <path>civicrm/cdntaxreceipts/view</path>
     <page_callback>CRM_Cdntaxreceipts_Form_ViewTaxReceipt</page_callback>
     <title>ViewTaxReceipt</title>
-    <access_arguments>access CiviCRM</access_arguments>
+    <access_arguments>access CiviContribute</access_arguments>
+  </item>
+  <item>
+    <path>civicrm/cdntaxreceipts/settings</path>
+    <page_callback>CRM_Cdntaxreceipts_Form_Settings</page_callback>
+    <title>Settings</title>
+    <access_arguments>administer CiviCRM</access_arguments>
   </item>
 </menu>
