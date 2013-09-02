@@ -24,7 +24,7 @@ function cdntaxreceipts_civicrm_buildForm( $formName, &$form ) {
       if ($is_original_receipt) {
         $buttons = array(array('type'      => 'submit',
                                'subName'   => 'issue_tax_receipt',
-                               'name'      => t('Tax Receipt'),
+                               'name'      => ts('Tax Receipt'),
                                'isDefault' => FALSE ), );
       }
       else {
@@ -32,7 +32,7 @@ function cdntaxreceipts_civicrm_buildForm( $formName, &$form ) {
         // subName -> which is used (css) to display the red maple leaf instead.
         $buttons = array(array('type'      => 'submit',
                                'subName'   => 'view_tax_receipt',
-                               'name'      => t('Tax Receipt'),
+                               'name'      => ts('Tax Receipt'),
                                'isDefault' => FALSE ), );
       }
       $form->addButtons( $buttons );
@@ -59,7 +59,7 @@ function cdntaxreceipts_civicrm_postProcess( $formName, &$form ) {
   foreach($types as $type) {
     $post = '_qf_ContributionView_submit_'.$type;
     if (isset($_POST[$post])) {
-      if ($_POST[$post] == t('Tax Receipt')) {
+      if ($_POST[$post] == ts('Tax Receipt')) {
         $action = $post;
       }
     }

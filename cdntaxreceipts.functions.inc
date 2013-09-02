@@ -2,6 +2,8 @@
 
 require_once 'tcpdf/tcpdf.php';
 
+const CDNTAX_SETTINGS = 'CDNTaxReceipts';
+
 /**
  * processTaxReceipt()
  * Accepts an associative array containing receipt variables, and:
@@ -28,18 +30,17 @@ function cdntaxreceipts_processTaxReceipt( $receipt, &$collectedPdf = NULL, $pre
     'cleanName' => $user_friendly,
   );
 
-  $email_message = variable_get('cdntaxreceipts_message', '');
-  $site_email = variable_get('site_mail', '');
-  $site_name = variable_get('site_name', '');
+  $email_message = CRM_Core_BAO_Setting::getItem(CDNTAX_SETTINGS, 'email_message');
+  $org_name = CRM_Core_BAO_Setting::getItem(CDNTAX_SETTINGS, 'org_name');
 
-  $email_subject_admin = variable_get('cdntaxreceipts_subject', '');
+  $email_subject_admin = CRM_Core_BAO_Setting::getItem(CDNTAX_SETTINGS, 'email_subject');
   $email_subject = $email_subject_admin . " " . $receipt['receipt_no'];
 
-  $email_from = variable_get('cdntaxreceipts_from', '');
-  $email_archive = variable_get('cdntaxreceipts_archive', '');
+  $email_from = CRM_Core_BAO_Setting::getItem(CDNTAX_SETTINGS, 'email_from');
+  $email_archive = CRM_Core_BAO_Setting::getItem(CDNTAX_SETTINGS, 'email_archive');
 
   $mailparams = array(
-    'from' => $site_name . ' <' . $email_from . '> ',
+    'from' => $org_name . ' <' . $email_from . '> ',
     'toName' => $displayname,
     'attachments' => array( $attachment ),
     'subject' => $email_subject,
@@ -130,7 +131,7 @@ function cdntaxreceipts_generateFormattedReceipt( $receipt, &$collectedPdf = NUL
   $pdf = new TCPDF(PDF_PAGE_ORIENTATION, PDF_UNIT, PDF_PAGE_FORMAT, TRUE, 'UTF-8', FALSE);
   $pdf->Open();
 
-  $pdf->SetAuthor(variable_get('cdntaxreceipts_org_name', ''));
+  $pdf->SetAuthor(CRM_Core_BAO_Setting::getItem(CDNTAX_SETTINGS, 'org_name'));
 
   $mymargin_left = 12;
   $mymargin_top = 6;
@@ -231,34 +232,34 @@ function cdntaxreceipts_createPDF(&$pdf, $pdf_variables) {
   }
 
   // Top left section
-  $pdf->Image(variable_get('cdntaxreceipts_logo', $pdf_img_files_path . 'your-logo.png'), $mymargin_left, $mymargin_top, '', 30);
+  $pdf->Image(CRM_Core_BAO_Setting::getItem(CDNTAX_SETTINGS, 'receipt_logo', NULL, $pdf_img_files_path . 'your-logo.png'), $mymargin_left, $mymargin_top, '', 30);
 
   // Top right section
   $pdf->SetFont('Helvetica', '', 8);
   $pdf->SetY($mymargin_top);
-  $pdf->Write(10, variable_get('cdntaxreceipts_org_name', ''), '', 0, 'R', TRUE, 0, FALSE, FALSE, 0);
+  $pdf->Write(10, CRM_Core_BAO_Setting::getItem(CDNTAX_SETTINGS, 'org_name'), '', 0, 'R', TRUE, 0, FALSE, FALSE, 0);
   $pdf->SetY($mymargin_top + 4);
-  $pdf->Write(10, variable_get('cdntaxreceipts_address_line1', ''), '', 0, 'R', TRUE, 0, FALSE, FALSE, 0);
+  $pdf->Write(10, CRM_Core_BAO_Setting::getItem(CDNTAX_SETTINGS, 'org_address_line1'), '', 0, 'R', TRUE, 0, FALSE, FALSE, 0);
   $pdf->SetY($mymargin_top + 8);
-  $pdf->Write(10, variable_get('cdntaxreceipts_address_line2', ''), '', 0, 'R', TRUE, 0, FALSE, FALSE, 0);
+  $pdf->Write(10, CRM_Core_BAO_Setting::getItem(CDNTAX_SETTINGS, 'org_address_line2'), '', 0, 'R', TRUE, 0, FALSE, FALSE, 0);
   $pdf->SetY($mymargin_top + 12);
-  if ( variable_get('cdntaxreceipts_fax','' ) == '' ) {
-    $pdf->Write(10, 'Tel: ' . variable_get('cdntaxreceipts_tel', ''), '', 0, 'R', TRUE, 0, FALSE, FALSE, 0);
+  if ( CRM_Core_BAO_Setting::getItem(CDNTAX_SETTINGS, 'org_fax' ) == '' ) {
+    $pdf->Write(10, 'Tel: ' . CRM_Core_BAO_Setting::getItem(CDNTAX_SETTINGS, 'org_tel'), '', 0, 'R', TRUE, 0, FALSE, FALSE, 0);
   }
   else {
-    $pdf->Write(10, 'Tel: ' . variable_get('cdntaxreceipts_tel', '') . '; Fax: ' . variable_get('cdntaxreceipts_fax', ''), '', 0, 'R', TRUE, 0, FALSE, FALSE, 0);
+    $pdf->Write(10, 'Tel: ' . CRM_Core_BAO_Setting::getItem(CDNTAX_SETTINGS, 'org_tel') . '; Fax: ' . CRM_Core_BAO_Setting::getItem(CDNTAX_SETTINGS, 'org_fax'), '', 0, 'R', TRUE, 0, FALSE, FALSE, 0);
   }
   $pdf->SetFont('Helvetica', 'I', 8);
   $pdf->SetY($mymargin_top + 16);
-  $pdf->Write(10, 'Email: ' . variable_get('cdntaxreceipts_email', '') . '; Website: ' . variable_get('cdntaxreceipts_web', ''), '', 0, 'R', TRUE, 0, FALSE, FALSE, 0);
+  $pdf->Write(10, 'Email: ' . CRM_Core_BAO_Setting::getItem(CDNTAX_SETTINGS, 'org_email') . '; Website: ' . CRM_Core_BAO_Setting::getItem(CDNTAX_SETTINGS, 'org_web'), '', 0, 'R', TRUE, 0, FALSE, FALSE, 0);
   $pdf->SetY($mymargin_top + 20);
-  $pdf->Write(10, 'Charitable Registration ' . variable_get('cdntaxreceipts_charitable_no', ''), '', 0, 'R', TRUE, 0, FALSE, FALSE, 0);
+  $pdf->Write(10, 'Charitable Registration ' . CRM_Core_BAO_Setting::getItem(CDNTAX_SETTINGS, 'org_charitable_no'), '', 0, 'R', TRUE, 0, FALSE, FALSE, 0);
 
   // Right section
   $x_detailscolumn = 120;
   $y_detailscolumnstart = 27;
-  $background_image = variable_get('cdntaxreceipts_bg', '');
-  if ( $background_image ) $pdf->Image(variable_get('cdntaxreceipts_bg', ''), $mymargin_left + $x_detailscolumn, $mymargin_top + $y_detailscolumnstart, '', 50);
+  $background_image = CRM_Core_BAO_Setting::getItem(CDNTAX_SETTINGS, 'receipt_watermark');
+  if ( $background_image ) $pdf->Image(CRM_Core_BAO_Setting::getItem(CDNTAX_SETTINGS, 'receipt_watermark'), $mymargin_left + $x_detailscolumn, $mymargin_top + $y_detailscolumnstart, '', 50);
   $pdf->SetXY($mymargin_left + $x_detailscolumn, $mymargin_top + $y_detailscolumnstart + 6);
   $pdf->SetFont('Helvetica', 'B', 8);
   $pdf->Write(10, "Issue Date: " . $issued_on);
@@ -365,12 +366,12 @@ function cdntaxreceipts_createPDF(&$pdf, $pdf_variables) {
     }
 
   // Bottom right section
-  $signature = variable_get('cdntaxreceipts_authorized_signature_text', '');
+  $signature = CRM_Core_BAO_Setting::getItem(CDNTAX_SETTINGS, 'receipt_authorized_signature_text');
   if ( $signature == '' ) {
-    $signature = t('Authorized Signature');
+    $signature = ts('Authorized Signature');
   }
   $sig_offset = strlen($signature) - 20;
-  $pdf->Image(variable_get('cdntaxreceipts_signature', $pdf_img_files_path . 'authorized-signature.png'), $mymargin_left + 137, $mymargin_top + 76, '', 15);
+  $pdf->Image(CRM_Core_BAO_Setting::getItem(CDNTAX_SETTINGS, 'receipt_signature', NULL, $pdf_img_files_path . 'authorized-signature.png'), $mymargin_left + 137, $mymargin_top + 76, '', 15);
   $pdf->Line($mymargin_left + 136, $mymargin_top + 87, $mymargin_left + 186, $mymargin_top + 87);
   $pdf->SetXY($mymargin_left + 148 - $sig_offset, $mymargin_top + 84);
   $pdf->SetFont("Helvetica", "I", 7);
@@ -499,7 +500,7 @@ function cdntaxreceipts_issueTaxReceipt( $contribution, &$collectedPdf = NULL, $
   list( $method, $email ) = cdntaxreceipts_sendMethodForContact($contribution->contact_id);
 
   // generate a receipt number
-  $receipt_no = variable_get('cdntaxreceipts_prefix', '') . str_pad($contribution->id, 8, 0, STR_PAD_LEFT);
+  $receipt_no = CRM_Core_BAO_Setting::getItem(CDNTAX_SETTINGS, 'receipt_prefix') . str_pad($contribution->id, 8, 0, STR_PAD_LEFT);
 
   // process In-Kind variables if this is a receipt for an in-kind contribution
 
@@ -662,7 +663,7 @@ function cdntaxreceipts_issueAnnualTaxReceipt( $contactId, $year, &$collectedPdf
     }
 
     // generate a receipt number
-    $receiptNo = variable_get('cdntaxreceipts_prefix', '') . str_pad($receiptContributions[0]['contribution_id'], 8, 0, STR_PAD_LEFT);
+    $receiptNo = CRM_Core_BAO_Setting::getItem(CDNTAX_SETTINGS, 'receipt_prefix') . str_pad($receiptContributions[0]['contribution_id'], 8, 0, STR_PAD_LEFT);
 
     $receipt = array(
       'receipt_no' => $receiptNo,
@@ -686,7 +687,7 @@ function cdntaxreceipts_issueAnnualTaxReceipt( $contactId, $year, &$collectedPdf
  */
 function cdntaxreceipts_sendMethodForContact( $contactId ) {
 
-  $global_email = variable_get('cdntaxreceipts_enable_email', TRUE);
+  $global_email = CRM_Core_BAO_Setting::getItem(CDNTAX_SETTINGS, 'enable_email', NULL, TRUE);
   if ( ! $global_email ) {
     return array('print', NULL);
   }
@@ -725,7 +726,7 @@ function cdntaxreceipts_openCollectedPDF() {
     $pdf = new TCPDF(PDF_PAGE_ORIENTATION, PDF_UNIT, PDF_PAGE_FORMAT, TRUE, 'UTF-8', FALSE);
     $pdf->Open();
 
-    $pdf->SetAuthor(variable_get('cdntaxreceipts_org_name', ''));
+    $pdf->SetAuthor(CRM_Core_BAO_Setting::getItem(CDNTAX_SETTINGS, 'org_name'));
 
     $mymargin_left = 12;
     $mymargin_top = 6;
