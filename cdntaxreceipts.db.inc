@@ -144,7 +144,7 @@ function cdntaxreceipts_load_receipt($receipt_id) {
  //TODO: Should return success or failure
 function cdntaxreceipts_log($receipt) {
 
-  global $user;
+  $uid = CRM_Utils_System::getLoggedInUfID();
 
   // create the main entry
   $params = array(
@@ -153,7 +153,7 @@ function cdntaxreceipts_log($receipt) {
     3 => array( $receipt['contact_id'], 'Integer' ),
     4 => array( $receipt['receipt_amount'], 'Money' ),
     5 => array( $receipt['is_duplicate'], 'Boolean' ),
-    6 => array( $user->uid, 'Integer' ),
+    6 => array( $uid, 'Integer' ),
     7 => array( $_SERVER['REMOTE_ADDR'], 'String' ),
     8 => array( $receipt['issue_type'], 'String' ),
     9 => array( $receipt['issue_method'], 'String' ),
