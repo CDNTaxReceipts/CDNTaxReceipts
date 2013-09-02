@@ -546,7 +546,7 @@ function cdntaxreceipts_issueTaxReceipt( $contribution, &$collectedPdf = NULL, $
 
   $receipt = array(
     'receipt_no' => $receipt_no,
-    'issued_on' =>  REQUEST_TIME,
+    'issued_on' =>  (int) $_SERVER['REQUEST_TIME'],
     'contact_id' => $contribution->contact_id,
     'receipt_amount' => $contribution->total_amount - $contribution->non_deductible_amount,
     'is_duplicate' => $is_duplicate,
@@ -636,7 +636,7 @@ function cdntaxreceipts_issueAnnualTaxReceipt( $contactId, $year, &$collectedPdf
   if ( $is_duplicate ) {
     // issue an identical receipt
     $receipt = cdntaxreceipts_load_receipt($receipt_id);
-    $receipt['issued_on'] = REQUEST_TIME;
+    $receipt['issued_on'] = (int) $_SERVER['REQUEST_TIME'];
     $receipt['is_duplicate'] = 1;
     $receipt['receive_date'] = $year;
     $receipt['issue_method'] = $method;
@@ -667,7 +667,7 @@ function cdntaxreceipts_issueAnnualTaxReceipt( $contactId, $year, &$collectedPdf
 
     $receipt = array(
       'receipt_no' => $receiptNo,
-      'issued_on' =>  REQUEST_TIME,
+      'issued_on' =>  (int) $_SERVER['REQUEST_TIME'],
       'contact_id' => $contactId,
       'receipt_amount' => $totalReceipt,
       'is_duplicate' => 0,

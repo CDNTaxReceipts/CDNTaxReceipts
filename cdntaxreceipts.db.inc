@@ -154,7 +154,7 @@ function cdntaxreceipts_log($receipt) {
     4 => array( $receipt['receipt_amount'], 'Money' ),
     5 => array( $receipt['is_duplicate'], 'Boolean' ),
     6 => array( $user->uid, 'Integer' ),
-    7 => array( ip_address(), 'String' ),
+    7 => array( $_SERVER['REMOTE_ADDR'], 'String' ),
     8 => array( $receipt['issue_type'], 'String' ),
     9 => array( $receipt['issue_method'], 'String' ),
   );
