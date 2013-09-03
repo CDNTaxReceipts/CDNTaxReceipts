@@ -6,12 +6,12 @@ Canadian Tax Receipts extension for CiviCRM
 To set up the extension:
 ---------------
 
-- Make sure your CiviCRM Extensions directory is set (Administer > System Settings > Directories).  I suggest $HOME/public_html/administrator/components/com_civicrm/extensions.
-- Make sure your CiviCRM Extensions Resource URL is set (Administer > System Settings > Resource URLs). If you used the directory above, then this will be http://<url>/administrator/components/com_civicrm/extensions/.
-- Unpack the attached code in the Extensions directory. This will create the directory tree public_html/administrator/components/com_civicrm/extensions/org.civicrm.cdntaxreceipts/...
+- Make sure your CiviCRM Extensions directory is set (Administer > System Settings > Directories).
+- Make sure your CiviCRM Extensions Resource URL is set (Administer > System Settings > Resource URLs).
+- cd extensions directory
+    - git clone https://github.com/jake-mw/CDNTaxReceipts.git org.civicrm.cdntaxreceipts
 - Enable the extension at Administer > System Settings > Manage Extensions
 - Configure CDN Tax Receipts at Administer > CiviContribute > CDN Tax Receipts. (Take note of the dimensions for each of the image parameters. Correct sizing is important. You might need to try a few times to get it right.)
-
 
 Now you should be able to use the module:
 
