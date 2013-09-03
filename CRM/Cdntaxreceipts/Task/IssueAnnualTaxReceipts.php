@@ -153,7 +153,8 @@ class CRM_Cdntaxreceipts_Task_IssueAnnualTaxReceipts extends CRM_Contact_Form_Ta
       $contributions = cdntaxreceipts_contributions_not_receipted($contactId, $year);
 
       if ( $emailCount + $printCount + $failCount >= self::MAX_RECEIPT_COUNT ) {
-        $status[] = ts('Maximum of %1 tax receipt(s) were sent. Please repeat to continue processing.', array(1=>self::MAX_RECEIPT_COUNT));
+        $status = ts('Maximum of %1 tax receipt(s) were sent. Please repeat to continue processing.', array(1=>self::MAX_RECEIPT_COUNT));
+        CRM_Core_Session::setStatus($status, '', 'info');
         break;
       }
 
@@ -174,20 +175,22 @@ class CRM_Cdntaxreceipts_Task_IssueAnnualTaxReceipts extends CRM_Contact_Form_Ta
     }
 
     // 3. Set session status
-    $status = array('');
     if ( $previewMode ) {
-      $status[] = ts('%1 tax receipt(s) have been previewed.  No receipts have been issued.', array(1=>$printCount));
+      $status = ts('%1 tax receipt(s) have been previewed.  No receipts have been issued.', array(1=>$printCount));
+      CRM_Core_Session::setStatus($status, '', 'success');
     }
     else {
-      $status[] = ts('%1 tax receipt(s) were sent by email.', array(1=>$emailCount));
-      $status[] = ts('%1 tax receipt(s) need to be printed.', array(1=>$printCount));
+      $status = ts('%1 tax receipt(s) were sent by email.', array(1=>$emailCount));
+      CRM_Core_Session::setStatus($status, '', 'success');
+      $status = ts('%1 tax receipt(s) need to be printed.', array(1=>$printCount));
+      CRM_Core_Session::setStatus($status, '', 'success');
     }
 
     if ( $failCount > 0 ) {
-      $status[] = ts('%1 tax receipt(s) failed to process.', array(1=>$failCount));
+      $status = ts('%1 tax receipt(s) failed to process.', array(1=>$failCount));
+      CRM_Core_Session::setStatus($status, '', 'error');
     }
 
-    CRM_Core_Session::setStatus($status, '', 'info');
 
     // Issue 1895204: Reset geocoding
     $config->geocodeMethod = $oldGeocode;
