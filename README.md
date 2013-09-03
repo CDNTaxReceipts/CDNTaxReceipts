@@ -31,9 +31,9 @@ hook_cdntaxreceipts_eligible()
 You may be in a situation where certain Contributions are eligible for tax receipts and others are not (e.g. donations are receiptable, but only for individuals, and event fees are not receiptable). If this is the case, there is a PHP hook hook_cdntaxreceipts_eligible($contribution) that can be used for complex eligibility criteria. Hook implementations should return one of TRUE or FALSE, wrapped in an array.
 
     // Example hook implementation:
-    //  Contributions have a custo yes/no field called "receiptable. Issue tax receipt
+    //  Contributions have a custom yes/no field called "receiptable". Issue tax receipt
     //  on any contribution where receiptable = Yes.
-    function mymodule_receipts_cdntaxreceipts_eligible( $contribution ) {
+    function mymodule_cdntaxreceipts_eligible( $contribution ) {
 
       // load custom field
       $query = "
