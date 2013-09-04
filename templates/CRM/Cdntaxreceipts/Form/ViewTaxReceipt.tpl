@@ -52,7 +52,7 @@ cj(document).ready(
 
 {if $reissue eq 0}
   <h3>{ts}A tax receipt has not been issued for this contribution.{/ts}</h3>
-  {if call_user_func(array('CRM_Core_Permission','check'), 'edit contributions')} {* 'issue cdn tax receipts') *}
+  {if call_user_func(array('CRM_Core_Permission','check'), 'issue cdn tax receipts')}
     <p>Click '{$buttonLabel}' to issue a tax receipt for this contribution. 
     This action cannot be undone. The tax receipt will be logged for auditing purposes,
     and a copy of the receipt will be submitted to the tax receipt archive.</p>
@@ -68,7 +68,7 @@ cj(document).ready(
   {/if}
 {elseif $reissue eq 1}
   <h3>{ts}Re-Issue Tax Receipt{/ts}</h3>
-  {if call_user_func(array('CRM_Core_Permission','check'), 'edit contributions')} {*'issue cdn tax receipts') *}
+  {if call_user_func(array('CRM_Core_Permission','check'), 'issue cdn tax receipts')}
     <p>Click '{$buttonLabel}' to re-issue a tax receipt for this contribution. The
     tax receipt will be marked 'duplicate' with the same receipt number and amount as
     the original copy.</p> 

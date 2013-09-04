@@ -107,7 +107,7 @@ class CRM_Cdntaxreceipts_Form_ViewTaxReceipt extends CRM_Core_Form {
       'name' => ts('Back'),
     );
 
-    if (CRM_Core_Permission::check( 'edit contributions' ) ) { // 'issue cdn tax receipts')) {
+    if (CRM_Core_Permission::check( 'issue cdn tax receipts' ) ) {
       $buttons[] = array(
         'type' => 'next',
         'name' => $buttonLabel,
@@ -141,7 +141,7 @@ class CRM_Cdntaxreceipts_Form_ViewTaxReceipt extends CRM_Core_Form {
   function postProcess() {
 
     // ensure the user has permission to issue the tax receipt.
-    if ( ! CRM_Core_Permission::check( 'edit contributions' ) ) { // 'issue cdn tax receipts') ) {
+    if ( ! CRM_Core_Permission::check( 'issue cdn tax receipts' ) ) {
        CRM_Core_Error::fatal(ts('You do not have permission to access this page'));
     }
 

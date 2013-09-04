@@ -20,7 +20,7 @@ class CRM_Cdntaxreceipts_Task_IssueAnnualTaxReceipts extends CRM_Contact_Form_Ta
   function preProcess() {
 
     //check for permission to edit contributions
-    if ( ! CRM_Core_Permission::check('edit contributions') ) {
+    if ( ! CRM_Core_Permission::check('issue cdn tax receipts') ) {
       CRM_Core_Error::fatal(ts('You do not have permission to access this page'));
     } 
 

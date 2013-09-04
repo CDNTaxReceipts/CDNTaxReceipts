@@ -89,7 +89,7 @@ function cdntaxreceipts_civicrm_postProcess( $formName, &$form ) {
  */
 
 function cdntaxreceipts_civicrm_searchTasks($objectType, &$tasks ) {
-  if ( $objectType == 'contribution' && CRM_Core_Permission::check( 'edit contributions' ) ) { // 'issue cdn tax receipts') ) {
+  if ( $objectType == 'contribution' && CRM_Core_Permission::check( 'issue cdn tax receipts' ) ) { 
     $alreadyinlist = FALSE;
     foreach ($tasks as $key => $task) {
       if($task['class'] == 'CRM_Cdntaxreceipts_Task_IssueSingleTaxReceipts') {
@@ -103,7 +103,7 @@ function cdntaxreceipts_civicrm_searchTasks($objectType, &$tasks ) {
         'result' => TRUE);  
     }
   }
-  elseif ( $objectType == 'contact' && CRM_Core_Permission::check( 'edit contributions' ) ) { //'issue cdn tax receipts') ) {
+  elseif ( $objectType == 'contact' && CRM_Core_Permission::check( 'issue cdn tax receipts' ) ) {
     $alreadyinlist = FALSE;
     foreach ($tasks as $key => $task) {
       if($task['class'] == 'CRM_Cdntaxreceipts_Task_IssueAnnualTaxReceipts') {
@@ -121,16 +121,15 @@ function cdntaxreceipts_civicrm_searchTasks($objectType, &$tasks ) {
 
 /**
  * JAKE -- not working
- * Implementation of hook_civicrm_permissions().
- *
-function cdntaxreceipts_civicrm_permissions( &$permissions ) {
-  if ( ! $is_array( $permissions ) ) {
-    $permissions = array();
-  }
+ * Implementation of hook_civicrm_permission().
+ */
+function cdntaxreceipts_civicrm_permission( &$permissions ) {
   $prefix = ts('CiviCRM CDN Tax Receipts') . ': ';
-  $permissions['issue cdn tax receipts'] = $prefix . ts('Issue Tax Receipts');
+  $permissions = array(
+    'issue cdn tax receipts' => $prefix . ts('Issue Tax Receipts'),
+  );
 }
-*/
+
 
 /**
  * Implementation of hook_civicrm_config
