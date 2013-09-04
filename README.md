@@ -4,20 +4,21 @@ CDNTaxReceipts
 Canadian Tax Receipts extension for CiviCRM
 
 To set up the extension:
----------------
+------------
 
-- Make sure your CiviCRM Extensions directory is set (Administer > System Settings > Directories).  I suggest $HOME/public_html/administrator/components/com_civicrm/extensions.
-- Make sure your CiviCRM Extensions Resource URL is set (Administer > System Settings > Resource URLs). If you used the directory above, then this will be http://<url>/administrator/components/com_civicrm/extensions/.
-- Unpack the attached code in the Extensions directory. This will create the directory tree public_html/administrator/components/com_civicrm/extensions/org.civicrm.cdntaxreceipts/...
-- Enable the extension at Administer > System Settings > Manage Extensions
-- Configure CDN Tax Receipts at Administer > CiviContribute > CDN Tax Receipts. (Take note of the dimensions for each of the image parameters. Correct sizing is important. You might need to try a few times to get it right.)
-
+1. Make sure your CiviCRM Extensions directory is set (Administer > System Settings > Directories).
+2. Make sure your CiviCRM Extensions Resource URL is set (Administer > System Settings > Resource URLs).
+3. Unpack the code
+    - cd extensions directory
+    - git clone https://github.com/jake-mw/CDNTaxReceipts.git org.civicrm.cdntaxreceipts
+4. Enable the extension at Administer > System Settings > Manage Extensions
+5. Configure CDN Tax Receipts at Administer > CiviContribute > CDN Tax Receipts. (Take note of the dimensions for each of the image parameters. Correct sizing is important. You might need to try a few times to get it right.)
 
 Now you should be able to use the module:
 
-- Pull up a contact, go to Contributions tab, view the contribution. You should see a "Tax Receipt" button with a white (or red) maple leaf. White indicates no receipt has been issued, red indicates receipt has been issued.
-- Go to Contributions > Find Contributions. You will see "Issue Tax Receipts" in the - Actions - drop-down. This lets you issue tax receipts in bulk.
-- Go to Contacts > Find Contacts. You will see "Issue Annual Tax Receipts" in the - Actions - drop-down. This lets you issue annual tax receipts.
+- To issue an individual receipt, pull up the contact record, go to 'contributions' tab, view the contribution, and click the "Tax Receipt" button. Follow on-screen instructions from there.
+- To bulk-issue receipts, go to Contributions > Find Contributions, run a search, select one or more search results, and select "Issue Tax Receipts" in the actions drop-down. Follow on-screen instructions from there. This issues one receipt per contribution.
+- To issue Annual Tax Receipts, go to Search > Find Contacts (or Search > Advanced Search), run a search for contacts, select one or more contacts, and select "Issue Annual Tax Receipts" in the actions drop-down. Follow on-screen instructions from there.
 
 The extension also enables two report templates, which can be used as the basis for some reports:
 
@@ -26,14 +27,14 @@ The extension also enables two report templates, which can be used as the basis 
 
 
 hook_cdntaxreceipts_eligible()
----------------------
+------------
 
 You may be in a situation where certain Contributions are eligible for tax receipts and others are not (e.g. donations are receiptable, but only for individuals, and event fees are not receiptable). If this is the case, there is a PHP hook hook_cdntaxreceipts_eligible($contribution) that can be used for complex eligibility criteria. Hook implementations should return one of TRUE or FALSE, wrapped in an array.
 
     // Example hook implementation:
-    //  Contributions have a custo yes/no field called "receiptable. Issue tax receipt
+    //  Contributions have a custom yes/no field called "receiptable". Issue tax receipt
     //  on any contribution where receiptable = Yes.
-    function mymodule_receipts_cdntaxreceipts_eligible( $contribution ) {
+    function mymodule_cdntaxreceipts_eligible( $contribution ) {
 
       // load custom field
       $query = "
@@ -55,3 +56,7 @@ You may be in a situation where certain Contributions are eligible for tax recei
 
 By default, a contribution is eligible for tax receipting if it is completed, and if its Financial Type is deductible.
 
+Disclaimer
+------------
+
+This extension has been developed in consultation with a number of non-profits and with the help of a senior accountant. The maintainers have made every reasonable effort to ensure compliance with CRA guidelines and best practices. However, it is the reponsibility of each organization using this extension to do their own due diligence in ensuring compliance with CRA guidelines and with their organizational policies.
