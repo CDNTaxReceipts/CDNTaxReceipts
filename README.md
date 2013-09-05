@@ -11,7 +11,7 @@ To set up the extension:
 3. Unpack the code
     - cd extensions directory
     - git clone https://github.com/jake-mw/CDNTaxReceipts.git org.civicrm.cdntaxreceipts
-4. Enable the extension at Administer > Customize Data and Screens > Manage Extensions
+4. Enable the extension at Administer > System Settings > Manage Extensions
 5. Configure CDN Tax Receipts at Administer > CiviContribute > CDN Tax Receipts. (Take note of the dimensions for each of the image parameters. Correct sizing is important. You might need to try a few times to get it right.)
 
 Next: review and the permissions - the modules has added a new CiviCRM permission.
