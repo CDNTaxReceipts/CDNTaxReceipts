@@ -14,6 +14,8 @@ To set up the extension:
 4. Enable the extension at Administer > Customize Data and Screens > Manage Extensions
 5. Configure CDN Tax Receipts at Administer > CiviContribute > CDN Tax Receipts. (Take note of the dimensions for each of the image parameters. Correct sizing is important. You might need to try a few times to get it right.)
 
+Next: review and the permissions - the modules has added a new CiviCRM permission.
+
 Now you should be able to use the module:
 
 - To issue an individual receipt, pull up the contact record, go to 'contributions' tab, view the contribution, and click the "Tax Receipt" button. Follow on-screen instructions from there.
