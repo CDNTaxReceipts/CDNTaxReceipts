@@ -3,7 +3,7 @@ CDNTaxReceipts
 
 Canadian Tax Receipts extension for CiviCRM
 
-To set up the extension:
+To set up the extension (instructions for 4.3.5):
 ------------
 
 1. Make sure your CiviCRM Extensions directory is set (Administer > System Settings > Directories).
