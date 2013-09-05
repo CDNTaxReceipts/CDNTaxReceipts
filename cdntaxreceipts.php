@@ -11,7 +11,7 @@ function cdntaxreceipts_civicrm_buildForm( $formName, &$form ) {
     // add "Issue Tax Receipt" button to the "View Contribution" page
     // if the Tax Receipt has NOT yet been issued -> display a white maple leaf icon
     // if the Tax Receipt has already been issued -> display a red maple leaf icon
-   
+
     CRM_Core_Resources::singleton()->addStyleFile('org.civicrm.cdntaxreceipts', 'css/civicrm_cdntaxreceipts.css');
 
     $contributionId = $form->get( 'id' );
@@ -89,7 +89,7 @@ function cdntaxreceipts_civicrm_postProcess( $formName, &$form ) {
  */
 
 function cdntaxreceipts_civicrm_searchTasks($objectType, &$tasks ) {
-  if ( $objectType == 'contribution' && CRM_Core_Permission::check( 'issue cdn tax receipts' ) ) { 
+  if ( $objectType == 'contribution' && CRM_Core_Permission::check( 'issue cdn tax receipts' ) ) {
     $alreadyinlist = FALSE;
     foreach ($tasks as $key => $task) {
       if($task['class'] == 'CRM_Cdntaxreceipts_Task_IssueSingleTaxReceipts') {
@@ -100,7 +100,7 @@ function cdntaxreceipts_civicrm_searchTasks($objectType, &$tasks ) {
       $tasks[] = array (
         'title' => ts('Issue Tax Receipts'),
         'class' => 'CRM_Cdntaxreceipts_Task_IssueSingleTaxReceipts',
-        'result' => TRUE);  
+        'result' => TRUE);
     }
   }
   elseif ( $objectType == 'contact' && CRM_Core_Permission::check( 'issue cdn tax receipts' ) ) {
@@ -151,6 +151,8 @@ function cdntaxreceipts_civicrm_xmlMenu(&$files) {
  * Implementation of hook_civicrm_install
  */
 function cdntaxreceipts_civicrm_install() {
+  // copy tables civicrm_cdntaxreceipts_log and civicrm_cdntaxreceipts_log_contributions IF they already exist
+  // Issue: #1
   return _cdntaxreceipts_civix_civicrm_install();
 }
 
