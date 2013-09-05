@@ -16,6 +16,10 @@ To set up the extension (instructions for 4.3.5):
 
 Next: review and the permissions - the modules has added a new CiviCRM permission.
 
+NOTE: if upgrading site that uses existing Drupal CiviCRM CDN Tax Receipts module - you need to:
+1. disable the CiviCRM CDN Tax Receipts module on the admin/modules page.
+2. remove the tcpdf/ from your /libraries
+
 Now you should be able to use the module:
 
 - To issue an individual receipt, pull up the contact record, go to 'contributions' tab, view the contribution, and click the "Tax Receipt" button. Follow on-screen instructions from there.
