@@ -76,6 +76,11 @@
         <td class="content">{$form.receipt_watermark.html}
           <p class="description">Watermark Image size: 250x250 pixels; File types allowed: .jpg .png.</p></td>
       </tr>
+      <tr>
+        <td class="label">{$form.receipt_pdftemplate.label}</td>
+        <td class="content">{$form.receipt_pdftemplate.html}
+          <p class="description">Upload your own PDF template: .pdf</p></td>
+      </tr>
     </tbody>
   </table>
 

@@ -109,8 +109,12 @@ class CRM_Cdntaxreceipts_Form_Settings extends CRM_Core_Form {
       $this->addRule( 'receipt_signature', ts('File size should be less than %1 MBytes (%2 bytes)', array(1 => $uploadSize, 2 => $uploadFileSize)), 'maxfilesize', $uploadFileSize );
 
       $this->addElement('file', 'receipt_watermark', ts('Watermark Image'), 'size=30 maxlength=60');
-      $this->addUploadElement('receipt_watermark'); 
+      $this->addUploadElement('receipt_watermark');
       $this->addRule( 'receipt_watermark', ts('File size should be less than %1 MBytes (%2 bytes)', array(1 => $uploadSize, 2 => $uploadFileSize)), 'maxfilesize', $uploadFileSize );
+
+      $this->addElement('file', 'receipt_pdftemplate', ts('PDF Template'), 'size=30 maxlength=60');
+      $this->addUploadElement('receipt_pdftemplate');
+      $this->addRule( 'receipt_pdftemplate', ts('File size should be less than %1 MBytes (%2 bytes)', array(1 => $uploadSize, 2 => $uploadFileSize)), 'maxfilesize', $uploadFileSize );
     }
     else if ( $mode == 'defaults' ) {
       $defaults = array(
@@ -127,11 +131,12 @@ class CRM_Cdntaxreceipts_Form_Settings extends CRM_Core_Form {
       $receipt_logo = $this->getSubmitValue('receipt_logo');
       $receipt_signature = $this->getSubmitValue('receipt_signature');
       $receipt_watermark = $this->getSubmitValue('receipt_watermark');
+      $receipt_pdftemplate = $this->getSubmitValue('receipt_pdftemplate');
 
       $config = CRM_Core_Config::singleton( );
-      foreach ( array('receipt_logo', 'receipt_signature', 'receipt_watermark') as $key ) {
+      foreach ( array('receipt_logo', 'receipt_signature', 'receipt_watermark', 'receipt_pdftemplate') as $key ) {
         $upload_file = $this->getSubmitValue($key);
-        if (is_array($upload_file)) { 
+        if (is_array($upload_file)) {
           if ( $upload_file['error'] == 0 ) {
             $filename = $config->customFileUploadDir . CRM_Utils_File::makeFileName($upload_file['name']);
             move_uploaded_file($upload_file['tmp_name'], $filename);

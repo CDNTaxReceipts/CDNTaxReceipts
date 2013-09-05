@@ -1,8 +1,36 @@
 <?php
 
 require_once 'tcpdf/tcpdf.php';
+require_once('FPDI/fpdi.php');
 
-const CDNTAX_SETTINGS = 'CDNTaxReceipts';
+  class PDF extends FPDI {
+    /**
+     * "Remembers" the template id of the imported page
+     */
+    var $_tplIdx;
+
+    /**
+     * include a background template for every page
+     */
+    function Header() {
+      $pdf_template_file = CRM_Core_BAO_Setting::getItem(CDNTAX_SETTINGS, 'receipt_pdftemplate');
+      if (!empty($pdf_template_file)) {
+
+        if (is_null($this->_tplIdx)) {
+          $pdf_template_file = CRM_Core_BAO_Setting::getItem(CDNTAX_SETTINGS, 'receipt_pdftemplate');
+          $this->setSourceFile($pdf_template_file);
+          $this->_tplIdx = $this->importPage(1);
+        }
+        $this->useTemplate($this->_tplIdx);
+      }
+    }
+
+    function Footer() {}
+  }
+
+
+
+  const CDNTAX_SETTINGS = 'CDNTaxReceipts';
 
 /**
  * processTaxReceipt()
@@ -128,7 +156,9 @@ function cdntaxreceipts_generateFormattedReceipt( $receipt, &$collectedPdf = NUL
   $pdf_file = $config->customFileUploadDir . 'Receipt-' . $receipt['receipt_no'] . '.pdf';
   $user_friendly = 'Receipt-' . $receipt['receipt_no'] . '.pdf';
 
-  $pdf = new TCPDF(PDF_PAGE_ORIENTATION, PDF_UNIT, PDF_PAGE_FORMAT, TRUE, 'UTF-8', FALSE);
+  //KG
+  //$pdf = new TCPDF(PDF_PAGE_ORIENTATION, PDF_UNIT, PDF_PAGE_FORMAT, TRUE, 'UTF-8', FALSE);
+  $pdf = new PDF(PDF_PAGE_ORIENTATION, PDF_UNIT, PDF_PAGE_FORMAT, TRUE, 'UTF-8', FALSE);
   $pdf->Open();
 
   $pdf->SetAuthor(CRM_Core_BAO_Setting::getItem(CDNTAX_SETTINGS, 'org_name'));
@@ -137,9 +167,6 @@ function cdntaxreceipts_generateFormattedReceipt( $receipt, &$collectedPdf = NUL
   $mymargin_top = 6;
   $mymargin_right = 12;
   $pdf->SetMargins($mymargin_left, $mymargin_top, $mymargin_right);
-
-  $pdf->setPrintHeader(FALSE);
-  $pdf->setPrintFooter(FALSE);
 
   $pdf->setJPEGQuality('100');
 
@@ -230,9 +257,13 @@ function cdntaxreceipts_createPDF(&$pdf, $pdf_variables) {
   else if ( $is_duplicate ) {
     $pdf->Image($pdf_img_files_path . 'duplicate_copy.png', $mymargin_left + 65, $mymargin_top, '', 45);
   }
-
   // Top left section
-  $pdf->Image(CRM_Core_BAO_Setting::getItem(CDNTAX_SETTINGS, 'receipt_logo', NULL, $pdf_img_files_path . 'your-logo.png'), $mymargin_left, $mymargin_top, '', 30);
+  $pdf_template_file = CRM_Core_BAO_Setting::getItem(CDNTAX_SETTINGS, 'receipt_pdftemplate');
+  if (!empty($pdf_template_file)) {
+  }
+  else {
+    $pdf->Image(CRM_Core_BAO_Setting::getItem(CDNTAX_SETTINGS, 'receipt_logo', NULL, $pdf_img_files_path . 'your-logo.png'), $mymargin_left, $mymargin_top, '', 30);
+  }
 
   // Top right section
   $pdf->SetFont('Helvetica', '', 8);
@@ -258,8 +289,13 @@ function cdntaxreceipts_createPDF(&$pdf, $pdf_variables) {
   // Right section
   $x_detailscolumn = 120;
   $y_detailscolumnstart = 27;
-  $background_image = CRM_Core_BAO_Setting::getItem(CDNTAX_SETTINGS, 'receipt_watermark');
-  if ( $background_image ) $pdf->Image(CRM_Core_BAO_Setting::getItem(CDNTAX_SETTINGS, 'receipt_watermark'), $mymargin_left + $x_detailscolumn, $mymargin_top + $y_detailscolumnstart, '', 50);
+  $pdf_template_file = CRM_Core_BAO_Setting::getItem(CDNTAX_SETTINGS, 'receipt_pdftemplate');
+  if (!empty($pdf_template_file)) {
+  }
+  else {
+    $background_image = CRM_Core_BAO_Setting::getItem(CDNTAX_SETTINGS, 'receipt_watermark');
+    if ( $background_image ) $pdf->Image(CRM_Core_BAO_Setting::getItem(CDNTAX_SETTINGS, 'receipt_watermark'), $mymargin_left + $x_detailscolumn, $mymargin_top + $y_detailscolumnstart, '', 50);
+  }
   $pdf->SetXY($mymargin_left + $x_detailscolumn, $mymargin_top + $y_detailscolumnstart + 6);
   $pdf->SetFont('Helvetica', 'B', 8);
   $pdf->Write(10, "Issue Date: " . $issued_on);
@@ -371,7 +407,12 @@ function cdntaxreceipts_createPDF(&$pdf, $pdf_variables) {
     $signature = ts('Authorized Signature');
   }
   $sig_offset = strlen($signature) - 20;
-  $pdf->Image(CRM_Core_BAO_Setting::getItem(CDNTAX_SETTINGS, 'receipt_signature', NULL, $pdf_img_files_path . 'authorized-signature.png'), $mymargin_left + 137, $mymargin_top + 76, '', 15);
+  $pdf_template_file = CRM_Core_BAO_Setting::getItem(CDNTAX_SETTINGS, 'receipt_pdftemplate');
+  if (!empty($pdf_template_file)) {
+  }
+  else {
+    $pdf->Image(CRM_Core_BAO_Setting::getItem(CDNTAX_SETTINGS, 'receipt_signature', NULL, $pdf_img_files_path . 'authorized-signature.png'), $mymargin_left + 137, $mymargin_top + 76, '', 15);
+  }
   $pdf->Line($mymargin_left + 136, $mymargin_top + 87, $mymargin_left + 186, $mymargin_top + 87);
   $pdf->SetXY($mymargin_left + 148 - $sig_offset, $mymargin_top + 84);
   $pdf->SetFont("Helvetica", "I", 7);
@@ -723,7 +764,9 @@ function cdntaxreceipts_openCollectedPDF() {
 
   if ( ! isset($pdf) ) {
 
-    $pdf = new TCPDF(PDF_PAGE_ORIENTATION, PDF_UNIT, PDF_PAGE_FORMAT, TRUE, 'UTF-8', FALSE);
+    //KG
+    //$pdf = new TCPDF(PDF_PAGE_ORIENTATION, PDF_UNIT, PDF_PAGE_FORMAT, TRUE, 'UTF-8', FALSE);
+    $pdf = new PDF(PDF_PAGE_ORIENTATION, PDF_UNIT, PDF_PAGE_FORMAT, TRUE, 'UTF-8', FALSE);
     $pdf->Open();
 
     $pdf->SetAuthor(CRM_Core_BAO_Setting::getItem(CDNTAX_SETTINGS, 'org_name'));
@@ -732,9 +775,6 @@ function cdntaxreceipts_openCollectedPDF() {
     $mymargin_top = 6;
     $mymargin_right = 12;
     $pdf->SetMargins($mymargin_left, $mymargin_top, $mymargin_right);
-
-    $pdf->setPrintHeader(FALSE);
-    $pdf->setPrintFooter(FALSE);
 
     $pdf->setJPEGQuality('100');
 
@@ -839,6 +879,6 @@ function cdntaxreceipts_getAddress($contact_id) {
   // add actual names for province and country instead of just having ids
   require_once 'CRM/Core/BAO/Address.php';
   CRM_Core_BAO_Address::fixAddress($address);
-  
+
   return $address;
 }
