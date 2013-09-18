@@ -871,7 +871,7 @@ function cdntaxreceipts_getAddress($contact_id) {
     $address_results = civicrm_api('Address', 'get', $params);
 
     if ( $address_results['is_error'] == 0) {
-      $address = next($address_results['values']);
+      $address = array_shift($address_results['values']);
     }
 
   }
