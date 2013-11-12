@@ -7,6 +7,8 @@ require_once('CRM/Utils/Array.php');
 
 class CRM_Cdntaxreceipts_Form_Report_ReceiptsNotIssued extends CRM_Report_Form {
 
+   protected $_useEligibilityHooks = FALSE;
+
   function __construct() {
 
     $this->_columns = array(
@@ -30,7 +32,7 @@ class CRM_Cdntaxreceipts_Form_Report_ReceiptsNotIssued extends CRM_Report_Form {
         array(
           'sort_name' =>
           array(
-            'title' => ts('Last Name, First Name'), 
+            'title' => ts('Last Name, First Name'),
           ),
         ),
       ),
@@ -56,7 +58,7 @@ class CRM_Cdntaxreceipts_Form_Report_ReceiptsNotIssued extends CRM_Report_Form {
         'filters' =>
         array(
           'receive_date' =>
-          array( 
+          array(
             'operatorType' => CRM_Report_Form::OP_DATE),
           'financial_type_id' =>
           array('title' => ts('Financial Type'),
@@ -77,6 +79,12 @@ class CRM_Cdntaxreceipts_Form_Report_ReceiptsNotIssued extends CRM_Report_Form {
       ),
     );
 
+    $this->_options =
+      array(
+        'use_advanced_eligibility' => array('title' => ts('Use Advanced Eligibility (Hooks - Memory Intensive)'),
+        'type' => 'checkbox',
+      ),
+    );
     parent::__construct();
   }
 
@@ -122,29 +130,39 @@ class CRM_Cdntaxreceipts_Form_Report_ReceiptsNotIssued extends CRM_Report_Form {
 
     $this->_from = "
         FROM civicrm_contact {$this->_aliases['civicrm_contact']}
-        INNER JOIN civicrm_contribution {$this->_aliases['civicrm_contribution']} 
+        INNER JOIN civicrm_contribution {$this->_aliases['civicrm_contribution']}
                 ON {$this->_aliases['civicrm_contact']}.id = {$this->_aliases['civicrm_contribution']}.contact_id AND
                    {$this->_aliases['civicrm_contribution']}.is_test = 0
-        LEFT  JOIN civicrm_financial_type {$this->_aliases['civicrm_financial_type']} 
-                ON {$this->_aliases['civicrm_contribution']}.financial_type_id ={$this->_aliases['civicrm_financial_type']}.id 
+        LEFT  JOIN civicrm_financial_type {$this->_aliases['civicrm_financial_type']}
+                ON {$this->_aliases['civicrm_contribution']}.financial_type_id ={$this->_aliases['civicrm_financial_type']}.id
         LEFT  JOIN cdntaxreceipts_log_contributions cdntax_c
                 ON {$this->_aliases['civicrm_contribution']}.id = cdntax_c.contribution_id ";
 
-    if ($includeTemp) {
+    if ($includeTemp && $this->_useEligibilityHooks) {
       $this->_from .= "
         LEFT JOIN cdntaxreceipts_temp_civireport_eligible cdntax_t
                 ON {$this->_aliases['civicrm_contribution']}.id = cdntax_t.contribution_id ";
     }
-    
   }
 
   function where($includeTemp = TRUE) {
 
     parent::where();
-    $this->_where .= " AND cdntax_c.id IS NULL AND {$this->_aliases['civicrm_contact']}.is_deleted = 0 ";
+    $this->_where .= "
+    AND cdntax_c.id IS NULL AND {$this->_aliases['civicrm_contact']}.is_deleted = 0
+    ";
 
-    if ($includeTemp) {
-      $this->_where .= " AND cdntax_t.contribution_id IS NOT NULL ";
+    if ($includeTemp && $this->_useEligibilityHooks) {
+      $this->_where .= "
+      AND cdntax_t.contribution_id IS NOT NULL
+      ";
+    }
+    else {
+      $this->_where .= "
+      AND {$this->_aliases['civicrm_financial_type']}.is_deductible = 1
+      AND {$this->_aliases['civicrm_contribution']}.contribution_status_id = 1
+      AND ({$this->_aliases['civicrm_contribution']}.total_amount - {$this->_aliases['civicrm_contribution']}.non_deductible_amount) > 0
+      ";
     }
 
   }
@@ -153,8 +171,15 @@ class CRM_Cdntaxreceipts_Form_Report_ReceiptsNotIssued extends CRM_Report_Form {
 
     $this->beginPostProcess();
 
+    if (array_key_exists('options', $this->_params) &&
+      CRM_Utils_Array::value('use_advanced_eligibility', $this->_params['options'])) {
+      $select[] = " '' as blankColumnBegin";
+      $this->_useEligibilityHooks = TRUE;
+    }
     // set up the temporary tables to do eligibility calculations
-    $this->createTempEligibilityTable();
+    if ($this->_useEligibilityHooks) {
+      $this->createTempEligibilityTable();
+    }
 
     $sql = $this->buildQuery(TRUE);
 
@@ -184,7 +209,7 @@ CREATE TEMPORARY TABLE cdntaxreceipts_temp_civireport_eligible (
         $sql = "INSERT INTO cdntaxreceipts_temp_civireport_eligible (contribution_id) VALUES ($dao->id)";
         CRM_Core_DAO::executeQuery($sql);
       }
-    } 
+    }
   }
 
   function alterDisplay(&$rows) {
