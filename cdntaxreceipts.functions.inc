@@ -257,7 +257,7 @@ function cdntaxreceipts_createPDF(&$pdf, $pdf_variables) {
     $pdf->Image($pdf_img_files_path . 'preview_mode.png', $mymargin_left + 65, $mymargin_top, '', 45);
   }
   else if ( $is_duplicate ) {
-    $pdf->Image($pdf_img_files_path . 'duplicate_copy.png', $mymargin_left + 65, $mymargin_top, '', 45);
+    $pdf->Image($pdf_img_files_path . 'duplicate_trans.png', $mymargin_left + 65, $mymargin_top, '', 45);
   }
   // Top left section
   $pdf_template_file = CRM_Core_BAO_Setting::getItem(CDNTAX_SETTINGS, 'receipt_pdftemplate');
