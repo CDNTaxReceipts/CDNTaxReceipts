@@ -20,13 +20,25 @@ NOTE: if upgrading site that uses existing Drupal CiviCRM CDN Tax Receipts modul
 1. disable the CiviCRM CDN Tax Receipts module on the admin/modules page.
 2. remove the tcpdf/ from your /libraries
 
-Now you should be able to use the module:
+Now you should be able to use the module.
 
+Operations
+------------
+**Individual or Single Tax Receipts**
+
+These are receipts issued as one receipt to one contribution.
 - To issue an individual receipt, pull up the contact record, go to 'contributions' tab, view the contribution, and click the "Tax Receipt" button. Follow on-screen instructions from there.
-- To issue bulk-issue receipts, go to Contributions > Find Contributions, run a search, select one or more search results, and select "Issue Tax Receipts" in the actions drop-down. Follow on-screen instructions from there. This issues one receipt per contribution.
+Single receipts can be issued in bulk for multiple contributions. This process issues one receipt per contribution.
+- To issue bulk-issue receipts, go to Contributions > Find Contributions, run a search, select one or more search results, and select "Issue Tax Receipts" in the actions drop-down. Follow on-screen instructions from there.
+
+**Annual Tax Receipts**
+
+These are receipts that collect all outstanding contributions for the year into one receipt. If some contributions have already been sent a receipt they will not be included in the total. 
+Since there are multiple contributions on one receipt there are some differences in the template. In-kind fields are not shown, contribution type and source are also not shown since the collected contributions over the year could be of multiple types and from multiple sources.
+
 - To issue Annual Tax Receipts, go to Search > Find Contacts (or Search > Advanced Search), run a search for contacts, select one or more contacts, and select "Issue Annual Tax Receipts" in the actions drop-down. Follow on-screen instructions from there.
 
-The extension also enables two report templates, which can be used as the basis for some reports:
+The extension also enables two report templates, which can be used to see a list of receipts issued and receipts outstanding.
 
 - Tax Receipts - Receipts Issued
 - Tax Receipts - Receipts Not Issued
