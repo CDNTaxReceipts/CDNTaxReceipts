@@ -227,5 +227,41 @@ class CRM_Cdntaxreceipts_Form_Report_ReceiptsIssued extends CRM_Report_Form {
       }
     }
   }
+
+  function statistics(&$rows) {
+    $statistics = parent::statistics($rows);
+
+    $totalAmount = $average = array();
+    $count = 0;
+    $select = "
+        SELECT COUNT({$this->_aliases['civicrm_cdntaxreceipts_log']}.receipt_amount ) as count,
+               SUM( {$this->_aliases['civicrm_cdntaxreceipts_log']}.receipt_amount ) as amount,
+               ROUND(AVG({$this->_aliases['civicrm_cdntaxreceipts_log']}.receipt_amount), 2) as avg
+        ";
+
+    $sql = "{$select} {$this->_from} {$this->_where}";
+    $dao = CRM_Core_DAO::executeQuery($sql);
+
+    while ($dao->fetch()) {
+      $totalAmount[] = CRM_Utils_Money::format($dao->amount, 'CAD');
+      $average[] =   CRM_Utils_Money::format($dao->avg, 'CAD');
+      $count += $dao->count;
+    }
+    $statistics['counts']['amount'] = array(
+      'title' => ts('Total Amount Issued'),
+      'value' => implode(',  ', $totalAmount),
+      'type' => CRM_Utils_Type::T_STRING,
+    );
+    $statistics['counts']['count'] = array(
+      'title' => ts('Number Issued'),
+      'value' => $count,
+    );
+    $statistics['counts']['avg'] = array(
+      'title' => ts('Average Amount Issued'),
+      'value' => implode(',  ', $average),
+      'type' => CRM_Utils_Type::T_STRING,
+    );
+    return $statistics;
+  }
 }
 
