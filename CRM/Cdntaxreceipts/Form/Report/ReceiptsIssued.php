@@ -5,6 +5,8 @@ require_once('CRM/Utils/Type.php');
 
 class CRM_Cdntaxreceipts_Form_Report_ReceiptsIssued extends CRM_Report_Form {
 
+  protected $_where = NULL;
+
   function __construct() {
 
     $this->_columns = array(
@@ -28,7 +30,7 @@ class CRM_Cdntaxreceipts_Form_Report_ReceiptsIssued extends CRM_Report_Form {
         array(
           'sort_name' =>
           array(
-            'title' => ts('Last Name, First Name'), 
+            'title' => ts('Last Name, First Name'),
           ),
         ),
       ),
@@ -37,7 +39,7 @@ class CRM_Cdntaxreceipts_Form_Report_ReceiptsIssued extends CRM_Report_Form {
         'dao' => 'CRM_Contribute_DAO_Contribution',
         'fields' =>
         array(
-          'issued_on' => array('title' => 'Issued On', 'default' => TRUE,'type' => CRM_Utils_Type::T_DATE,),
+          'issued_on' => array('title' => 'Issued On', 'default' => TRUE,'type' => CRM_Utils_Type::T_TIMESTAMP,),
           'receipt_amount' => array('title' => 'Receipt Amount', 'default' => TRUE, 'type' => CRM_Utils_Type::T_MONEY,),
           'receipt_no' => array('title' => 'Receipt No.', 'default' => TRUE),
           'issue_type' => array('title' => 'Issue Type', 'default' => TRUE),
@@ -48,9 +50,10 @@ class CRM_Cdntaxreceipts_Form_Report_ReceiptsIssued extends CRM_Report_Form {
         'filters' =>
         array(
           'issued_on' =>
-          array( 
+          array(
             'title' => 'Issued On',
-            'operatorType' => CRM_Report_Form::OP_DATE),
+            'type' => CRM_Utils_Type::T_TIMESTAMP,
+            'operatorType' => CRM_Report_Form::OP_DATETIME),
           'issue_type' =>
           array('title' => ts('Issue Type'),
             'operatorType' => CRM_Report_Form::OP_MULTISELECT,
@@ -72,11 +75,11 @@ class CRM_Cdntaxreceipts_Form_Report_ReceiptsIssued extends CRM_Report_Form {
           ),
           'receipt_no' =>
           array(
-            'title' => ts('Receipt No.'), 
+            'title' => ts('Receipt No.'),
           ),
           'receipt_amount' =>
           array(
-            'title' => ts('Receipt Amount'), 
+            'title' => ts('Receipt Amount'),
           ),
         ),
       ),
@@ -135,17 +138,115 @@ class CRM_Cdntaxreceipts_Form_Report_ReceiptsIssued extends CRM_Report_Form {
 
   function from() {
     $this->_from = "
-        FROM cdntaxreceipts_log {$this->_aliases['civicrm_cdntaxreceipts_log']} 
-        INNER JOIN cdntaxreceipts_log_contributions {$this->_aliases['civicrm_cdntaxreceipts_log_contributions']} 
-                ON {$this->_aliases['civicrm_cdntaxreceipts_log']}.id = {$this->_aliases['civicrm_cdntaxreceipts_log_contributions']}.receipt_id 
+        FROM cdntaxreceipts_log {$this->_aliases['civicrm_cdntaxreceipts_log']}
+        INNER JOIN cdntaxreceipts_log_contributions {$this->_aliases['civicrm_cdntaxreceipts_log_contributions']}
+                ON {$this->_aliases['civicrm_cdntaxreceipts_log']}.id = {$this->_aliases['civicrm_cdntaxreceipts_log_contributions']}.receipt_id
         LEFT  JOIN civicrm_contact {$this->_aliases['civicrm_contact']}
-                ON {$this->_aliases['civicrm_contact']}.id = {$this->_aliases['civicrm_cdntaxreceipts_log']}.contact_id ";  
+                ON {$this->_aliases['civicrm_contact']}.id = {$this->_aliases['civicrm_cdntaxreceipts_log']}.contact_id ";
 
   }
 
   function where() {
-    parent::where();
+    $whereClauses = $havingClauses = array();
+    foreach ($this->_columns as $tableName => $table) {
+      if (array_key_exists('filters', $table)) {
+        foreach ($table['filters'] as $fieldName => $field) {
+          $clause = NULL;
+          if (CRM_Utils_Array::value('type', $field) & (CRM_Utils_Type::T_DATE | CRM_Utils_Type::T_TIMESTAMP)) {
+            if (CRM_Utils_Array::value('operatorType', $field) == CRM_Report_Form::OP_MONTH) {
+              $op = CRM_Utils_Array::value("{$fieldName}_op", $this->_params);
+              $value = CRM_Utils_Array::value("{$fieldName}_value", $this->_params);
+              if (is_array($value) && !empty($value)) {
+                $clause = "(month({$field['dbAlias']}) $op (" . implode(', ', $value) . '))';
+              }
+            }
+            else {
+              $relative = CRM_Utils_Array::value("{$fieldName}_relative", $this->_params);
+              $from     = CRM_Utils_Array::value("{$fieldName}_from", $this->_params);
+              $to       = CRM_Utils_Array::value("{$fieldName}_to", $this->_params);
+              $fromTime = CRM_Utils_Array::value("{$fieldName}_from_time", $this->_params);
+              $toTime   = CRM_Utils_Array::value("{$fieldName}_to_time", $this->_params);
+              $clause   = $this->dateClause($field['dbAlias'], $relative, $from, $to, $field['type'], $fromTime, $toTime);
+            }
+          }
+          else {
+            $op = CRM_Utils_Array::value("{$fieldName}_op", $this->_params);
+            if ($op) {
+              $clause = $this->whereClause($field,
+                $op,
+                CRM_Utils_Array::value("{$fieldName}_value", $this->_params),
+                CRM_Utils_Array::value("{$fieldName}_min", $this->_params),
+                CRM_Utils_Array::value("{$fieldName}_max", $this->_params)
+              );
+            }
+          }
+
+          if (!empty($clause)) {
+            if (CRM_Utils_Array::value('having', $field)) {
+              $havingClauses[] = $clause;
+            }
+            else {
+              $whereClauses[] = $clause;
+            }
+          }
+        }
+      }
+    }
+
+    if (empty($whereClauses)) {
+      $this->_where = "WHERE ( 1 ) ";
+      $this->_having = "";
+    }
+    else {
+      $this->_where = "WHERE " . implode(' AND ', $whereClauses);
+    }
+
+    if ($this->_aclWhere) {
+      $this->_where .= " AND {$this->_aclWhere} ";
+    }
+
+    if (!empty($havingClauses)) {
+      // use this clause to construct group by clause.
+      $this->_having = "HAVING " . implode(' AND ', $havingClauses);
+    }
     $this->_where .= " AND {$this->_aliases['civicrm_cdntaxreceipts_log']}.is_duplicate = 0 ";
+  }
+
+  function dateClause($fieldName,
+                      $relative, $from, $to, $type = NULL, $fromTime = NULL, $toTime = NULL
+  ) {
+    $clauses = array();
+    if (in_array($relative, array_keys(self::getOperationPair(CRM_Report_FORM::OP_DATE)))) {
+      $sqlOP = self::getSQLOperator($relative);
+      return "( {$fieldName} {$sqlOP} )";
+    }
+
+    list($from, $to) = self::getFromTo($relative, $from, $to, $fromTime, $toTime);
+
+    if ($from) {
+      $from = ($type == CRM_Utils_Type::T_DATE) ? substr($from, 0, 8) : $from;
+      if ($type == CRM_Utils_Type::T_TIMESTAMP) {
+        $time_array = date_parse_from_format ('YmdHis' ,  $from);
+        $from = mktime($time_array['hour'], $time_array['minute'], $time_array['secong'], $time_array['month'], $time_array['day'], $time_array['year']);
+      }
+
+      $clauses[] = "( {$fieldName} >= $from )";
+    }
+
+    if ($to) {
+      $to = ($type == CRM_Utils_Type::T_DATE) ? substr($to, 0, 8) : $to;
+      if ($type == CRM_Utils_Type::T_TIMESTAMP) {
+        $time_array = date_parse_from_format ('YmdHis' ,  $to);
+        $to = mktime($time_array['hour'], $time_array['minute'], $time_array['secong'], $time_array['month'], $time_array['day'], $time_array['year']);
+      }
+      $clauses[] = "( {$fieldName} <= {$to} )";
+    }
+
+    if (!empty($clauses)) {
+      return implode(' AND ', $clauses);
+    }
+
+    return NULL;
   }
 
 
