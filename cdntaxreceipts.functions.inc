@@ -1,5 +1,6 @@
 <?php
 
+require_once 'tcpdf/tcpdf.php';
 require_once('FPDI/fpdi.php');
 
   class PDF extends FPDI {
@@ -157,9 +158,7 @@ function cdntaxreceipts_generateFormattedReceipt( $receipt, &$collectedPdf = NUL
   $pdf_file = $config->customFileUploadDir . 'Receipt-' . $receipt['receipt_no'] . '.pdf';
   $user_friendly = 'Receipt-' . $receipt['receipt_no'] . '.pdf';
 
-  //KG
   define('PDF_PAGE_FORMAT', 'USLETTER'); // orig: 'A4'
-  //$pdf = new TCPDF(PDF_PAGE_ORIENTATION, PDF_UNIT, PDF_PAGE_FORMAT, TRUE, 'UTF-8', FALSE);
   $pdf = new PDF(PDF_PAGE_ORIENTATION, PDF_UNIT, 'LETTER', TRUE, 'UTF-8', FALSE);
   $pdf->Open();
 
@@ -773,8 +772,6 @@ function cdntaxreceipts_openCollectedPDF() {
     define ('K_PATH_IMAGES', '');
     require_once 'tcpdf/tcpdf.php';
 
-    //KG
-    //$pdf = new TCPDF(PDF_PAGE_ORIENTATION, PDF_UNIT, PDF_PAGE_FORMAT, TRUE, 'UTF-8', FALSE);
     $pdf = new PDF(PDF_PAGE_ORIENTATION, PDF_UNIT, 'LETTER', TRUE, 'UTF-8', FALSE);
     $pdf->Open();
 
