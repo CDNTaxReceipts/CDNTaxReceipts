@@ -167,42 +167,8 @@ function cdntaxreceipts_civicrm_uninstall() {
  * Implementation of hook_civicrm_enable
  */
 function cdntaxreceipts_civicrm_enable() {
-
-  // add a menu item to the Administer > CiviContribute menu
-  require_once 'CRM/Core/BAO/Navigation.php';
-
-  // check there is no admin item
-  $cdntax_search = array('url' => 'civicrm/cdntaxreceipts/settings?reset=1');
-  $cdntax_item = array();
-  CRM_Core_BAO_Navigation::retrieve($cdntax_search, $cdntax_item);
-
-  if ( ! empty($cdntax_item) ) {
-    return;
-  }
-
-  // get path to Administer > CiviContribute and place admin item there
-  $administer_search = array('label' => 'Administer');
-  $administer_item = array();
-  CRM_Core_BAO_Navigation::retrieve($administer_search, $administer_item);
-
-  if ($administer_item) {
-    $contribute_search = array('label' => 'CiviContribute', 'parent_id' => $administer_item['id']);
-    $contribute_item = array();
-    CRM_Core_BAO_Navigation::retrieve($contribute_search, $contribute_item);
-
-    if ($contribute_item) {
-      $new_item = array(
-        'name' => 'CDN Tax Receipts',
-        'label' => 'CDN Tax Receipts',
-        'url' => 'civicrm/cdntaxreceipts/settings?reset=1',
-        'permission' => 'administer CiviCRM',
-        'parent_id' => $contribute_item['id'],
-        'is_active' => TRUE,
-      );
-      CRM_Core_BAO_Navigation::add($new_item);
-    }
-  }
-
+  CRM_Core_Session::setStatus(ts('Configure the Tax Receipts extension at Administer >> CiviContribute >> CDN Tax Receipts.',
+    'org.civicrm.cdntaxreceipts'));
   return _cdntaxreceipts_civix_civicrm_enable();
 }
 
@@ -235,3 +201,51 @@ function cdntaxreceipts_civicrm_upgrade($op, CRM_Queue_Queue $queue = NULL) {
 function cdntaxreceipts_civicrm_managed(&$entities) {
   return _cdntaxreceipts_civix_civicrm_managed($entities);
 }
+/**
+ * Implementation of hook_civicrm_managed
+ *
+ * Add entries to the navigation menu, automatically removed on uninstall
+ */
+function cdntaxreceipts_civicrm_navigationMenu(&$params) {
+
+  // Check that our item doesn't already exist
+  $cdntax_search = array('url' => 'civicrm/cdntaxreceipts/settings?reset=1');
+  $cdntax_item = array();
+  CRM_Core_BAO_Navigation::retrieve($cdntax_search, $cdntax_item);
+
+  if ( ! empty($cdntax_item) ) {
+    return;
+  }
+
+  // Get the maximum key of $params using method mentioned in discussion
+  // https://issues.civicrm.org/jira/browse/CRM-13803
+  $navId = CRM_Core_DAO::singleValueQuery("SELECT max(id) FROM civicrm_navigation");
+  if (is_integer($navId)) {
+    $navId++;
+  }
+  // Find the Memberships menu
+  foreach($params as $key => $value) {
+    if ('Administer' == $value['attributes']['name']) {
+      $parent_key = $key;
+      foreach($value['child'] as $child_key => $child_value) {
+        if ('CiviContribute' == $child_value['attributes']['name']) {
+          $params[$parent_key]['child'][$child_key]['child'][$navId] = array (
+            'attributes' => array (
+              'label' => ts('CDN Tax Receipts', 'org.civicrm.cdntaxreceipts'),
+              'name' => 'CDN Tax Receipts',
+              'url' => 'civicrm/cdntaxreceipts/settings?reset=1',
+              'permission' => 'access CiviContribute,administer CiviCRM',
+              'operator' => 'AND',
+              'separator' => 2,
+              'parentID' => $child_key,
+              'navID' => $navId,
+              'active' => 1
+            )
+          );
+        }
+      }
+    }
+  }
+}
+
+
