@@ -167,9 +167,7 @@ function cdntaxreceipts_civicrm_uninstall() {
  * Implementation of hook_civicrm_enable
  */
 function cdntaxreceipts_civicrm_enable() {
-  CRM_Core_Session::setStatus(
-    ts('Configure the Tax Receipts extension at Administer >> CiviContribute >> CDN Tax Receipts.',
-      array('domain' => 'org.civicrm.cdntaxreceipts')));
+  CRM_Core_Session::setStatus(ts('Configure the Tax Receipts extension at Administer >> CiviContribute >> CDN Tax Receipts.'));
   return _cdntaxreceipts_civix_civicrm_enable();
 }
 
@@ -207,6 +205,7 @@ function cdntaxreceipts_civicrm_managed(&$entities) {
  *
  * Add entries to the navigation menu, automatically removed on uninstall
  */
+
 function cdntaxreceipts_civicrm_navigationMenu(&$params) {
 
   // Check that our item doesn't already exist
@@ -232,7 +231,7 @@ function cdntaxreceipts_civicrm_navigationMenu(&$params) {
         if ('CiviContribute' == $child_value['attributes']['name']) {
           $params[$parent_key]['child'][$child_key]['child'][$navId] = array (
             'attributes' => array (
-              'label' => ts('CDN Tax Receipts', array('domain' => 'org.civicrm.cdntaxreceipts')),
+              'label' => ts('CDN Tax Receipts'),
               'name' => 'CDN Tax Receipts',
               'url' => 'civicrm/cdntaxreceipts/settings?reset=1',
               'permission' => 'access CiviContribute,administer CiviCRM',
