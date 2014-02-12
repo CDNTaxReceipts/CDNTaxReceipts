@@ -3,6 +3,10 @@ CDNTaxReceipts
 
 Canadian Tax Receipts extension for CiviCRM
 
+Upgrading from previous versions:
+------------
+See UPGRADE.txt.
+
 To set up the extension (instructions for 4.3.5):
 ------------
 

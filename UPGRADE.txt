@@ -1,0 +1,36 @@
+Upgrading from the Drupal module
+---------------------------------------
+Right now there is no automated upgrade process. Here are the steps to to this manually.
+
+1) Before disabling the Drupal module make a note of your current settings by visiting:
+http://yoursite.org/admin/config/civicrm_cdntaxreceipts/settings
+
+You may want to copy the settings into a text file. Make a note of which files you are using for your logo, signature
+etc. and download a local copy so that you can re-upload them for use with the extension.
+If anything is wrong with your module install you can also find these settings in the drupal database variables table
+using "SELECT * FROM variable WHERE name LIKE 'cdntax%'" (If you use a prefix for your Drupal tables modify the table
+name variable to suit).
+
+2) Migrate the issued tax receipts information from the module's tables:
+Access your site's database. For example on your web host you will be able to use phpMyAdmin. Select the two tables
+called
+* With selected -> export
+* Choose custom
+* Choose data only (this will mean it contains only INSERT statements)
+Edit the exported file:
+* Enter this line at the top: "SET FOREIGN_KEY_CHECKS = 0;"
+* Find and replace all: (Adjust if your database uses a prefix)
+civicrm_cdntaxreceipts_log => cdntaxreceipts_log
+civicrm_cdntaxreceipts_log_contributions => cdntaxreceipts_log_contributions
+
+3) Activate the extension. See https://wiki.civicrm.org/confluence/display/CRMDOC/Extensions for more information.
+
+4) Enter the settings you saved into the extension by visiting http://yoursite.org/civicrm/cdntaxreceipts/settings?reset=1
+
+5) Import the edited SQL data file to your civicrm database.
+
+6) Check that you have successfully imported your receipts by visiting the Receipts Issued Report.
+
+7) Clean up your Drupal database: After disabling the drupal module you can optionally clean up the module's variables
+since it does not do this automatically. In your Drupal database:
+DELETE FROM variable WHERE name LIKE 'cdntax%'
