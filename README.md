@@ -5,9 +5,14 @@ Canadian Tax Receipts extension for CiviCRM
 
 Upgrading from previous versions:
 ------------
-See UPGRADE.txt.
+NOTE: If upgrading site that uses existing Drupal CiviCRM CDN Tax Receipts module - you need to:
 
-To set up the extension (instructions for 4.3.5):
+1. Take note of your settings and backup up the tax log tables
+2. Disable the CiviCRM CDN Tax Receipts module on the admin/modules page.
+3. Remove the tcpdf/ from your /libraries
+4. For more detail see UPGRADE.txt
+
+To set up the extension:
 ------------
 
 1. Make sure your CiviCRM Extensions directory is set (Administer > System Settings > Directories).
@@ -17,14 +22,27 @@ To set up the extension (instructions for 4.3.5):
     - git clone https://github.com/jake-mw/CDNTaxReceipts.git org.civicrm.cdntaxreceipts
 4. Enable the extension at Administer > System Settings > Manage Extensions
 5. Configure CDN Tax Receipts at Administer > CiviContribute > CDN Tax Receipts. (Take note of the dimensions for each of the image parameters. Correct sizing is important. You might need to try a few times to get it right.)
-
-Next: review and the permissions - the modules has added a new CiviCRM permission.
-
-NOTE: if upgrading site that uses existing Drupal CiviCRM CDN Tax Receipts module - you need to:
-1. disable the CiviCRM CDN Tax Receipts module on the admin/modules page.
-2. remove the tcpdf/ from your /libraries
+6. Review permissions: The extension has added a new permission called "CiviCRM CDN Tax Receipts: Issue Tax Receipts".
 
 Now you should be able to use the module.
+
+**Note: Compatibility issue with open_basedir**
+
+This extension uses the Tcpdf library from CiviCRM. If your server has open_basedir set initializing the library
+causes a warning. To avoid this please add the following to your civicrm.settings.php anywhere after $civicrm_root
+is defined:
+
+    /**
+     * Early define for tcpdf constants to avoid warnings with open_basedir.
+     */
+    if (!defined('K_PATH_MAIN')) {
+      define('K_PATH_MAIN', $civicrm_root . '/packages/tcpdf/');
+    }
+    
+    if (!defined('K_PATH_IMAGES')) {
+      define('K_PATH_IMAGES', K_PATH_MAIN . 'images');
+    }
+
 
 Operations
 ------------
