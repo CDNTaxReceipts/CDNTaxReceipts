@@ -59,7 +59,7 @@ function cdntaxreceipts_contributions_not_receipted($contactId, $year) {
     INNER JOIN civicrm_financial_type contrib_type
             ON contrib.financial_type_id = contrib_type.id
     LEFT  JOIN cdntaxreceipts_log_contributions cdntax_c
-            ON contrib.id = cdntax_c.contribution_id 
+            ON contrib.id = cdntax_c.contribution_id
     WHERE cdntax_c.receipt_id IS NULL AND contrib_type.name <> 'In-kind'
       AND contrib.contact_id = $contactId AND YEAR(contrib.receive_date) = $year
     ORDER BY contrib.id";
@@ -80,7 +80,7 @@ function cdntaxreceipts_contributions_not_receipted($contactId, $year) {
         'receive_date' => $dao->receive_date,
       );
     }
-  } 
+  }
 
   return $contributions;
 }
@@ -88,7 +88,7 @@ function cdntaxreceipts_contributions_not_receipted($contactId, $year) {
 /**
  * cdntaxreceipts_load_receipt
  *
- * Return associative array of receipt details for the given receipt_id 
+ * Return associative array of receipt details for the given receipt_id
  */
 
 function cdntaxreceipts_load_receipt($receipt_id) {
@@ -127,7 +127,7 @@ function cdntaxreceipts_load_receipt($receipt_id) {
         'receive_date' => $dao->receive_date,
       );
     } while ( $dao->fetch() );
-    
+
     $receipt['contributions'] = $contributions;
   }
 
