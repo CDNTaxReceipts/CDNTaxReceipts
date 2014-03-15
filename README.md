@@ -9,7 +9,7 @@ NOTE: If upgrading site that uses existing Drupal CiviCRM CDN Tax Receipts modul
 
 1. Take note of your CiviCRM CDN Tax Receipt settings [on your Drupal side under: admin/config/civicrm_cdntaxreceipts/settings]
 2. Backup up both tax log tables: civicrm_cdntaxreceipts_log and civicrm_cdntaxreceipts_log_contributions
-3. Disable the CiviCRM CDN Tax Receipts module on the admin/modules page.
+3. Disable the CiviCRM CDN Tax Receipts module on the admin/modules page
 4. Remove the tcpdf/ from your /libraries
 5. For more detail see UPGRADE.txt
 
@@ -39,7 +39,7 @@ is defined:
     if (!defined('K_PATH_MAIN')) {
       define('K_PATH_MAIN', $civicrm_root . '/packages/tcpdf/');
     }
-    
+
     if (!defined('K_PATH_IMAGES')) {
       define('K_PATH_IMAGES', K_PATH_MAIN . 'images');
     }
@@ -56,7 +56,7 @@ Single receipts can be issued in bulk for multiple contributions. This process i
 
 **Annual Tax Receipts**
 
-These are receipts that collect all outstanding contributions for the year into one receipt. If some contributions have already been sent a receipt they will not be included in the total. 
+These are receipts that collect all outstanding contributions for the year into one receipt. If some contributions have already been sent a receipt they will not be included in the total.
 Since there are multiple contributions on one receipt there are some differences in the template. In-kind fields are not shown, contribution type and source are also not shown since the collected contributions over the year could be of multiple types and from multiple sources.
 
 - To issue Annual Tax Receipts, go to Search > Find Contacts (or Search > Advanced Search), run a search for contacts, select one or more contacts, and select "Issue Annual Tax Receipts" in the actions drop-down. Follow on-screen instructions from there.
