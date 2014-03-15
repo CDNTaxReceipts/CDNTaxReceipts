@@ -29,7 +29,7 @@ Now you should be able to use the module.
 
 **Note: Compatibility issue with open_basedir**
 
-This extension uses the Tcpdf library from CiviCRM. If your server has open_basedir set initializing the library
+This extension uses the TCPDF library from CiviCRM. If your server has open_basedir set initializing the library
 causes a warning. To avoid this please add the following to your civicrm.settings.php anywhere after $civicrm_root
 is defined:
 
