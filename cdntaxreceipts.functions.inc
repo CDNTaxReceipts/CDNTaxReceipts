@@ -389,13 +389,13 @@ function cdntaxreceipts_createPDF(&$pdf, $pdf_variables) {
   }
   else {
     $pdf->SetFont('Helvetica', 'B', 8);
-  $pdf->SetY($mymargin_top + 72);
-  $pdf->Write(10, $line_1, '', 0, 'L', TRUE, 0, FALSE, FALSE, 0);
-  $pdf->SetFont('Helvetica', '', 8);
-  $pdf->SetY($mymargin_top + 76, 0, 'L', TRUE, 0, FALSE, FALSE, 0);
-  $pdf->Write(10, 'Canadian Revenue Agency: www.cra-arc.gc.ca/charities');
+    $pdf->SetY($mymargin_top + 72);
+    $pdf->Write(10, $line_1, '', 0, 'L', TRUE, 0, FALSE, FALSE, 0);
+    $pdf->SetFont('Helvetica', '', 8);
+    $pdf->SetY($mymargin_top + 76, 0, 'L', TRUE, 0, FALSE, FALSE, 0);
+    $pdf->Write(10, 'Canadian Revenue Agency: www.cra-arc.gc.ca/charities');
 
-  // Bottom center section
+    // Bottom center section
     $pdf->SetFont('Helvetica', 'B', 8);
     $pdf->SetXY($mymargin_left + 92, $mymargin_top + 74);
     if ( $issue_type != 'annual' ) {
@@ -405,18 +405,14 @@ function cdntaxreceipts_createPDF(&$pdf, $pdf_variables) {
       $pdf->Write(10, ts("Thank you - %1!", array( 1 => $display_year)));
     }
 
-  // Bottom right section
-  $signature = CRM_Core_BAO_Setting::getItem(CDNTAX_SETTINGS, 'receipt_authorized_signature_text');
-  if ( $signature == '' ) {
-    $signature = ts('Authorized Signature');
-  }
-  }
+    // Bottom right section
+    $signature = CRM_Core_BAO_Setting::getItem(CDNTAX_SETTINGS, 'receipt_authorized_signature_text');
+    if ( $signature == '' ) {
+      $signature = ts('Authorized Signature');
+    }
+    $sig_offset = strlen($signature) - 20;
+    $pdf_template_file = CRM_Core_BAO_Setting::getItem(CDNTAX_SETTINGS, 'receipt_pdftemplate');
 
-  $sig_offset = strlen($signature) - 20;
-  $pdf_template_file = CRM_Core_BAO_Setting::getItem(CDNTAX_SETTINGS, 'receipt_pdftemplate');
-  if (!empty($pdf_template_file)) {
-  }
-  else {
     $pdf->Image(CRM_Core_BAO_Setting::getItem(CDNTAX_SETTINGS, 'receipt_signature', NULL, $pdf_img_files_path . 'authorized-signature.png'), $mymargin_left + 137, $mymargin_top + 67, '', 15);
     $pdf->Line($mymargin_left + 136, $mymargin_top + 79, $mymargin_left + 186, $mymargin_top + 79);
     $pdf->SetXY($mymargin_left + 148 - $sig_offset, $mymargin_top + 76);
