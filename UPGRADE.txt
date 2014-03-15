@@ -12,25 +12,49 @@ using "SELECT * FROM variable WHERE name LIKE 'cdntax%'" (If you use a prefix fo
 name variable to suit).
 
 2) Migrate the issued tax receipts information from the module's tables:
-Access your site's database. For example on your web host you will be able to use phpMyAdmin. Select the two tables
-called
-* With selected -> export
-* Choose custom
-* Choose data only (this will mean it contains only INSERT statements)
-Edit the exported file:
+Access your site's database. For example on your web host you may be able to use phpMyAdmin. Alternatively you may have ssh access and permissions to
+access your database via the command line: mysql -h localhost -u myadminuser -p (where myadminuser is a mysql user with
+privileges to access your database).
+
+Instructions for phpMyAdmin:
+
+Export 
+Export Method: Custom
+Table(s) select:
+civicrm_cdntaxreceipts_log
+civicrm_cdntaxreceipts_log_contributions
+Output: Save output to file
+Format-specific options: data
+Go
+Save file
+
+Edit the exported file with a text editor:
 * Enter this line at the top: "SET FOREIGN_KEY_CHECKS = 0;"
 * Find and replace all: (Adjust if your database uses a prefix)
 civicrm_cdntaxreceipts_log => cdntaxreceipts_log
-civicrm_cdntaxreceipts_log_contributions => cdntaxreceipts_log_contributions
 
-3) Activate the extension. See https://wiki.civicrm.org/confluence/display/CRMDOC/Extensions for more information.
+3) Activate the extension. So the README.md file - and also see https://wiki.civicrm.org/confluence/display/CRMDOC/Extensions for more information
+on extensions in general.
 
 4) Enter the settings you saved into the extension by visiting http://yoursite.org/civicrm/cdntaxreceipts/settings?reset=1
 
-5) Import the edited SQL data file to your civicrm database.
+5) Import the edited SQL data file to your civicrm database. 
 
-6) Check that you have successfully imported your receipts by visiting the Receipts Issued Report.
+Instructions for phpMyAdmin:
+Import
+File to import: the .sql file you created in step 2). 
+Go
+
+6) Check that you have successfully imported your receipts by visiting the Receipts Issued Report: 
+CiviCRM -> Reports -> create new report from template - Tax Receipts - Receipts issued
 
 7) Clean up your Drupal database: After disabling the drupal module you can optionally clean up the module's variables
 since it does not do this automatically. In your Drupal database:
 DELETE FROM variable WHERE name LIKE 'cdntax%'
+
+8) Clean up the settings.php - these bits are no longer needed:
+# 'civicrm_contact' => 'local_civicrm743x.',
+# 'civicrm_contribution' => 'local_civicrm743x.',
+# 'civicrm_contribution_type' => 'local_civicrm743x.',
+
+
