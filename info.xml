@@ -2,14 +2,14 @@
 <extension key="org.civicrm.cdntaxreceipts" type="module">
   <file>cdntaxreceipts</file>
   <name>CDN Tax Receipts</name>
-  <description>Provides PDF tax receipts for Canadian charities, including single or annual tax receipts, with distribution by email or print.</description>
+  <description>Creates Tax Receipts that are CRA compliant: including single or annual/aggregate tax receipts, with distribution by email or print, detailed reporting, press ready PDF template possible</description>
   <license>AGPL</license>
   <maintainer>
     <author>Jake Martin White</author>
     <email>jake@peaceworks.ca</email>
   </maintainer>
-  <releaseDate>2014-02-03</releaseDate>
-  <version>0.9.beta2</version>
+  <releaseDate>2014-03-15</releaseDate>
+  <version>1</version>
   <develStage>beta</develStage>
   <compatibility>
     <ver>4.3</ver>
@@ -17,8 +17,9 @@
   </compatibility>
   <urls>
     <url desc="documentation">https://github.com/jake-mw/CDNTaxReceipts/blob/master/README.md</url>
+    <url desc="Support">https://github.com/jake-mw/CDNTaxReceipts</url>
   </urls>
-  <comments>Developed as a collaboration between Karin Gerritsen (semper-it.com), Alan Dixon (blackflysolutions.ca), Lola Slade (freeform.ca), and Jake Martin White (peaceworks.ca)</comments>
+  <comments>Developed as a collaboration between Karin Gerritsen (semper-it.com), Lola Slade (freeform.ca), Alan Dixon (blackflysolutions.ca) and Jake Martin White (peaceworks.ca)</comments>
   <civix>
     <namespace>CRM/Cdntaxreceipts</namespace>
   </civix>
