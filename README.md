@@ -5,12 +5,13 @@ Canadian Tax Receipts extension for CiviCRM
 
 Upgrading from previous versions:
 ------------
-NOTE: If upgrading site that uses existing Drupal CiviCRM CDN Tax Receipts module - you need to:
+NOTE: If upgrading site that uses existing Drupal CiviCRM CDN Tax Receipts module: https://drupal.org/sandbox/semperit/1289724 - you need to:
 
-1. Take note of your settings and backup up the tax log tables
-2. Disable the CiviCRM CDN Tax Receipts module on the admin/modules page.
-3. Remove the tcpdf/ from your /libraries
-4. For more detail see UPGRADE.txt
+1. Take note of your CiviCRM CDN Tax Receipt settings [on your Drupal side under: admin/config/civicrm_cdntaxreceipts/settings]
+2. Backup up both tax log tables: civicrm_cdntaxreceipts_log and civicrm_cdntaxreceipts_log_contributions
+3. Disable the CiviCRM CDN Tax Receipts module on the admin/modules page.
+4. Remove the tcpdf/ from your /libraries
+5. For more detail see UPGRADE.txt
 
 To set up the extension:
 ------------
