@@ -309,12 +309,12 @@ function cdntaxreceipts_createPDF(&$pdf, $pdf_variables) {
   $pdf->SetXY($mymargin_left + $x_detailscolumn, $mymargin_top + $y_detailscolumnstart + 34);
 
   if ($issue_type == 'annual') {
-    //$pdf->Write(10, ts("Thank you for giving in %1!", array( 1 => $display_year)));
-    $pdf->Write(10, "Contribution(s): ");
-    foreach ($receipt_contributions as $key => $value) {
-      $test = $receipt_contributions[$key]['contribution_id'];
-      $pdf->Write(10, $receipt_contributions[$key]['contribution_id'] . ' ');
-    }
+    $pdf->Write(10, ts("Thank you for giving in %1!", array( 1 => $display_year)));
+    // $pdf->Write(10, "Contribution(s): ");
+    // foreach ($receipt_contributions as $key => $value) {
+    //   $test = $receipt_contributions[$key]['contribution_id'];
+    //   $pdf->Write(10, $receipt_contributions[$key]['contribution_id'] . ' ');
+    // }
   }
   else if (strlen($source_funds) < 36 && strlen($source_funds) > 0) {
     $pdf->Write(10, "Source: " . $source_funds);
