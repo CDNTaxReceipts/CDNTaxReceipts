@@ -158,7 +158,9 @@ function cdntaxreceipts_generateFormattedReceipt( $receipt, &$collectedPdf = NUL
   $pdf_file = $config->customFileUploadDir . 'Receipt-' . $receipt['receipt_no'] . '.pdf';
   $user_friendly = 'Receipt-' . $receipt['receipt_no'] . '.pdf';
 
-  define('PDF_PAGE_FORMAT', 'USLETTER', true); // orig: 'A4'
+  if (!defined('pdf_page_format')) {
+    define('PDF_PAGE_FORMAT', 'USLETTER', true); // orig: 'A4'
+  }
   $pdf = new PDF(PDF_PAGE_ORIENTATION, PDF_UNIT, 'LETTER', TRUE, 'UTF-8', FALSE);
   $pdf->Open();
 
