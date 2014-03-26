@@ -64,22 +64,38 @@
       <tr>
         <td class="label">{$form.receipt_logo.label}</td>
         <td class="content">{$form.receipt_logo.html}
-          <p class="description">Logo size: 280x120 pixels; File types allowed: .jpg .png.</p></td>
+          <p class="description">Logo size: 280x120 pixels; File types allowed: .jpg .png.</p>
+	  {if $receipt_logo}
+	      {if $receipt_logo_class}<span class="crm-error">The file {$receipt_logo} was not found</span>
+	      {else}<p class="label">Current {$form.receipt_logo.label}: {$receipt_logo}</p>{/if}
+	  {/if}</td>
       </tr>
       <tr>
         <td class="label">{$form.receipt_signature.label}</td>
         <td class="content">{$form.receipt_signature.html}
-          <p class="description">Signature size: 141x58 pixels; File types allowed: .jpg .png.</p></td>
+          <p class="description">Signature size: 141x58 pixels; File types allowed: .jpg .png.</p>
+	  {if $receipt_signature}
+	      {if $receipt_signature_class}<span class="crm-error">The file {$receipt_signature} was not found</span>
+	      {else}<p class="label">Current {$form.receipt_signature.label}: {$receipt_signature}</p>{/if}
+	  {/if}</td>
       </tr>
       <tr>
         <td class="label">{$form.receipt_watermark.label}</td>
         <td class="content">{$form.receipt_watermark.html}
-          <p class="description">Watermark Image size: 250x250 pixels; File types allowed: .jpg .png.</p></td>
+          <p class="description">Watermark Image size: 250x250 pixels; File types allowed: .jpg .png.</p>
+	  {if $receipt_watermark}
+	      {if $receipt_watermark_class}<span class="crm-error">The file {$receipt_watermark} was not found</span>
+	      {else}<p class="label">Current {$form.receipt_watermark.label}: {$receipt_watermark}</p>{/if}
+	  {/if}</td>
       </tr>
       <tr>
         <td class="label">{$form.receipt_pdftemplate.label}</td>
         <td class="content">{$form.receipt_pdftemplate.html}
-          <p class="description">Upload your own PDF template: .pdf</p></td>
+          <p class="description">Upload your own PDF template: .pdf</p>
+	  {if $receipt_pdftemplate}
+	      {if $receipt_pdftemplate_class}<span class="crm-error">The file {$receipt_pdftemplate} was not found</span>
+	      {else}<p class="label">Current {$form.receipt_pdftemplate.label}: {$receipt_pdftemplate}</p>{/if}
+	  {/if}</td>
       </tr>
     </tbody>
   </table>
