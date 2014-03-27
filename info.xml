@@ -2,10 +2,10 @@
 <extension key="org.civicrm.cdntaxreceipts" type="module">
   <file>cdntaxreceipts</file>
   <name>CDN Tax Receipts</name>
-  <description>Creates Tax Receipts that are CRA compliant: including single or annual/aggregate tax receipts, with distribution by email or print, detailed reporting, press ready PDF template possible</description>
+  <description>Creates Tax Receipts including single or annual/aggregate tax receipts, with distribution by email or print, detailed reporting, press ready PDF template possible. we worked with (and continue to work with) a BDO Tax Partner who has strong ties to both the NPO community and Tax Authorities (CRA).</description>
   <license>AGPL</license>
   <maintainer>
-    <author>Jake Martin White</author>
+    <author>Jake Martin White, Karin Gerritsen and Lola Slade</author>
     <email>jake@peaceworks.ca</email>
   </maintainer>
   <releaseDate>2014-03-15</releaseDate>
