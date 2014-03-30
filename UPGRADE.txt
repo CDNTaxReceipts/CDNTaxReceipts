@@ -37,7 +37,6 @@ Instructions for command line access:
 mysqldump -p --user=username  dbname civicrm_cdntaxreceipts_log >civicrm_cdntaxreceipts_log.sql
 mysqldump -p --user=username  dbname civicrm_cdntaxreceipts_log_contributions >civicrm_cdntaxreceipts_log_contributions.sql
 
-
 3) Activate the extension. So the README.md file - and also see https://wiki.civicrm.org/confluence/display/CRMDOC/Extensions for more information
 on extensions in general.
 
