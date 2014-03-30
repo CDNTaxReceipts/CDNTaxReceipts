@@ -29,9 +29,14 @@ Go
 Save file
 
 Edit the exported file with a text editor:
-* Enter this line at the top: "SET FOREIGN_KEY_CHECKS = 0;"
+* Enter this line at the top: SET FOREIGN_KEY_CHECKS = 0;
 * Find and replace all: (Adjust if your database uses a prefix)
 civicrm_cdntaxreceipts_log => cdntaxreceipts_log
+
+Instructions for command line access:
+mysqldump -p --user=username  dbname civicrm_cdntaxreceipts_log >civicrm_cdntaxreceipts_log.sql
+mysqldump -p --user=username  dbname civicrm_cdntaxreceipts_log_contributions >civicrm_cdntaxreceipts_log_contributions.sql
+
 
 3) Activate the extension. So the README.md file - and also see https://wiki.civicrm.org/confluence/display/CRMDOC/Extensions for more information
 on extensions in general.
@@ -44,6 +49,10 @@ Instructions for phpMyAdmin:
 Import
 File to import: the .sql file you created in step 2). 
 Go
+
+Instructions for command line access:
+mysql -u username -p -D dbname < civicrm_cdntaxreceipts_log.sql
+mysql -u username -p -D dbname < civicrm_cdntaxreceipts_log_contributions.sql
 
 6) Check that you have successfully imported your receipts by visiting the Receipts Issued Report: 
 CiviCRM -> Reports -> create new report from template - Tax Receipts - Receipts issued
