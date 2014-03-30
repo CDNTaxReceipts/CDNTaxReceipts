@@ -297,7 +297,7 @@ function cdntaxreceipts_createPDF(&$pdf, $pdf_variables) {
   }
   else {
     $background_image = CRM_Core_BAO_Setting::getItem(CDNTAX_SETTINGS, 'receipt_watermark');
-    if ( $background_image ) $pdf->Image(CRM_Core_BAO_Setting::getItem(CDNTAX_SETTINGS, 'receipt_watermark'), $mymargin_left + $x_detailscolumn, $mymargin_top + $y_detailscolumnstart, '', 50);
+    if ( $background_image ) $pdf->Image(CRM_Core_BAO_Setting::getItem(CDNTAX_SETTINGS, 'receipt_watermark'), $mymargin_left + $x_detailscolumn, $mymargin_top + $y_detailscolumnstart + 6, '', 40);
   }
   $pdf->SetXY($mymargin_left + $x_detailscolumn, $mymargin_top + $y_detailscolumnstart + 6);
   $pdf->SetFont('Helvetica', 'B', 8);
