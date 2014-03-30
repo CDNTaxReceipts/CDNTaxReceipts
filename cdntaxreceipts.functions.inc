@@ -23,6 +23,9 @@ require_once('FPDI/fpdi.php');
         }
         $this->useTemplate($this->_tplIdx);
       }
+      else {
+        $this->parsers = array();
+      }
     }
 
     function Footer() {}
