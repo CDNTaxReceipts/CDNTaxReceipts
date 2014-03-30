@@ -324,7 +324,9 @@ function cdntaxreceipts_createPDF(&$pdf, $pdf_variables) {
     $source_funds_lastbit = array_pop($source_funds_words);
     $pdf->Write(10, "Source: " . implode(" ", $source_funds_words));
     $source_funds_count = count($source_funds_words);
-    $source_funds_nextline = array_splice(explode(" ", $source_funds), $source_funds_count);
+    // $source_funds_nextline = array_splice(explode(" ", $source_funds), $source_funds_count);
+    $exploded = explode(" ", $source_funds);
+    $source_funds_nextline = array_splice($exploded, $source_funds_count);
     $pdf->SetXY($mymargin_left + $x_detailscolumn + 16, $mymargin_top + $y_detailscolumnstart + 38);
     $pdf->Write(10, implode(" ", $source_funds_nextline));
   }
