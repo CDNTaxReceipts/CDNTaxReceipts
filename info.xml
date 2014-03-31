@@ -9,8 +9,8 @@
     <email>jake@peaceworks.ca</email>
   </maintainer>
   <releaseDate>2014-03-15</releaseDate>
-  <version>1</version>
-  <develStage>beta</develStage>
+  <version>1.0</version>
+  <develStage>rc</develStage>
   <compatibility>
     <ver>4.3</ver>
     <ver>4.4</ver>
