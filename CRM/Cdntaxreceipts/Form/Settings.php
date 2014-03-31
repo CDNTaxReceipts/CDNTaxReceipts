@@ -168,8 +168,10 @@ class CRM_Cdntaxreceipts_Form_Settings extends CRM_Core_Form {
       $values = $this->exportValues();
       CRM_Core_BAO_Setting::setItem($values['enable_email'], self::SETTINGS, 'enable_email');
 
-      if ( $values['issue_inkind'] == 1 ) {
-        cdntaxreceipts_configure_inkind_fields();
+      if (isset($values['issue_inkind']) == TRUE) {
+        if ( $values['issue_inkind'] == 1 ) {
+          cdntaxreceipts_configure_inkind_fields();
+        }
       }
     }
   }
