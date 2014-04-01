@@ -57,7 +57,7 @@ class CRM_Cdntaxreceipts_Form_Report_ReceiptsIssued extends CRM_Report_Form {
           'issue_type' =>
           array('title' => ts('Issue Type'),
             'operatorType' => CRM_Report_Form::OP_MULTISELECT,
-            'options' => array('single' => 'Single', 'annual' => 'Annual'),
+            'options' => array('single' => ts('Single'), 'annual' => ts('Annual'), 'aggregate' => ts('Aggregate')),
             'type' => CRM_Utils_Type::T_STRING,
           ),
           'issue_method' =>
@@ -227,7 +227,7 @@ class CRM_Cdntaxreceipts_Form_Report_ReceiptsIssued extends CRM_Report_Form {
       $from = ($type == CRM_Utils_Type::T_DATE) ? substr($from, 0, 8) : $from;
       if ($type == CRM_Utils_Type::T_TIMESTAMP) {
         $time_array = date_parse_from_format ('YmdHis' ,  $from);
-        $from = mktime($time_array['hour'], $time_array['minute'], $time_array['secong'], $time_array['month'], $time_array['day'], $time_array['year']);
+        $from = mktime($time_array['hour'], $time_array['minute'], $time_array['second'], $time_array['month'], $time_array['day'], $time_array['year']);
       }
 
       $clauses[] = "( {$fieldName} >= $from )";
@@ -237,7 +237,7 @@ class CRM_Cdntaxreceipts_Form_Report_ReceiptsIssued extends CRM_Report_Form {
       $to = ($type == CRM_Utils_Type::T_DATE) ? substr($to, 0, 8) : $to;
       if ($type == CRM_Utils_Type::T_TIMESTAMP) {
         $time_array = date_parse_from_format ('YmdHis' ,  $to);
-        $to = mktime($time_array['hour'], $time_array['minute'], $time_array['secong'], $time_array['month'], $time_array['day'], $time_array['year']);
+        $to = mktime($time_array['hour'], $time_array['minute'], $time_array['second'], $time_array['month'], $time_array['day'], $time_array['year']);
       }
       $clauses[] = "( {$fieldName} <= {$to} )";
     }
@@ -340,7 +340,10 @@ class CRM_Cdntaxreceipts_Form_Report_ReceiptsIssued extends CRM_Report_Form {
                ROUND(AVG({$this->_aliases['civicrm_cdntaxreceipts_log']}.receipt_amount), 2) as avg
         ";
 
-    $sql = "{$select} {$this->_from} {$this->_where}";
+    $sql = "{$select}
+      FROM cdntaxreceipts_log {$this->_aliases['civicrm_cdntaxreceipts_log']}
+      {$this->_where}";
+    
     $dao = CRM_Core_DAO::executeQuery($sql);
 
     while ($dao->fetch()) {
