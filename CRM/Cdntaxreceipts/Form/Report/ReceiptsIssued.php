@@ -290,20 +290,23 @@ class CRM_Cdntaxreceipts_Form_Report_ReceiptsIssued extends CRM_Report_Form {
 
       if (array_key_exists('civicrm_cdntaxreceipts_log_issue_type', $row)) {
         if ($rows[$rowNum]['civicrm_cdntaxreceipts_log_issue_type'] == 'single' ) {
-          $rows[$rowNum]['civicrm_cdntaxreceipts_log_issue_type'] = 'Single';
+          $rows[$rowNum]['civicrm_cdntaxreceipts_log_issue_type'] = ts('Single');
         }
         elseif ($rows[$rowNum]['civicrm_cdntaxreceipts_log_issue_type'] == 'annual' ) {
-          $rows[$rowNum]['civicrm_cdntaxreceipts_log_issue_type'] = 'Annual';
+          $rows[$rowNum]['civicrm_cdntaxreceipts_log_issue_type'] = ts('Annual');
+        }
+        elseif ($rows[$rowNum]['civicrm_cdntaxreceipts_log_issue_type'] == 'aggregate' ) {
+          $rows[$rowNum]['civicrm_cdntaxreceipts_log_issue_type'] = ts('Aggregate');
         }
         $entryFound = TRUE;
       }
 
       if (array_key_exists('civicrm_cdntaxreceipts_log_issue_method', $row)) {
         if ($rows[$rowNum]['civicrm_cdntaxreceipts_log_issue_method'] == 'print' ) {
-          $rows[$rowNum]['civicrm_cdntaxreceipts_log_issue_method'] = 'Print';
+          $rows[$rowNum]['civicrm_cdntaxreceipts_log_issue_method'] = ts('Print');
         }
         elseif ($rows[$rowNum]['civicrm_cdntaxreceipts_log_issue_method'] == 'email' ) {
-          $rows[$rowNum]['civicrm_cdntaxreceipts_log_issue_method'] = 'Email';
+          $rows[$rowNum]['civicrm_cdntaxreceipts_log_issue_method'] = ts('Email');
         }
         $entryFound = TRUE;
       }
@@ -343,7 +346,7 @@ class CRM_Cdntaxreceipts_Form_Report_ReceiptsIssued extends CRM_Report_Form {
     $sql = "{$select}
       FROM cdntaxreceipts_log {$this->_aliases['civicrm_cdntaxreceipts_log']}
       {$this->_where}";
-    
+
     $dao = CRM_Core_DAO::executeQuery($sql);
 
     while ($dao->fetch()) {
