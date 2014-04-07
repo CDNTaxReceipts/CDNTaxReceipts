@@ -153,7 +153,9 @@ class CRM_Cdntaxreceipts_Form_Settings extends CRM_Core_Form {
         if (is_array($upload_file)) {
           if ( $upload_file['error'] == 0 ) {
             $filename = $config->customFileUploadDir . CRM_Utils_File::makeFileName($upload_file['name']);
-            move_uploaded_file($upload_file['tmp_name'], $filename);
+            if (!move_uploaded_file($upload_file['tmp_name'], $filename)) {
+              CRM_Core_Error::fatal(ts('Could not upload the file'));
+            }
             CRM_Core_BAO_Setting::setItem($filename, self::SETTINGS, $key);
           }
         }
