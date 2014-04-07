@@ -45,10 +45,9 @@ require_once('FPDI/fpdi.php');
  *
  * This method is common to both single and annual receipts.
  */
-function cdntaxreceipts_processTaxReceipt( $receipt, &$collectedPdf = NULL, $previewMode = FALSE ) {
+function cdntaxreceipts_processTaxReceipt( $receipt, &$collectedPdf = NULL, $previewMode = FALSE, $method = NULL ) {
 
-  // determine the send method
-  require_once('CRM/Contact/BAO/Contact.php');
+  // Get contact details
   list($displayname, $email) = CRM_Contact_BAO_Contact::getContactDetails($receipt['contact_id']);
 
   // generate the PDF file
@@ -544,6 +543,13 @@ function cdntaxreceipts_issueTaxReceipt( $contribution, &$collectedPdf = NULL, $
       $year = substr($receipt['contributions'][0]['receive_date'], 0, 4);
       return cdntaxreceipts_issueAnnualTaxReceipt($contactId, $year, $collectedPdf, $previewMode);
     }
+    else if ( $receipt['issue_type'] == 'aggregate' ) {
+      $contactId = $receipt['contact_id'];
+      $year = substr($receipt['contributions'][0]['receive_date'], 0, 4);
+      list($method, $email) = cdntaxreceipts_sendMethodForContact($contactId);
+      return cdntaxreceipts_issueAggregateTaxReceipt($contactId, $year, $receipt['contributions'],
+        $method, $collectedPdf, $previewMode);
+    }
   }
 
   // determine the send method
@@ -732,6 +738,100 @@ function cdntaxreceipts_issueAnnualTaxReceipt( $contactId, $year, &$collectedPdf
   return cdntaxreceipts_processTaxReceipt($receipt, $collectedPdf, $previewMode);
 }
 
+/**
+ * cdntaxreceipts_issueAggregateTaxReceipt()
+ * Issues an grouped tax receipt for a given contact, year and list of selected contributions.
+ * Currently does not issue duplicates. Pass only original contribution ids.
+ *
+ * @param $contactId
+ * @param $year
+ * @param $contributions
+ * @param $method
+ * @param null $collectedPdf
+ * @param bool $previewMode
+ * @return array
+ */
+function cdntaxreceipts_issueAggregateTaxReceipt($contactId, $year, $contributions, $method, &$collectedPdf = NULL,
+                                                 $previewMode = FALSE ) {
+  if ( count($contributions) == 0 ) {
+    return array(FALSE, $method, NULL);
+  }
+
+  /* Two different formats come into this function in the $contributions array
+   * 1. When issuing for the first time:
+   * array ($contribution_id => array(
+   *   'contribution_id' => $id,
+   *   'contact_id' => $dao->contact_id,
+   *   'total_amount' => $dao->total_amount,
+   *   'non_deductible_amount' => $dao->non_deductible_amount,
+   *   'receive_date' => $dao->receive_date,
+   *   'receive_year' => $dao->receive_year,
+   *   'eligible' => $eligible,
+   *   'receipt_id' => $dao->receipt_id,
+   * ),);
+   * 2. When re-issuing:
+   *
+   *  $index (not contrib id) => array(
+   *    'contribution_id'
+   *    'contribution_amount'
+   *    'receipt_amount'
+   *    'receive_date'
+   * );
+   * */
+
+  $contrib_copy = $contributions;
+  $check_contribution = array_shift($contrib_copy);
+  list($issued_on, $receipt_id) = cdntaxreceipts_issued_on($check_contribution['contribution_id']);
+  $duplicate_receipt = cdntaxreceipts_load_receipt($receipt_id);
+
+  if (isset($check_contribution['receipt_id']) && $check_contribution['receipt_id'] != 0) {
+    $is_duplicate = TRUE;
+  }
+  else {
+    $is_duplicate = empty($duplicate_receipt) ? 0 : 1;
+  }
+
+  if ( $is_duplicate ) {
+    $receipt = $duplicate_receipt;
+    $receipt['issued_on'] = (int) $_SERVER['REQUEST_TIME'];
+    $receipt['is_duplicate'] = 1;
+    $receipt['issue_method'] = $method;
+    $receipt['receive_date'] = $year;
+  }
+  else {
+    // calculate total amount
+    $receiptContributions = array();
+    $totalReceipt = 0;
+    foreach ( $contributions as $c ) {
+      $receiptContributions[] = array(
+        'contribution_id' => $c['contribution_id'],
+        'contribution_amount' => $c['total_amount'],
+        'receipt_amount' => $c['total_amount'] - $c['non_deductible_amount'],
+        'receive_date' => $c['receive_date'],
+      );
+      $totalReceipt += $c['total_amount'] - $c['non_deductible_amount'];
+    }
+
+    // generate a receipt number
+    $receiptNo = CRM_Core_BAO_Setting::getItem(CDNTAX_SETTINGS, 'receipt_prefix') . str_pad($receiptContributions[0]['contribution_id'], 8, 0, STR_PAD_LEFT);
+
+    $receipt = array(
+      'receipt_no' => $receiptNo,
+      'issued_on' =>  (int) $_SERVER['REQUEST_TIME'],
+      'contact_id' => $contactId,
+      'receipt_amount' => $totalReceipt,
+      'is_duplicate' => 0,
+      'issue_type' => 'aggregate',
+      'issue_method' => $method,
+      'receive_date' => $year,
+      'contributions' => $receiptContributions,
+    );
+  }
+
+  return cdntaxreceipts_processTaxReceipt($receipt, $collectedPdf, $previewMode);
+}
+
+
 /* determines the send method for the specified contact
  * returns array, [0] = 'email' or 'print', [1] = email address or NULL
  */
@@ -890,4 +990,21 @@ function cdntaxreceipts_getAddress($contact_id) {
   CRM_Core_BAO_Address::fixAddress($address);
 
   return $address;
+}
+
+/**
+ * @param $issue_type
+ * @return string display formatted Issue type
+ */
+function _cdntaxreceipts_get_display_type($issue_type) {
+  switch ($issue_type) {
+    case 'aggregate' :
+      return 'Aggregate';
+    case 'annual' :
+      return 'Annual';
+    case 'single' :
+      return 'Single';
+    default:
+      return '';
+  }
 }

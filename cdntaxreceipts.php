@@ -90,27 +90,39 @@ function cdntaxreceipts_civicrm_postProcess( $formName, &$form ) {
 
 function cdntaxreceipts_civicrm_searchTasks($objectType, &$tasks ) {
   if ( $objectType == 'contribution' && CRM_Core_Permission::check( 'issue cdn tax receipts' ) ) {
-    $alreadyinlist = FALSE;
+    $single_in_list = FALSE;
+    $aggregate_in_list = FALSE;
     foreach ($tasks as $key => $task) {
       if($task['class'] == 'CRM_Cdntaxreceipts_Task_IssueSingleTaxReceipts') {
-        $alreadyinlist = TRUE;
+        $single_in_list = TRUE;
       }
     }
-    if (!$alreadyinlist) {
+    foreach ($tasks as $key => $task) {
+      if($task['class'] == 'CRM_Cdntaxreceipts_Task_IssueAggregateTaxReceipts') {
+        $aggregate_in_list = TRUE;
+      }
+    }
+    if (!$single_in_list) {
       $tasks[] = array (
         'title' => ts('Issue Tax Receipts'),
         'class' => 'CRM_Cdntaxreceipts_Task_IssueSingleTaxReceipts',
         'result' => TRUE);
     }
+    if (!$aggregate_in_list) {
+      $tasks[] = array (
+        'title' => ts('Issue Aggregate Tax Receipts'),
+        'class' => 'CRM_Cdntaxreceipts_Task_IssueAggregateTaxReceipts',
+        'result' => TRUE);
+    }
   }
   elseif ( $objectType == 'contact' && CRM_Core_Permission::check( 'issue cdn tax receipts' ) ) {
-    $alreadyinlist = FALSE;
+    $annual_in_list = FALSE;
     foreach ($tasks as $key => $task) {
       if($task['class'] == 'CRM_Cdntaxreceipts_Task_IssueAnnualTaxReceipts') {
-        $alreadyinlist = TRUE;
+        $annual_in_list = TRUE;
       }
     }
-    if (!$alreadyinlist) {
+    if (!$annual_in_list) {
       $tasks[] = array (
         'title' => ts('Issue Annual Tax Receipts'),
         'class' => 'CRM_Cdntaxreceipts_Task_IssueAnnualTaxReceipts',
@@ -120,7 +132,6 @@ function cdntaxreceipts_civicrm_searchTasks($objectType, &$tasks ) {
 }
 
 /**
- * JAKE -- not working
  * Implementation of hook_civicrm_permission().
  */
 function cdntaxreceipts_civicrm_permission( &$permissions ) {
