@@ -8,9 +8,9 @@
     <author>Jake Martin White, Lola Slade and Karin Gerritsen</author>
     <email>jake@peaceworks.ca</email>
   </maintainer>
-  <releaseDate>2014-04-01</releaseDate>
-  <version>1.0.beta3</version>
-  <develStage>beta</develStage>
+  <releaseDate>2014-04-09</releaseDate>
+  <version>1.0</version>
+  <develStage>stable</develStage>
   <compatibility>
     <ver>4.3</ver>
     <ver>4.4</ver>
