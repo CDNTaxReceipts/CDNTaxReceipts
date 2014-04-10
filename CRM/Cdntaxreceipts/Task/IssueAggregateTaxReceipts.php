@@ -194,7 +194,7 @@ class CRM_Cdntaxreceipts_Task_IssueAggregateTaxReceipts extends CRM_Contribute_F
     }
 
     // start a PDF to collect receipts that cannot be emailed
-    $receiptsForPrintingPDF =& cdntaxreceipts_openCollectedPDF();
+    $receiptsForPrintingPDF = cdntaxreceipts_openCollectedPDF();
 
     $emailCount = 0;
     $printCount = 0;
