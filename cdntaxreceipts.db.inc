@@ -128,7 +128,9 @@ function cdntaxreceipts_contributions_not_receipted($contactId, $year) {
 
 function cdntaxreceipts_load_receipt($receipt_id) {
   $receipt = array();
-
+  if (!isset($receipt_id)) {
+    return $receipt;
+  }
 
   $sql = "SELECT l.id, l.receipt_no, l.issued_on, l.contact_id, l.receipt_amount as total_receipt,
         l.is_duplicate, l.uid, l.ip, l.issue_type, l.issue_method,

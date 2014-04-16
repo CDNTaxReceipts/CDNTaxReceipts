@@ -782,17 +782,16 @@ function cdntaxreceipts_issueAggregateTaxReceipt($contactId, $year, $contributio
   $contrib_copy = $contributions;
   $check_contribution = array_shift($contrib_copy);
   list($issued_on, $receipt_id) = cdntaxreceipts_issued_on($check_contribution['contribution_id']);
-  $duplicate_receipt = cdntaxreceipts_load_receipt($receipt_id);
 
   if (isset($check_contribution['receipt_id']) && $check_contribution['receipt_id'] != 0) {
     $is_duplicate = TRUE;
   }
   else {
-    $is_duplicate = empty($duplicate_receipt) ? 0 : 1;
+    $is_duplicate = empty($issued_on) ? 0 : 1;
   }
 
   if ( $is_duplicate ) {
-    $receipt = $duplicate_receipt;
+    $receipt = cdntaxreceipts_load_receipt($receipt_id);
     $receipt['issued_on'] = (int) $_SERVER['REQUEST_TIME'];
     $receipt['is_duplicate'] = 1;
     $receipt['issue_method'] = $method;

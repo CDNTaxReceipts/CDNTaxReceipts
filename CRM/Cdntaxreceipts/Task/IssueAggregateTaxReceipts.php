@@ -81,7 +81,7 @@ class CRM_Cdntaxreceipts_Task_IssueAggregateTaxReceipts extends CRM_Contribute_F
           $receipts[$issue_type][$year][$method]++;
           if (!isset($receipts[$issue_type][$year]['contact_ids'][$status['contact_id']])) {
             $receipts[$issue_type][$year]['contact_ids'][$status['contact_id']] = array(
-              'method' => $method,
+              'issue_method' => $method,
               'contributions' => array(),
             );
           }
@@ -211,10 +211,9 @@ class CRM_Cdntaxreceipts_Task_IssueAggregateTaxReceipts extends CRM_Contribute_F
       }
 
       $contributions = $contribution_status['contributions'];
-      $method = $contribution_status['method'];
+      $method = $contribution_status['issue_method'];
 
       if ( empty($issuedOn) && count($contributions) > 0 ) {
-
         $ret = cdntaxreceipts_issueAggregateTaxReceipt($contact_id, $year, $contributions, $method,
           $receiptsForPrintingPDF, $previewMode);
 
