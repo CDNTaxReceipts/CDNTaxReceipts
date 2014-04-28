@@ -24,11 +24,11 @@ cj(document).ready(
         <td class="label">{ts}Issue Date{/ts}</td>
         <td>{$receipt.issued_on|crmDate}</td>
         <td class="label">{ts}Method{/ts}</td>
-        <td>{if $receipt.issue_method eq 'email'}Email{elseif $receipt.issue_method eq 'print'}Print{/if}</td>
+        <td>{if $receipt.issue_method eq 'email'}{ts}Email{/ts}{elseif $receipt.issue_method eq 'print'}{ts}Print{/ts}{/if}</td>
     </tr>
     <tr>
         <td class="label">{ts}Type{/ts}</td>
-        <td>{if $receipt.issue_type eq 'single'}Single{elseif $receipt.issue_type eq 'annual'}Annual{/if}</td>
+        <td>{ts}{$receipt.display_type}{/ts}</td>
         <td class="label">{ts}IP{/ts}</td>
         <td>{$receipt.ip}</td>
     </tr>
