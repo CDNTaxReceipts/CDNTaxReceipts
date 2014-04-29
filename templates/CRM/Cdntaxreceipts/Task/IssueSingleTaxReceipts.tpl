@@ -12,7 +12,7 @@
       <th>{ts domain='org.civicrm.cdntaxreceipts'}{$receiptList.totals.original}Print{/ts}</th>
     </thead>
     <tr>
-      <td>{ts domain='org.civicrm.cdntaxreceipts'}}Not yet receipted{/ts}</td>
+      <td>{ts domain='org.civicrm.cdntaxreceipts'}Not yet receipted{/ts}</td>
       <td>{$originalTotal}</td>
       <td>{$receiptCount.original.email}</td>
       <td>{$receiptCount.original.print}</td>

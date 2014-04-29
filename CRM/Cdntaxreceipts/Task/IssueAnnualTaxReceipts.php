@@ -77,7 +77,7 @@ class CRM_Cdntaxreceipts_Task_IssueAnnualTaxReceipts extends CRM_Contact_Form_Ta
 
     // add radio buttons
     foreach ( $this->_years as $year ) {
-      $this->addElement('radio', 'receipt_year', NULL, ts('%1', array(1=>$year, 'domain' => 'org.civicrm.cdntaxreceipts')), 'issue_' . $year);
+      $this->addElement('radio', 'receipt_year', NULL, $year, 'issue_' . $year);
     }
     $this->addRule('receipt_year', ts('Selection required', array('domain' => 'org.civicrm.cdntaxreceipts')), 'required');
 
