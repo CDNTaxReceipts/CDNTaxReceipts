@@ -87,7 +87,7 @@ class CRM_Cdntaxreceipts_Form_ViewTaxReceipt extends CRM_Core_Form {
       }
 
       CRM_Utils_System::setTitle('Tax Receipt');
-      $buttonLabel = ts('Re-Issue Tax Receipt');
+      $buttonLabel = ts('Re-Issue Tax Receipt', array('domain' => 'org.civicrm.cdntaxreceipts'));
       $this->assign('reissue', 1);
       $this->assign('receipt', $this->_receipt);
       $this->assign('contact_id', $this->_receipt['contact_id']);
@@ -96,7 +96,7 @@ class CRM_Cdntaxreceipts_Form_ViewTaxReceipt extends CRM_Core_Form {
     }
     else {
       CRM_Utils_System::setTitle('Tax Receipt');
-      $buttonLabel = ts('Issue Tax Receipt');
+      $buttonLabel = ts('Issue Tax Receipt', array('domain' => 'org.civicrm.cdntaxreceipts'));
       $this->assign('reissue', 0);
     }
 
@@ -104,7 +104,7 @@ class CRM_Cdntaxreceipts_Form_ViewTaxReceipt extends CRM_Core_Form {
 
     $buttons[] = array(
       'type' => 'cancel',
-      'name' => ts('Back'),
+      'name' => ts('Back', array('domain' => 'org.civicrm.cdntaxreceipts')),
     );
 
     if (CRM_Core_Permission::check( 'issue cdn tax receipts' ) ) {
@@ -112,7 +112,7 @@ class CRM_Cdntaxreceipts_Form_ViewTaxReceipt extends CRM_Core_Form {
         'type' => 'next',
         'name' => $buttonLabel,
         'isDefault' => TRUE,
-        'js' => array('onclick' => "return submitOnce(this,'{$this->_name}','" . ts('Processing') . "');"),
+        'js' => array('onclick' => "return submitOnce(this,'{$this->_name}','" . ts('Processing', array('domain' => 'org.civicrm.cdntaxreceipts')) . "');"),
       );
     }
     $this->addButtons($buttons);
@@ -142,7 +142,7 @@ class CRM_Cdntaxreceipts_Form_ViewTaxReceipt extends CRM_Core_Form {
 
     // ensure the user has permission to issue the tax receipt.
     if ( ! CRM_Core_Permission::check( 'issue cdn tax receipts' ) ) {
-       CRM_Core_Error::fatal(ts('You do not have permission to access this page'));
+       CRM_Core_Error::fatal(ts('You do not have permission to access this page', array('domain' => 'org.civicrm.cdntaxreceipts')));
     }
 
     // load the contribution
@@ -158,7 +158,7 @@ class CRM_Cdntaxreceipts_Form_ViewTaxReceipt extends CRM_Core_Form {
 
     // issue tax receipt, or report error if ineligible
     if ( ! cdntaxreceipts_eligibleForReceipt($contribution->id) ) {
-      $statusMsg = ts('This contribution is not tax deductible and/or not completed. No receipt has been issued.');
+      $statusMsg = ts('This contribution is not tax deductible and/or not completed. No receipt has been issued.', array('domain' => 'org.civicrm.cdntaxreceipts'));
       CRM_Core_Session::setStatus( $statusMsg );
     }
     else {
@@ -167,15 +167,15 @@ class CRM_Cdntaxreceipts_Form_ViewTaxReceipt extends CRM_Core_Form {
 
       if ( $result == TRUE ) {
         if ( $method == 'email' ) {
-          $statusMsg = ts('Tax Receipt has been emailed to the contributor.');
+          $statusMsg = ts('Tax Receipt has been emailed to the contributor.', array('domain' => 'org.civicrm.cdntaxreceipts'));
         }
         else {
-          $statusMsg = ts('Tax Receipt has been generated for printing.');
+          $statusMsg = ts('Tax Receipt has been generated for printing.', array('domain' => 'org.civicrm.cdntaxreceipts'));
         }
         CRM_Core_Session::setStatus( $statusMsg );
       }
       else {
-        $statusMsg = ts('Encountered an error. Tax receipt has not been issued.');
+        $statusMsg = ts('Encountered an error. Tax receipt has not been issued.', array('domain' => 'org.civicrm.cdntaxreceipts'));
         CRM_Core_Session::setStatus( $statusMsg );
         unset($pdf);
       }
@@ -223,7 +223,7 @@ class CRM_Cdntaxreceipts_Form_ViewTaxReceipt extends CRM_Core_Form {
       CRM_Utils_System::civiExit();
     }
     else {
-      $statusMsg = ts('File has expired. Please retrieve receipt from the email archive.');
+      $statusMsg = ts('File has expired. Please retrieve receipt from the email archive.', array('domain' => 'org.civicrm.cdntaxreceipts'));
       CRM_Core_Session::setStatus( $statusMsg );
     }
   }

@@ -24,7 +24,7 @@ function cdntaxreceipts_civicrm_buildForm( $formName, &$form ) {
       if ($is_original_receipt) {
         $buttons = array(array('type'      => 'submit',
                                'subName'   => 'issue_tax_receipt',
-                               'name'      => ts('Tax Receipt'),
+                               'name'      => ts('Tax Receipt', array('domain' => 'org.civicrm.cdntaxreceipts')),
                                'isDefault' => FALSE ), );
       }
       else {
@@ -32,7 +32,7 @@ function cdntaxreceipts_civicrm_buildForm( $formName, &$form ) {
         // subName -> which is used (css) to display the red maple leaf instead.
         $buttons = array(array('type'      => 'submit',
                                'subName'   => 'view_tax_receipt',
-                               'name'      => ts('Tax Receipt'),
+                               'name'      => ts('Tax Receipt', array('domain' => 'org.civicrm.cdntaxreceipts')),
                                'isDefault' => FALSE ), );
       }
       $form->addButtons( $buttons );
@@ -59,7 +59,7 @@ function cdntaxreceipts_civicrm_postProcess( $formName, &$form ) {
   foreach($types as $type) {
     $post = '_qf_ContributionView_submit_'.$type;
     if (isset($_POST[$post])) {
-      if ($_POST[$post] == ts('Tax Receipt')) {
+      if ($_POST[$post] == ts('Tax Receipt', array('domain' => 'org.civicrm.cdntaxreceipts'))) {
         $action = $post;
       }
     }
@@ -104,7 +104,7 @@ function cdntaxreceipts_civicrm_searchTasks($objectType, &$tasks ) {
     }
     if (!$single_in_list) {
       $tasks[] = array (
-        'title' => ts('Issue Tax Receipts'),
+        'title' => ts('Issue Tax Receipts', array('domain' => 'org.civicrm.cdntaxreceipts')),
         'class' => 'CRM_Cdntaxreceipts_Task_IssueSingleTaxReceipts',
         'result' => TRUE);
     }
@@ -137,7 +137,7 @@ function cdntaxreceipts_civicrm_searchTasks($objectType, &$tasks ) {
 function cdntaxreceipts_civicrm_permission( &$permissions ) {
   $prefix = ts('CiviCRM CDN Tax Receipts') . ': ';
   $permissions = array(
-    'issue cdn tax receipts' => $prefix . ts('Issue Tax Receipts'),
+    'issue cdn tax receipts' => $prefix . ts('Issue Tax Receipts', array('domain' => 'org.civicrm.cdntaxreceipts')),
   );
 }
 
@@ -178,7 +178,7 @@ function cdntaxreceipts_civicrm_uninstall() {
  * Implementation of hook_civicrm_enable
  */
 function cdntaxreceipts_civicrm_enable() {
-  CRM_Core_Session::setStatus(ts('Configure the Tax Receipts extension at Administer >> CiviContribute >> CDN Tax Receipts.'));
+  CRM_Core_Session::setStatus(ts('Configure the Tax Receipts extension at Administer >> CiviContribute >> CDN Tax Receipts.', array('domain' => 'org.civicrm.cdntaxreceipts')));
   return _cdntaxreceipts_civix_civicrm_enable();
 }
 
@@ -242,7 +242,7 @@ function cdntaxreceipts_civicrm_navigationMenu(&$params) {
         if ('CiviContribute' == $child_value['attributes']['name']) {
           $params[$parent_key]['child'][$child_key]['child'][$navId] = array (
             'attributes' => array (
-              'label' => ts('CDN Tax Receipts'),
+              'label' => ts('CDN Tax Receipts',array('domain' => 'org.civicrm.cdntaxreceipts')),
               'name' => 'CDN Tax Receipts',
               'url' => 'civicrm/cdntaxreceipts/settings?reset=1',
               'permission' => 'access CiviContribute,administer CiviCRM',

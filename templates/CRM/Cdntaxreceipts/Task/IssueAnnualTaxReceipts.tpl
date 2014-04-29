@@ -2,13 +2,13 @@
 <div class="crm-block crm-form-block crm-contact-task-delete-form-block">
 <div class="messages status no-popup">
   <div class="icon inform-icon"></div>
-  You have selected <strong>{$totalSelectedContacts}</strong> contacts. The summary below includes these contacts only.
+  {ts domain='org.civicrm.cdntaxreceipts'}You have selected <strong>{$totalSelectedContacts}</strong> contacts. The summary below includes these contacts only.{/ts}
 </div>
   <table>
     <thead>
-      <th width=30%>Select Tax Year</th>
-      <th width=30%>Receipts Outstanding</th>
-      <th width=20%>Email</th>
+      <th width=30%>{ts domain='org.civicrm.cdntaxreceipts'}Select Tax Year{/ts}</th>
+      <th width=30%>{ts domain='org.civicrm.cdntaxreceipts'}Receipts Outstanding{/ts}</th>
+      <th width=20%>{ts domain='org.civicrm.cdntaxreceipts'}Email{/ts}</th>
       <th>Print</th>
     </thead>
     {foreach from=$receiptYears item=year}
@@ -21,17 +21,17 @@
       </tr>
     {/foreach}
   </table>
-  <p>Clicking 'Issue Tax Receipts' will issue annual tax receipts for the selected year. Annual tax receipts are a sum
-    total of all eligible contributions, received from the donor during the selected year, that have not been receipted individually.</p>
-  <p>Only one annual tax receipt can be issued per donor, per year. If the donor has eligible contributions that
+  <p>{ts domain='org.civicrm.cdntaxreceipts'}Clicking 'Issue Tax Receipts' will issue annual tax receipts for the selected year. Annual tax receipts are a sum
+    total of all eligible contributions, received from the donor during the selected year, that have not been receipted individually.{/ts}</p>
+  <p>{ts domain='org.civicrm.cdntaxreceipts'}Only one annual tax receipt can be issued per donor, per year. If the donor has eligible contributions that
   were recorded after the annual receipt was issued, those contributions must be receipted one at a time. Use the Find
-  Contributions action to issue those receipts.</p>
-  <p><strong>This action cannot be undone.</strong> Tax receipts will be logged for auditing purposes,
-    and a copy of each receipt will be submitted to the tax receipt archive.
+  Contributions action to issue those receipts.{/ts}</p>
+  <p>{ts domain='org.civicrm.cdntaxreceipts'}<strong>This action cannot be undone.</strong> Tax receipts will be logged for auditing purposes,
+    and a copy of each receipt will be submitted to the tax receipt archive.{/ts}</p>
   <ul>
-  <li>Email receipts will be emailed directly to the contributor.</li>
-  <li>Print receipts will be compiled into a file for download.  Please print and mail any receipts in this file.</li>
+  <li>{ts domain='org.civicrm.cdntaxreceipts'}Email receipts will be emailed directly to the contributor.{/ts}</li>
+  <li>{ts domain='org.civicrm.cdntaxreceipts'}Print receipts will be compiled into a file for download.  Please print and mail any receipts in this file.{/ts}</li>
   </ul></p>
-  <p>{$form.is_preview.html} {$form.is_preview.label} (Generates receipts marked 'preview', but does not issue the receipts.  No logging or emails sent.)</p>
+  <p>{$form.is_preview.html} {$form.is_preview.label} {ts domain='org.civicrm.cdntaxreceipts'}(Generates receipts marked 'preview', but does not issue the receipts.  No logging or emails sent.){/ts}</p>
   <div class="crm-submit-buttons">{include file="CRM/common/formButtons.tpl"}</div>
 </div>

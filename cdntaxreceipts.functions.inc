@@ -414,7 +414,7 @@ function cdntaxreceipts_createPDF(&$pdf, $pdf_variables) {
     // Bottom right section
     $signature = CRM_Core_BAO_Setting::getItem(CDNTAX_SETTINGS, 'receipt_authorized_signature_text');
     if ( $signature == '' ) {
-      $signature = ts('Authorized Signature');
+      $signature = ts('Authorized Signature', array('domain' => 'org.civicrm.cdntaxreceipts'));
     }
     $sig_offset = strlen($signature) - 20;
     $pdf_template_file = CRM_Core_BAO_Setting::getItem(CDNTAX_SETTINGS, 'receipt_pdftemplate');

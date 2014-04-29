@@ -2,7 +2,7 @@
 <div class="crm-block crm-form-block crm-contact-task-delete-form-block">
 <div class="messages status no-popup">
   <div class="icon inform-icon"></div>
-  {ts}You have selected <strong>{$totalSelectedContributions}</strong> contributions including
+  {ts domain='org.civicrm.cdntaxreceipts'}You have selected <strong>{$totalSelectedContributions}</strong> contributions including
   <strong>{$receiptList.totals.original}</strong> originals and <strong>{$receiptList.totals.duplicate}</strong> duplicates
     to issue. Note that duplicates cannot be issued by this method and will be skipped. The summary below includes the
     original receipt issue contributions only.{/ts}
@@ -33,14 +33,14 @@
     {/foreach}
   </table>
 
-  <p>{ts}Clicking 'Issue Tax Receipts' will issue aggregate tax receipts grouped into the selected year(s). These tax receipts are a sum
+  <p>{ts domain='org.civicrm.cdntaxreceipts'}Clicking 'Issue Tax Receipts' will issue aggregate tax receipts grouped into the selected year(s). These tax receipts are a sum
     total of all selected eligible contributions, received from the donor during the selected year, that have not already been receipted individually.{/ts}</p>
-  <p>{ts}<strong>This action cannot be undone.</strong> Tax receipts will be logged for auditing purposes,
+  <p>{ts domain='org.civicrm.cdntaxreceipts'}<strong>This action cannot be undone.</strong> Tax receipts will be logged for auditing purposes,
     and a copy of each receipt will be submitted to the tax receipt archive.{/ts}
   <ul>
-  <li>{ts}Email receipts will be emailed directly to the contributor.{/ts}</li>
-  <li>{ts}Print receipts will be compiled into a file for download.  Please print and mail any receipts in this file.{/ts}</li>
+  <li>{ts domain='org.civicrm.cdntaxreceipts'}Email receipts will be emailed directly to the contributor.{/ts}</li>
+  <li>{ts domain='org.civicrm.cdntaxreceipts'}}Print receipts will be compiled into a file for download.  Please print and mail any receipts in this file.{/ts}</li>
   </ul></p>
-  <p>{$form.is_preview.html} {$form.is_preview.label} {ts}(Generates receipts marked 'preview', but does not issue the receipts.  No logging or emails sent.){/ts}</p>
+  <p>{$form.is_preview.html} {$form.is_preview.label} {ts domain='org.civicrm.cdntaxreceipts'}(Generates receipts marked 'preview', but does not issue the receipts.  No logging or emails sent.){/ts}</p>
   <div class="crm-submit-buttons">{include file="CRM/common/formButtons.tpl"}</div>
 </div>

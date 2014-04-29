@@ -51,36 +51,36 @@ cj(document).ready(
 {/if}
 
 {if $reissue eq 0}
-  <h3>{ts}A tax receipt has not been issued for this contribution.{/ts}</h3>
+  <h3>{ts domain='org.civicrm.cdntaxreceipts'}A tax receipt has not been issued for this contribution.{/ts}</h3>
   {if call_user_func(array('CRM_Core_Permission','check'), 'issue cdn tax receipts')}
-    <p>Click '{$buttonLabel}' to issue a tax receipt for this contribution. 
+    <p>{ts domain='org.civicrm.cdntaxreceipts'}Click '{$buttonLabel}' to issue a tax receipt for this contribution.
     This action cannot be undone. The tax receipt will be logged for auditing purposes,
-    and a copy of the receipt will be submitted to the tax receipt archive.</p>
+    and a copy of the receipt will be submitted to the tax receipt archive.{/ts}</p>
     {if $method eq 'email'}
-      <p>The receipt will be sent <strong>by email</strong>
-      to the contributor ({$receiptEmail}).</p>
+      <p>{ts domain='org.civicrm.cdntaxreceipts'}The receipt will be sent <strong>by email</strong>
+      to the contributor ({$receiptEmail}).{/ts}</p>
     {else}
-      <p class='status-warning'>Please <strong>download and print</strong> the receipt that
-      is generated. You will need to send a printed copy to the contributor.</p>
+      <p class='status-warning'>{ts domain='org.civicrm.cdntaxreceipts'}Please <strong>download and print</strong> the receipt that
+      is generated. You will need to send a printed copy to the contributor.{/ts}</p>
     {/if}
   {else}
-    <p>You do not have sufficient authorization to issue tax receipts.</p>
+    <p>{ts domain='org.civicrm.cdntaxreceipts'}You do not have sufficient authorization to issue tax receipts.{/ts}</p>
   {/if}
 {elseif $reissue eq 1}
-  <h3>{ts}Re-Issue Tax Receipt{/ts}</h3>
+  <h3>{ts domain='org.civicrm.cdntaxreceipts'}Re-Issue Tax Receipt{/ts}</h3>
   {if call_user_func(array('CRM_Core_Permission','check'), 'issue cdn tax receipts')}
-    <p>Click '{$buttonLabel}' to re-issue a tax receipt for this contribution. The
+    <p>{ts domain='org.civicrm.cdntaxreceipts'}Click '{$buttonLabel}' to re-issue a tax receipt for this contribution. The
     tax receipt will be marked 'duplicate' with the same receipt number and amount as
-    the original copy.</p> 
+    the original copy.{/ts}</p>
     {if $method eq 'email'}
-      <p>The receipt will be sent automatically <strong>by email</strong> to the contributor
-      ({$receiptEmail}).</p>
+      <p>{ts domain='org.civicrm.cdntaxreceipts'}The receipt will be sent automatically <strong>by email</strong> to the contributor
+      ({$receiptEmail}).{/ts}</p>
     {else}
-      <p class='status-warning'>Please <strong>download and print</strong> the receipt that
-      is generated. You will need to send a printed copy to the contributor.</p>
+      <p class='status-warning'>{ts domain='org.civicrm.cdntaxreceipts'}Please <strong>download and print</strong> the receipt that
+      is generated. You will need to send a printed copy to the contributor.{/ts}</p>
     {/if}
   {else}
-    <p>You do not have sufficient authorization to re-issue tax receipts.</p>
+    <p>{ts domain='org.civicrm.cdntaxreceipts'}You do not have sufficient authorization to re-issue tax receipts.{/ts}</p>
   {/if}
 {/if}
 

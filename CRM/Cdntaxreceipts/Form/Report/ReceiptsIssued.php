@@ -16,7 +16,7 @@ class CRM_Cdntaxreceipts_Form_Report_ReceiptsIssued extends CRM_Report_Form {
         'fields' =>
         array(
           'sort_name' =>
-          array('title' => ts('Contact Name'),
+          array('title' => ts('Contact Name', array('domain' => 'org.civicrm.cdntaxreceipts')),
             'required' => TRUE,
           ),
           'id' =>
@@ -30,7 +30,7 @@ class CRM_Cdntaxreceipts_Form_Report_ReceiptsIssued extends CRM_Report_Form {
         array(
           'sort_name' =>
           array(
-            'title' => ts('Last Name, First Name'),
+            'title' => ts('Last Name, First Name', array('domain' => 'org.civicrm.cdntaxreceipts')),
           ),
         ),
       ),
@@ -61,7 +61,7 @@ class CRM_Cdntaxreceipts_Form_Report_ReceiptsIssued extends CRM_Report_Form {
             'type' => CRM_Utils_Type::T_STRING,
           ),
           'issue_method' =>
-          array('title' => ts('Issue Method'),
+          array('title' => ts('Issue Method', array('domain' => 'org.civicrm.cdntaxreceipts')),
             'operatorType' => CRM_Report_Form::OP_MULTISELECT,
             'options' => array('email' => 'Email', 'print' => 'Print'),
             'type' => CRM_Utils_Type::T_STRING,
@@ -75,11 +75,11 @@ class CRM_Cdntaxreceipts_Form_Report_ReceiptsIssued extends CRM_Report_Form {
           ),
           'receipt_no' =>
           array(
-            'title' => ts('Receipt No.'),
+            'title' => ts('Receipt No.', array('domain' => 'org.civicrm.cdntaxreceipts')),
           ),
           'receipt_amount' =>
           array(
-            'title' => ts('Receipt Amount'),
+            'title' => ts('Receipt Amount', array('domain' => 'org.civicrm.cdntaxreceipts')),
           ),
         ),
       ),
@@ -104,7 +104,7 @@ class CRM_Cdntaxreceipts_Form_Report_ReceiptsIssued extends CRM_Report_Form {
 
     //check for permission to edit contributions
     if ( ! CRM_Core_Permission::check('access CiviContribute') ) {
-      CRM_Core_Error::fatal(ts('You do not have permission to access this page'));
+      CRM_Core_Error::fatal(ts('You do not have permission to access this page', array('domain' => 'org.civicrm.cdntaxreceipts')));
     }
   }
 
@@ -290,23 +290,23 @@ class CRM_Cdntaxreceipts_Form_Report_ReceiptsIssued extends CRM_Report_Form {
 
       if (array_key_exists('civicrm_cdntaxreceipts_log_issue_type', $row)) {
         if ($rows[$rowNum]['civicrm_cdntaxreceipts_log_issue_type'] == 'single' ) {
-          $rows[$rowNum]['civicrm_cdntaxreceipts_log_issue_type'] = ts('Single');
+          $rows[$rowNum]['civicrm_cdntaxreceipts_log_issue_type'] = ts('Single', array('domain' => 'org.civicrm.cdntaxreceipts'));
         }
         elseif ($rows[$rowNum]['civicrm_cdntaxreceipts_log_issue_type'] == 'annual' ) {
-          $rows[$rowNum]['civicrm_cdntaxreceipts_log_issue_type'] = ts('Annual');
+          $rows[$rowNum]['civicrm_cdntaxreceipts_log_issue_type'] = ts('Annual', array('domain' => 'org.civicrm.cdntaxreceipts'));
         }
         elseif ($rows[$rowNum]['civicrm_cdntaxreceipts_log_issue_type'] == 'aggregate' ) {
-          $rows[$rowNum]['civicrm_cdntaxreceipts_log_issue_type'] = ts('Aggregate');
+          $rows[$rowNum]['civicrm_cdntaxreceipts_log_issue_type'] = ts('Aggregate', array('domain' => 'org.civicrm.cdntaxreceipts'));
         }
         $entryFound = TRUE;
       }
 
       if (array_key_exists('civicrm_cdntaxreceipts_log_issue_method', $row)) {
         if ($rows[$rowNum]['civicrm_cdntaxreceipts_log_issue_method'] == 'print' ) {
-          $rows[$rowNum]['civicrm_cdntaxreceipts_log_issue_method'] = ts('Print');
+          $rows[$rowNum]['civicrm_cdntaxreceipts_log_issue_method'] = ts('Print', array('domain' => 'org.civicrm.cdntaxreceipts'));
         }
         elseif ($rows[$rowNum]['civicrm_cdntaxreceipts_log_issue_method'] == 'email' ) {
-          $rows[$rowNum]['civicrm_cdntaxreceipts_log_issue_method'] = ts('Email');
+          $rows[$rowNum]['civicrm_cdntaxreceipts_log_issue_method'] = ts('Email', array('domain' => 'org.civicrm.cdntaxreceipts'));
         }
         $entryFound = TRUE;
       }
@@ -355,16 +355,16 @@ class CRM_Cdntaxreceipts_Form_Report_ReceiptsIssued extends CRM_Report_Form {
       $count += $dao->count;
     }
     $statistics['counts']['amount'] = array(
-      'title' => ts('Total Amount Issued'),
+      'title' => ts('Total Amount Issued', array('domain' => 'org.civicrm.cdntaxreceipts')),
       'value' => implode(',  ', $totalAmount),
       'type' => CRM_Utils_Type::T_STRING,
     );
     $statistics['counts']['count'] = array(
-      'title' => ts('Number Issued'),
+      'title' => ts('Number Issued', array('domain' => 'org.civicrm.cdntaxreceipts')),
       'value' => $count,
     );
     $statistics['counts']['avg'] = array(
-      'title' => ts('Average Amount Issued'),
+      'title' => ts('Average Amount Issued', array('domain' => 'org.civicrm.cdntaxreceipts')),
       'value' => implode(',  ', $average),
       'type' => CRM_Utils_Type::T_STRING,
     );
