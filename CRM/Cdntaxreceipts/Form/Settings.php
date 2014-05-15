@@ -34,6 +34,16 @@ class CRM_Cdntaxreceipts_Form_Settings extends CRM_Core_Form {
         'isDefault' => TRUE,
       ),
     ));
+    // Set image defaults
+    $images = array('receipt_logo', 'receipt_signature', 'receipt_watermark', 'receipt_pdftemplate');
+    foreach ($images as $image) {
+      if (CRM_Utils_Array::value($image, $defaults)) {
+        $this->assign($image, $defaults[$image]);
+        if (!file_exists($defaults[$image])) {
+          $this->assign($image.'_class', TRUE);
+        }
+      }
+    }
 
     parent::buildQuickForm();
   }
@@ -66,6 +76,10 @@ class CRM_Cdntaxreceipts_Form_Settings extends CRM_Core_Form {
         'org_fax' => CRM_Core_BAO_Setting::getItem(self::SETTINGS, 'org_fax'),
         'org_email' => CRM_Core_BAO_Setting::getItem(self::SETTINGS, 'org_email'),
         'org_web' => CRM_Core_BAO_Setting::getItem(self::SETTINGS, 'org_web'),
+        'receipt_logo' => CRM_Core_BAO_Setting::getItem(self::SETTINGS, 'receipt_logo'),
+        'receipt_signature' => CRM_Core_BAO_Setting::getItem(self::SETTINGS, 'receipt_signature'),
+        'receipt_watermark' => CRM_Core_BAO_Setting::getItem(self::SETTINGS, 'receipt_watermark'),
+        'receipt_pdftemplate' => CRM_Core_BAO_Setting::getItem(self::SETTINGS, 'receipt_pdftemplate'),
         'org_charitable_no' => CRM_Core_BAO_Setting::getItem(self::SETTINGS, 'org_charitable_no'),
       );
       return $defaults;
@@ -139,7 +153,9 @@ class CRM_Cdntaxreceipts_Form_Settings extends CRM_Core_Form {
         if (is_array($upload_file)) {
           if ( $upload_file['error'] == 0 ) {
             $filename = $config->customFileUploadDir . CRM_Utils_File::makeFileName($upload_file['name']);
-            move_uploaded_file($upload_file['tmp_name'], $filename);
+            if (!move_uploaded_file($upload_file['tmp_name'], $filename)) {
+              CRM_Core_Error::fatal(ts('Could not upload the file'));
+            }
             CRM_Core_BAO_Setting::setItem($filename, self::SETTINGS, $key);
           }
         }
