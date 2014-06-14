@@ -134,6 +134,7 @@ function cdntaxreceipts_generateFormattedReceipt( $receipt, &$collectedPdf = NUL
       $parts[] = $address[$addr_part];
     }
   }
+  $address_line_1b = isset($address['supplemental_address_1']) ? $address['supplemental_address_1'] : '';
   $address_line_2 = implode(' ', $parts);
   $address_line_3 = isset($address['country']) ? $address['country'] : '';
 
@@ -193,6 +194,7 @@ function cdntaxreceipts_generateFormattedReceipt( $receipt, &$collectedPdf = NUL
     "receipt_number" => $receipt['receipt_no'],
     "displayname" => $displayname,
     "address_line_1" => $address_line_1,
+    "address_line_1b" => $address_line_1b,
     "address_line_2" => $address_line_2,
     "address_line_3" => $address_line_3,
     "inkind_values" => isset($receipt['inkind_values']) ? $receipt['inkind_values'] : array(),
@@ -248,6 +250,7 @@ function cdntaxreceipts_createPDF(&$pdf, $pdf_variables) {
   $receipt_number = $pdf_variables["receipt_number"];
   $displayname = $pdf_variables["displayname"];
   $address_line_1 = $pdf_variables["address_line_1"];
+  $address_line_1b = $pdf_variables["address_line_1b"];
   $address_line_2 = $pdf_variables["address_line_2"];
   $address_line_3 = $pdf_variables["address_line_3"];
   $inkind_values = $pdf_variables["inkind_values"];
@@ -343,14 +346,27 @@ function cdntaxreceipts_createPDF(&$pdf, $pdf_variables) {
   $pdf->SetFont('Helvetica', 'B', 10);
   $pdf->SetXY($mymargin_left+10, $mymargin_top + $y_detailscolumnstart + 20);
   $pdf->Write(10, strtoupper($displayname), '', 0, 'L', TRUE, 0, FALSE, FALSE, 0);
-  $pdf->SetFont('Helvetica', '', 10);
-  $pdf->SetXY($mymargin_left+10, $mymargin_top + $y_detailscolumnstart + 24);
-  $pdf->Write(10, strtoupper($address_line_1), '', 0, 'L', TRUE, 0, FALSE, FALSE, 0);
-  $pdf->SetXY($mymargin_left+10, $mymargin_top + $y_detailscolumnstart + 28);
-  $pdf->Write(10, strtoupper($address_line_2), '', 0, 'L', TRUE, 0, FALSE, FALSE, 0);
-  $pdf->SetXY($mymargin_left+10, $mymargin_top + $y_detailscolumnstart + 32);
-  $pdf->Write(10, strtoupper($address_line_3), '', 0, 'L', TRUE, 0, FALSE, FALSE, 0);
 
+  if (!$address_line_1b){
+    $pdf->SetFont('Helvetica', '', 10);
+    $pdf->SetXY($mymargin_left+10, $mymargin_top + $y_detailscolumnstart + 24);
+    $pdf->Write(10, strtoupper($address_line_1), '', 0, 'L', TRUE, 0, FALSE, FALSE, 0);
+    $pdf->SetXY($mymargin_left+10, $mymargin_top + $y_detailscolumnstart + 28);
+    $pdf->Write(10, strtoupper($address_line_2), '', 0, 'L', TRUE, 0, FALSE, FALSE, 0);
+    $pdf->SetXY($mymargin_left+10, $mymargin_top + $y_detailscolumnstart + 32);
+    $pdf->Write(10, strtoupper($address_line_3), '', 0, 'L', TRUE, 0, FALSE, FALSE, 0);
+  }
+  else {
+    $pdf->SetFont('Helvetica', '', 10);
+    $pdf->SetXY($mymargin_left+10, $mymargin_top + $y_detailscolumnstart + 24);
+    $pdf->Write(10, strtoupper($address_line_1), '', 0, 'L', TRUE, 0, FALSE, FALSE, 0);
+    $pdf->SetXY($mymargin_left+10, $mymargin_top + $y_detailscolumnstart + 28);
+    $pdf->Write(10, strtoupper($address_line_1b), '', 0, 'L', TRUE, 0, FALSE, FALSE, 0);
+    $pdf->SetXY($mymargin_left+10, $mymargin_top + $y_detailscolumnstart + 32);
+    $pdf->Write(10, strtoupper($address_line_2), '', 0, 'L', TRUE, 0, FALSE, FALSE, 0);
+    $pdf->SetXY($mymargin_left+10, $mymargin_top + $y_detailscolumnstart + 36);
+    $pdf->Write(10, strtoupper($address_line_3), '', 0, 'L', TRUE, 0, FALSE, FALSE, 0);
+  }
 
   // If this is an in-kind donation
   if ( !empty($inkind_values) ) {
