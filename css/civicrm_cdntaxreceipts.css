@@ -40,6 +40,6 @@
     margin-left: 10px;
 }
 
-#crm-container .cdntax_summary .cdntax_numeric {
-    text-align: right;
+#crm-container .cdntax_summary label {
+    margin-left: 5px;
 }
