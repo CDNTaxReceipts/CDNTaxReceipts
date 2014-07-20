@@ -97,6 +97,22 @@ You may be in a situation where certain Contributions are eligible for tax recei
 
 By default, a contribution is eligible for tax receipting if it is completed, and if its Financial Type is deductible.
 
+hook_cdntaxreceipts_eligibleAmount()
+------------
+
+If you need to customize the amount that is tax-deductible on a receipt, use this hook.
+
+    // Example hook implementation:
+    //  Return a maximum tax deduction of $1000.00
+    function mymodule_cdntaxreceipts_eligibleAmount( $contribution ) {
+      if ($contribution->total_amount - $contribution->non_deductible_amount > 1000) {
+        return array(1000.00);
+      }
+      else {
+        return $contribution->total_amount - $contribution->non_deductible_amount;
+      }
+    }
+
 Disclaimer
 ------------
 
