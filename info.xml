@@ -2,24 +2,30 @@
 <extension key="org.civicrm.cdntaxreceipts" type="module">
   <file>cdntaxreceipts</file>
   <name>CDN Tax Receipts</name>
-  <description>Creates Tax Receipts including single or annual/aggregate tax receipts, with distribution by email or print, detailed reporting, press ready PDF template possible. We worked with (and continue to work with) a BDO Tax Partner who has strong ties to both the NPO community and Tax Authorities (CRA).</description>
+  <description>
+      Creates Tax Receipts including single or annual/aggregate tax receipts, with distribution by email or print,
+      detailed reporting, press ready PDF template possible. We worked with (and continue to work with) a BDO Tax Partner
+      who has strong ties to both the NPO community and Tax Authorities (CRA).
+  </description>
   <license>AGPL</license>
   <maintainer>
     <author>Jake Martin White, Lola Slade and Karin Gerritsen</author>
     <email>jake@peaceworks.ca</email>
   </maintainer>
-  <releaseDate>2014-04-09</releaseDate>
-  <version>1.0</version>
-  <develStage>stable</develStage>
+  <releaseDate>2014-07-21</releaseDate>
+  <version>1.1</version>
   <compatibility>
     <ver>4.3</ver>
     <ver>4.4</ver>
   </compatibility>
   <urls>
     <url desc="documentation">https://github.com/jake-mw/CDNTaxReceipts/blob/master/README.md</url>
-    <url desc="Support">https://github.com/jake-mw/CDNTaxReceipts</url>
+    <url desc="Support">https://github.com/jake-mw/CDNTaxReceipts/issues?state=open</url>
   </urls>
-  <comments>Developed as a collaboration between Karin Gerritsen (semper-it.com), Lola Slade (freeform.ca), Alan Dixon (blackflysolutions.ca) and Jake Martin White (peaceworks.ca)</comments>
+  <comments>
+      Developed as a collaboration between Karin Gerritsen (semper-it.com), Lola Slade (freeform.ca),
+      Alan Dixon (blackflysolutions.ca) and Jake Martin White (peaceworks.ca)
+  </comments>
   <civix>
     <namespace>CRM/Cdntaxreceipts</namespace>
   </civix>
