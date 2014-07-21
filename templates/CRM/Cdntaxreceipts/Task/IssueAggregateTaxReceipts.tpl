@@ -9,26 +9,28 @@
 </div>
   <table id="cdntax_original_summary" class="cdntax_summary">
     <thead>
-      <th width='15%'>{ts domain='org.civicrm.cdntaxreceipts'}Tax Year{/ts}</th>
-      <th width='15%'>{ts domain='org.civicrm.cdntaxreceipts'}Selected Contributions{/ts}</th>
-      <th width='15%'>{ts domain='org.civicrm.cdntaxreceipts'}Selected Contribution Amount{/ts}</th>
-      <th width='10%'>{ts domain='org.civicrm.cdntaxreceipts'}Number of Contributors{/ts}</th>
-      <th width='10%'>{ts domain='org.civicrm.cdntaxreceipts'}Email{/ts}</th>
-      <th width='10%'>{ts domain='org.civicrm.cdntaxreceipts'}Print{/ts}</th>
-      <th width='15%'>{ts domain='org.civicrm.cdntaxreceipts'}Contributions Not Eligible{/ts}</th>
-      <th width='15%'>{ts domain='org.civicrm.cdntaxreceipts'}Not Eligible Amount{/ts}</th>
+      <th width='8%'>{ts domain='org.civicrm.cdntaxreceipts'}Tax Year{/ts}</th>
+      <th width='8%'>{ts domain='org.civicrm.cdntaxreceipts'}# of Contributors{/ts}</th>
+      <th width='10%'>{ts domain='org.civicrm.cdntaxreceipts'}Selected Contributions{/ts}</th>
+      <th width='10%'>{ts domain='org.civicrm.cdntaxreceipts'}Selected Contribution Amount{/ts}</th>
+      <th width='15%'>{ts domain='org.civicrm.cdntaxreceipts'}Email{/ts}</th>
+      <th width='15%'>{ts domain='org.civicrm.cdntaxreceipts'}Print{/ts}</th>
+      <th width='12%'>{ts domain='org.civicrm.cdntaxreceipts'}Contributions Not Eligible{/ts}</th>
+      <th width='12%'>{ts domain='org.civicrm.cdntaxreceipts'}Not Eligible Amount{/ts}</th>
+      <th width='10%'>{ts domain='org.civicrm.cdntaxreceipts'}Total Amount Issued{/ts}</th>
     </thead>
     {foreach from=$receiptYears item=year}
       {assign var="key" value="issue_$year"}
       <tr class="{cycle values="odd-row,even-row"}">
         <td>{$form.receipt_year.$key.html}</td>
+        <td>{$receiptList.original.$year.total_contacts}</td>
         <td>{$receiptList.original.$year.total_contrib}</td>
         <td>{$receiptList.original.$year.total_amount|crmMoney}</td>
-        <td>{$receiptList.original.$year.total_contacts}</td>
-        <td>{$receiptList.original.$year.email}</td>
-        <td>{$receiptList.original.$year.print}</td>
+        <td>{$receiptList.original.$year.email.receipt_count} ({$receiptList.original.$year.email.contribution_count} contributions)</td>
+        <td>{$receiptList.original.$year.print.receipt_count} ({$receiptList.original.$year.print.contribution_count} contributions)</td>
         <td>{$receiptList.original.$year.not_eligible}</td>
         <td>{$receiptList.original.$year.not_eligible_amount|crmMoney}</td>
+        <td>{capture assign=total_issue}{$receiptList.original.$year.total_amount - $receiptList.original.$year.not_eligible}{/capture}{$total_issue|crmMoney}</td>
       </tr>
     {/foreach}
   </table>
@@ -38,9 +40,9 @@
   <p>{ts domain='org.civicrm.cdntaxreceipts'}<strong>This action cannot be undone.</strong> Tax receipts will be logged for auditing purposes,
     and a copy of each receipt will be submitted to the tax receipt archive.{/ts}
   <ul>
-  <li>{ts domain='org.civicrm.cdntaxreceipts'}Email receipts will be emailed directly to the contributor.{/ts}</li>
-  <li>{ts domain='org.civicrm.cdntaxreceipts'}Print receipts will be compiled into a file for download.  Please print and mail any receipts in this file.{/ts}</li>
-  </ul></p>
+    <li>{ts domain='org.civicrm.cdntaxreceipts'}Email receipts will be emailed directly to the contributor.{/ts}</li>
+    <li>{ts domain='org.civicrm.cdntaxreceipts'}Print receipts will be compiled into a file for download.  Please print and mail any receipts in this file.{/ts}</li>
+  </ul>
   <p>{$form.is_preview.html} {$form.is_preview.label} {ts domain='org.civicrm.cdntaxreceipts'}(Generates receipts marked 'preview', but does not issue the receipts.  No logging or emails sent.){/ts}</p>
   <div class="crm-submit-buttons">{include file="CRM/common/formButtons.tpl"}</div>
 </div>
