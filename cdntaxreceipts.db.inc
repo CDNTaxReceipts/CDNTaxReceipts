@@ -276,6 +276,9 @@ function cdntaxreceipts_contributions_get_status($contributionIds = array()) {
       );
     }
   }
+  foreach ($contributions as $id => $contrib) {
+    $contributions[$id]['non_deductible_amount'] = cdntaxreceipts_eligibleAmount($id);
+  }
 
   return $contributions;
 }
