@@ -67,7 +67,7 @@ class CRM_Cdntaxreceipts_Task_IssueAggregateTaxReceipts extends CRM_Contribute_F
     }
 
     // Count and categorize contributions
-    // TODO: count non-deductible amount and then subtract for total
+    // TODO: count non-deductible amount and then subtract for total using cdntaxreceipts_eligibleAmount()
     foreach ($this->_contributionIds as $id) {
       $status = isset($this->_contributions_status[$id]) ? $this->_contributions_status[$id] : NULL;
       if (is_array($status)) {
