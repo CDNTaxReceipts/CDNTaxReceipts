@@ -11,80 +11,6 @@
  * This checks both 'single' and 'annual' receipts.
  */
 
-function cdntaxreceipts_issued_on($contribution_id) {
-
-  $sql = "SELECT issued_on, l.id as receipt_id FROM cdntaxreceipts_log l
-    INNER JOIN cdntaxreceipts_log_contributions c ON l.id = c.receipt_id
-    WHERE is_duplicate = 0 AND contribution_id = $contribution_id";
-
-  $dao = CRM_Core_DAO::executeQuery($sql);
-  if ( $dao->fetch() ) {
-    return array($dao->issued_on, $dao->receipt_id);
-  }
-  else {
-    return array(NULL, NULL);
-  }
-
-}
-
-/**
- * cdntaxreceipts_annual_issued_on
- *
- * Returns list($issued_on, receipt_id) of when an annual receipt was issued for the given contact and year.
- * (NULL,NULL) if no annual receipt has been issued.
- */
-
-function cdntaxreceipts_annual_issued_on($contactId, $year) {
-
-  $sql = "SELECT issued_on, l.id as receipt_id FROM cdntaxreceipts_log l
-    INNER JOIN cdntaxreceipts_log_contributions c ON l.id = c.receipt_id
-    WHERE is_duplicate = 0 AND issue_type = 'annual' AND contact_id = $contactId
-      AND year(receive_date) = $year";
-
-  $dao = CRM_Core_DAO::executeQuery($sql);
-  if ( $dao->fetch() ) {
-    return array($dao->issued_on, $dao->receipt_id);
-  }
-  else {
-    return array(NULL, NULL);
-  }
-
-}/**
- * cdntaxreceipts_all_issued_on
- *
- * Return all records of when the contribution was receipted
- * This checks 'single', 'annual' and 'aggregate' receipts.
- *
- * @param $contribution_id - the contribution being looked up
- */
-
-function cdntaxreceipts_all_issued_on($contribution_id) {
-
-  $issued_on = array();
-
-  $sql = "
-    SELECT l.issued_on, l.id as receipt_id, l.is_duplicate, l.issue_type, l.issue_method
-    FROM cdntaxreceipts_log l
-    INNER JOIN cdntaxreceipts_log_contributions c ON l.id = c.receipt_id
-    WHERE contribution_id = {$contribution_id}
-    GROUP BY l.issued_on, l.is_duplicate, l.id as receipt_id, l.issue_type, l.issue_method";
-
-  $dao = CRM_Core_DAO::executeQuery($sql);
-  $count = 0;
-  while ($dao->fetch()) {
-    $issued_on['receipts'][$count] = array(
-      $dao->issued_on,
-      $dao->issue_method,
-      $dao->receipt_id,
-      $dao->is_duplicate,
-      $dao->issue_type
-    );
-    $count++;
-  }
-  $issued_on['count'] = $count;
-  return $issued_on;
-}
-
 
 function cdntaxreceipts_contributions_not_receipted($contactId, $year) {
 
@@ -172,52 +98,6 @@ function cdntaxreceipts_load_receipt($receipt_id) {
   }
 
   return $receipt;
-
-}
-
-/**
- * cdntaxreceipts_log
- *
- * Log the issuance
- */
-
- //TODO: Should return success or failure
-function cdntaxreceipts_log($receipt) {
-
-  $uid = CRM_Utils_System::getLoggedInUfID();
-
-  // create the main entry
-  $params = array(
-    1 => array( $receipt['receipt_no'], 'String' ),
-    2 => array( $receipt['issued_on'], 'Integer' ),
-    3 => array( $receipt['contact_id'], 'Integer' ),
-    4 => array( $receipt['receipt_amount'], 'Money' ),
-    5 => array( $receipt['is_duplicate'], 'Boolean' ),
-    6 => array( $uid, 'Integer' ),
-    7 => array( $_SERVER['REMOTE_ADDR'], 'String' ),
-    8 => array( $receipt['issue_type'], 'String' ),
-    9 => array( $receipt['issue_method'], 'String' ),
-  );
-  $sql = "INSERT INTO cdntaxreceipts_log (receipt_no, issued_on, contact_id, receipt_amount,
-    is_duplicate, uid, ip, issue_type, issue_method)
-      VALUES (%1, %2, %3, %4, %5, %6, %7, %8, %9)";
-  $result = CRM_Core_DAO::executeQuery($sql, $params);
-  $receipt_id = CRM_Core_DAO::singleValueQuery('SELECT LAST_INSERT_ID()');
-
-  // add line items
-  foreach ( $receipt['contributions'] as $contribution ) {
-    $params = array(
-      1 => array( $receipt_id, 'Integer' ),
-      2 => array( $contribution['contribution_id'], 'Integer' ),
-      3 => array( $contribution['contribution_amount'], 'Money' ),
-      4 => array( $contribution['receipt_amount'], 'Money' ),
-      5 => array( $contribution['receive_date'], 'String' ),
-    );
-    $sql = "INSERT INTO cdntaxreceipts_log_contributions (receipt_id, contribution_id,
-      contribution_amount, receipt_amount, receive_date)
-        VALUES (%1, %2, %3, %4, %5)";
-    CRM_Core_DAO::executeQuery($sql, $params);
-  }
 
 }
 

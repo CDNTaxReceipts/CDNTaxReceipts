@@ -18,8 +18,8 @@ function cdntaxreceipts_civicrm_buildForm( $formName, &$form ) {
 
     if ( isset($contributionId) && cdntaxreceipts_eligibleForReceipt($contributionId) ) {
 
-      list($issued_on, $receipt_id) = cdntaxreceipts_issued_on($contributionId);
-      $is_original_receipt = empty($issued_on);
+      $history = CRM_Cdntaxreceipts_Receipt::getIssueHistory($contributionId);
+      $is_original_receipt = empty($history['original']);
 
       if ($is_original_receipt) {
         $buttons = array(array('type'      => 'submit',

@@ -42,12 +42,12 @@ class CRM_Cdntaxreceipts_Form_ViewTaxReceipt extends CRM_Core_Form {
       $this->sendFile($contributionId, $contactId); // exits
     }
 
-    list($issuedOn, $receiptId) = cdntaxreceipts_issued_on($contributionId);
+    $history = CRM_Cdntaxreceipts_Receipt::getIssueHistory($contributionId);
+    $originalReceipt = $history['original'];
 
-    if ( isset($receiptId) ) {
-      $existingReceipt = cdntaxreceipts_load_receipt($receiptId);
+    if (isset($originalReceipt) ) {
+      $this->_receipt = $originalReceipt;
       $this->_reissue = 1;
-      $this->_receipt = $existingReceipt;
     }
     else {
       $this->_reissue = 0;
@@ -82,15 +82,15 @@ class CRM_Cdntaxreceipts_Form_ViewTaxReceipt extends CRM_Core_Form {
     if ( $this->_reissue ) {
 
       $receipt_contributions = array();
-      foreach ( $this->_receipt['contributions'] as $c ) {
+      foreach ( $this->_receipt->_contributions as $c ) {
         $receipt_contributions[] = $c['contribution_id'];
       }
 
       CRM_Utils_System::setTitle('Tax Receipt');
       $buttonLabel = ts('Re-Issue Tax Receipt', array('domain' => 'org.civicrm.cdntaxreceipts'));
       $this->assign('reissue', 1);
-      $this->assign('receipt', $this->_receipt);
-      $this->assign('contact_id', $this->_receipt['contact_id']);
+      $this->assign('receipt', $this->_receipt->toArray());
+      $this->assign('contact_id', $this->_receipt->_contactId);
       $this->assign('contribution_id', $this->get('contribution_id'));
       $this->assign('receipt_contributions', $receipt_contributions);
     }
@@ -152,6 +152,9 @@ class CRM_Cdntaxreceipts_Form_ViewTaxReceipt extends CRM_Core_Form {
     $contribution =  new CRM_Contribute_DAO_Contribution();
     $contribution->id = $contributionId;
 
+    // We will refresh the form, with file stored in session if we need it.
+    $urlParams = array('reset=1', 'cid='.$contactId, 'id='.$contributionId);
+
     if ( ! $contribution->find( TRUE ) ) {
       CRM_Core_Error::fatal( "CDNTaxReceipts: Could not retrieve details for this contribution" );
     }
@@ -162,8 +165,29 @@ class CRM_Cdntaxreceipts_Form_ViewTaxReceipt extends CRM_Core_Form {
       CRM_Core_Session::setStatus( $statusMsg );
     }
     else {
+      $pdfGenerator = CRM_Cdntaxreceipts_PdfFactory::getPDFLib();
 
-      list( $result, $method, $pdf ) = cdntaxreceipts_issueTaxReceipt( $contribution );
+      // TODO: The next 9 lines may become a function of a controller class (strategy pattern perhaps)
+      if ($this->_reissue) {
+        $receipt = $this->_receipt;
+      }
+      else {
+        $receipt = new CRM_Cdntaxreceipts_Receipt();
+        $receipt->setIssueType('single');
+        $receipt->setContactId($contactId);
+        $receipt->addContribution($contribution);
+      }
+
+      $result = $receipt->issue($pdfGenerator, NULL);
+
+      $method = $receipt->getIssueMethod();
+      $pdf_file = $receipt->getFileName();
+
+      if ( $method == 'print' && isset($pdfGenerator) ) {
+        $session = CRM_Core_Session::singleton();
+        $session->set("pdf_file_". $contributionId . "_" . $contactId, $pdf_file, 'cdntaxreceipts');
+        $urlParams[] = 'file=1';
+      }
 
       if ( $result == TRUE ) {
         if ( $method == 'email' ) {
@@ -177,17 +201,8 @@ class CRM_Cdntaxreceipts_Form_ViewTaxReceipt extends CRM_Core_Form {
       else {
         $statusMsg = ts('Encountered an error. Tax receipt has not been issued.', array('domain' => 'org.civicrm.cdntaxreceipts'));
         CRM_Core_Session::setStatus( $statusMsg );
-        unset($pdf);
+        unset($pdfGenerator);
       }
-    }
-
-    // refresh the form, with file stored in session if we need it.
-    $urlParams = array('reset=1', 'cid='.$contactId, 'id='.$contributionId);
-
-    if ( $method == 'print' && isset($pdf) ) {
-      $session = CRM_Core_Session::singleton();
-      $session->set("pdf_file_". $contributionId . "_" . $contactId, $pdf, 'cdntaxreceipts');
-      $urlParams[] = 'file=1';
     }
 
     $url = CRM_Utils_System::url(CRM_Utils_System::currentPath(), implode('&', $urlParams));
