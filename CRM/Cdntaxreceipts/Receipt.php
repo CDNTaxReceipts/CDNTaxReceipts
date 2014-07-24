@@ -184,8 +184,8 @@ class CRM_Cdntaxreceipts_Receipt {
     }
   }
 
-  function issue(CRM_Cdntaxreceipts_PDFGenerator $attachmentPDF,
-                 CRM_Cdntaxreceipts_PDFGenerator $collectedPdf = NULL,
+  function issue(CRM_Cdntaxreceipts_PDF_Generator $attachmentPDF,
+                 CRM_Cdntaxreceipts_PDF_Generator $collectedPdf = NULL,
                  $previewMode = FALSE) {
     // Generate a receipt no
     $receipt_no = $this->generateReceiptNo();
@@ -341,7 +341,7 @@ class CRM_Cdntaxreceipts_Receipt {
     return $pdf_variables;
   }
 
-  function printReceipt(CRM_Cdntaxreceipts_PDFGenerator $pdf) {
+  function printReceipt(CRM_Cdntaxreceipts_PDF_Generator $pdf) {
     $pdf_variables = $this->process();
     $pdf_variables['mymargin_left'] = $pdf->getDefaultLeftMargin();
     $pdf_variables['mymargin_top'] = $pdf->getDefaultTopMargin();

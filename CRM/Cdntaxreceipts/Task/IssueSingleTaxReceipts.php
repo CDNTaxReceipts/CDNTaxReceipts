@@ -26,7 +26,7 @@ class CRM_Cdntaxreceipts_Task_IssueSingleTaxReceipts extends CRM_Contribute_Form
     }
     parent::preProcess();
 
-    $this->_batch = new CRM_Cdntaxreceipts_ReceiptBatch(new CRM_Cdntaxreceipts_ReceiptBatchBuilderSingle($this->_contributionIds));
+    $this->_batch = new CRM_Cdntaxreceipts_Receipt_Batch(new CRM_Cdntaxreceipts_Receipt_BatchBuilderSingle($this->_contributionIds));
     $this->_receipts = $this->_batch->getPreviewSummary();
 
   }
@@ -145,7 +145,7 @@ class CRM_Cdntaxreceipts_Task_IssueSingleTaxReceipts extends CRM_Contribute_Form
    * @param $originalOnly
    * @return mixed
    */
-  protected function postProcessBatch(CRM_Cdntaxreceipts_ReceiptBatch $batch, $previewMode, $originalOnly) {
+  protected function postProcessBatch(CRM_Cdntaxreceipts_Receipt_Batch $batch, $previewMode, $originalOnly) {
     $batch->issue($previewMode, $originalOnly);
     $errors = $batch->getErrors();
     foreach ($errors as $severity => $messages) {

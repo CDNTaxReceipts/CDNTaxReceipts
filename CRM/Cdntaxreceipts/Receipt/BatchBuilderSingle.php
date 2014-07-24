@@ -1,6 +1,6 @@
 <?php
 
-class CRM_Cdntaxreceipts_ReceiptBatchBuilderSingle extends CRM_Cdntaxreceipts_ReceiptBatchBuilder {
+class CRM_Cdntaxreceipts_Receipt_BatchBuilderSingle extends CRM_Cdntaxreceipts_Receipt_BatchBuilder {
 
   private $_contributionIds;
 

@@ -1,6 +1,6 @@
 <?php
 
-abstract class CRM_Cdntaxreceipts_PDFGenerator {
+abstract class CRM_Cdntaxreceipts_PDF_Generator {
 
   protected $_imageFilesPath;
 

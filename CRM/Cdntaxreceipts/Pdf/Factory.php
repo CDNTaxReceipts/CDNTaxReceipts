@@ -1,6 +1,6 @@
 <?php
 
-class CRM_Cdntaxreceipts_PdfFactory {
+class CRM_Cdntaxreceipts_Pdf_Factory {
 
   private static $_singleton = NULL;
 
@@ -13,7 +13,7 @@ class CRM_Cdntaxreceipts_PdfFactory {
   public static function singleton() {
     if (self::$_singleton === NULL) {
 
-      self::$_singleton = new CRM_Cdntaxreceipts_PdfFactory();
+      self::$_singleton = new CRM_Cdntaxreceipts_Pdf_Factory();
     }
     return self::$_singleton;
   }
@@ -22,11 +22,11 @@ class CRM_Cdntaxreceipts_PdfFactory {
     $pdf_template_id = CRM_Core_BAO_Setting::getItem(CDNTAX_SETTINGS, 'pdf_template_id');
     //dpm($pdf_template_id);
     if (empty($pdf_template_id)) {
-      return new CRM_Cdntaxreceipts_PDFGeneratorOriginal();
+      return new CRM_Cdntaxreceipts_PDF_GeneratorOriginal();
     }
     else {
       //TODO: Create a new class to use PDF letter templates and use it here
-      return new CRM_Cdntaxreceipts_PDFGeneratorOriginal();
+      return new CRM_Cdntaxreceipts_PDF_GeneratorOriginal();
     }
   }
 }

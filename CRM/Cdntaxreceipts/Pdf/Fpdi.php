@@ -1,13 +1,13 @@
 <?php
 
 /**
- * @file PdfFpdi.php - define subclass of fpdi
+ * @file Fpdi.php - define subclass of fpdi
  */
 
 require_once 'tcpdf/tcpdf.php';
 require_once('FPDI/fpdi.php');
 
-class CRM_Cdntaxreceipts_PdfFpdi extends FPDI {
+class CRM_Cdntaxreceipts_Pdf_Fpdi extends FPDI {
   /**
    * "Remembers" the template id of the imported page
    */

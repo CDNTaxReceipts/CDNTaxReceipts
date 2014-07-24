@@ -1,6 +1,6 @@
 <?php
 
-abstract class CRM_Cdntaxreceipts_ReceiptBatchBuilder {
+abstract class CRM_Cdntaxreceipts_Receipt_BatchBuilder {
   protected $_errors;
   protected $_receiptBatch;
   protected $_receiptBatchSummary;

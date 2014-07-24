@@ -1,7 +1,7 @@
 <?php
 
 
-class CRM_Cdntaxreceipts_PDFGeneratorOriginal extends CRM_Cdntaxreceipts_PDFGenerator {
+class CRM_Cdntaxreceipts_PDF_GeneratorOriginal extends CRM_Cdntaxreceipts_PDF_Generator {
 
   private $pdf;
 
@@ -25,7 +25,7 @@ class CRM_Cdntaxreceipts_PDFGeneratorOriginal extends CRM_Cdntaxreceipts_PDFGene
    */
   function open() {
 
-    $this->pdf = new CRM_Cdntaxreceipts_PdfFpdi(PDF_PAGE_ORIENTATION, PDF_UNIT, 'LETTER', TRUE, 'UTF-8', FALSE);
+    $this->pdf = new CRM_Cdntaxreceipts_Pdf_Fpdi(PDF_PAGE_ORIENTATION, PDF_UNIT, 'LETTER', TRUE, 'UTF-8', FALSE);
     $this->pdf->Open();
 
     $this->pdf->SetAuthor(CRM_Core_BAO_Setting::getItem(CDNTAX_SETTINGS, 'org_name', NULL, ''));
