@@ -80,17 +80,17 @@ class CRM_Cdntaxreceipts_Form_ViewTaxReceipt extends CRM_Core_Form {
   function buildQuickForm() {
 
     if ( $this->_reissue ) {
-
+      $receiptArray = $this->_receipt->toArray();
       $receipt_contributions = array();
-      foreach ( $this->_receipt->_contributions as $c ) {
+      foreach ( $receiptArray['contributions'] as $c ) {
         $receipt_contributions[] = $c['contribution_id'];
       }
 
       CRM_Utils_System::setTitle('Tax Receipt');
       $buttonLabel = ts('Re-Issue Tax Receipt', array('domain' => 'org.civicrm.cdntaxreceipts'));
       $this->assign('reissue', 1);
-      $this->assign('receipt', $this->_receipt->toArray());
-      $this->assign('contact_id', $this->_receipt->_contactId);
+      $this->assign('receipt', $receiptArray);
+      $this->assign('contact_id', $receiptArray['contactId']);
       $this->assign('contribution_id', $this->get('contribution_id'));
       $this->assign('receipt_contributions', $receipt_contributions);
     }
@@ -167,19 +167,17 @@ class CRM_Cdntaxreceipts_Form_ViewTaxReceipt extends CRM_Core_Form {
     else {
       $pdfGenerator = CRM_Cdntaxreceipts_PdfFactory::getPDFLib();
 
-      // TODO: The next 9 lines may become a function of a controller class (strategy pattern perhaps)
       if ($this->_reissue) {
         $receipt = $this->_receipt;
       }
       else {
-        $receipt = new CRM_Cdntaxreceipts_Receipt();
-        $receipt->setIssueType('single');
-        $receipt->setContactId($contactId);
-        $receipt->addContribution($contribution);
+        $receipt = CRM_Cdntaxreceipts_Receipt::createFromContribution($contribution);
+        if ($receipt == NULL) {
+          CRM_Core_Error::fatal( "CDNTaxReceipts: Could not retrieve details for this contribution: %1", array(1 => $contributionId));
+        }
       }
 
       $result = $receipt->issue($pdfGenerator, NULL);
-
       $method = $receipt->getIssueMethod();
       $pdf_file = $receipt->getFileName();
 

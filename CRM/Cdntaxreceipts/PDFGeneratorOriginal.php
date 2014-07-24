@@ -55,12 +55,13 @@ class CRM_Cdntaxreceipts_PDFGeneratorOriginal extends CRM_Cdntaxreceipts_PDFGene
     }
     elseif (!$pdf_variables["is_duplicate"]) {
       // print original AND duplicate copy
+      $marginTop = $pdf_variables["mymargin_top"];
       $pdf_variables["is_duplicate"] = FALSE;
       $this->writePage($pdf_variables);
-      $pdf_variables["mymargin_top"] = $pdf_variables["mymargin_top"] + 90;
+      $pdf_variables["mymargin_top"] = $marginTop + 90;
       $pdf_variables["is_duplicate"] = TRUE;
       $this->writePage($pdf_variables);
-      $pdf_variables["mymargin_top"] = $pdf_variables["mymargin_top"] + 90*2;
+      $pdf_variables["mymargin_top"] = $marginTop + 90*2;
       $pdf_variables["is_duplicate"] = TRUE;
       $this->writePage($pdf_variables);
     }

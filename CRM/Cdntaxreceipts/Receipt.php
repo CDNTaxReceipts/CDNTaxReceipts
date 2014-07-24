@@ -61,6 +61,13 @@ class CRM_Cdntaxreceipts_Receipt {
     return $array_version;
   }
 
+  /**
+   * loadFromDB - Loads from DB using MySQL unique receipt id
+   * TODO: Should this really be static? Then how to access the private loaded function
+   * Was cdntaxreceipts_load_receipt
+   * @param $receipt_id
+   * @return $this|null
+   */
   public function loadFromDB($receipt_id) {
 
     if (!isset($receipt_id)) {
@@ -71,8 +78,8 @@ class CRM_Cdntaxreceipts_Receipt {
         l.is_duplicate, l.uid, l.ip, l.issue_type, l.issue_method,
         c.contribution_id, c.contribution_amount, c.receipt_amount, c.receive_date
     FROM cdntaxreceipts_log l
-    INNER JOIN cdntaxreceipts_log_contributions c ON l.id = c.receipt_id
-    WHERE is_duplicate = 0 AND l.id = %1";
+    LEFT JOIN cdntaxreceipts_log_contributions c ON l.id = c.receipt_id
+    WHERE l.id = %1";
 
     $dao = CRM_Core_DAO::executeQuery($sql, array(1 => array($receipt_id, 'Integer')));
 
@@ -104,13 +111,39 @@ class CRM_Cdntaxreceipts_Receipt {
 
       $this->_contributions = $contributions;
     }
-
     $this->_loaded = TRUE;
 
     return $this;
   }
 
+  /**
+   * createFromContribution - Create a tax receipt from a single contribution
+   *
+   * @param $contribution
+   * @return CRM_Cdntaxreceipts_Receipt|null
+   */
+  public static function createFromContribution($contribution) {
+    $my_contribution = NULL;
+    if (is_object($contribution)) {
+      $my_contribution = $contribution;
+    }
+    else {
+      $my_contribution =  new CRM_Contribute_DAO_Contribution();
+      $my_contribution->id = $contribution;
+
+      if (!$my_contribution->find(TRUE)) {
+        return NULL;
+      }
+    }
+    $receipt = new CRM_Cdntaxreceipts_Receipt();
+    $receipt->setIssueType('single');
+    $receipt->setContactId($my_contribution->contact_id);
+    $receipt->addContribution($my_contribution);
+    return $receipt;
+  }
+
   private function save($uid = NULL) {
+    // TODO: use a transaction
     if (!isset($uid)) {
       $uid = CRM_Utils_System::getLoggedInUfID();
     }
@@ -169,14 +202,19 @@ class CRM_Cdntaxreceipts_Receipt {
     // Set attachment file name
     $pdf_file  = $this->getFileName();
     // Get contact details
+    // TODO: I think we can skip this we should already have it
     list($displayName, $email) = CRM_Contact_BAO_Contact::getContactDetails($this->_contactId);
 
     // generate the PDF file
     $attachmentPDF = $this->printReceipt($attachmentPDF);
     $attachmentPDF->closeAndSave($pdf_file);
 
-    // form a mailParams array to pass to the CiviCRM mail utility
+    // Add to the collected PDF
+    if ($this->getIssueMethod()== 'print' || $previewMode) {
+      $this->printReceipt($collectedPdf);
+    }
 
+    // form a mailParams array to pass to the CiviCRM mail utility
     $attachment = array(
       'fullPath' => $pdf_file,
       'mime_type' => 'application/pdf',
@@ -385,15 +423,20 @@ class CRM_Cdntaxreceipts_Receipt {
    * @param mixed $contact_id
    */
   public function setContactId($contactId) {
-    $this->_contactId = $contactId;
+    if (!$this->_loaded) {
+      $this->_contactId = $contactId;
+      $this->updateIssueMethod();
+    }
+  }
 
+  public function updateIssueMethod() {
     // default
     $this->_issue_method = 'print';
 
     // TODO: Use new api
     $global_email = CRM_Core_BAO_Setting::getItem(CDNTAX_SETTINGS, 'enable_email', NULL, TRUE);
     if ($global_email) {
-      list($displayname, $email, $doNotEmail, $onHold) = CRM_Contact_BAO_Contact::getContactDetails($contactId);
+      list($displayname, $email, $doNotEmail, $onHold) = CRM_Contact_BAO_Contact::getContactDetails($this->_contactId);
 
       if ( isset($email) ) {
         if ( ! $doNotEmail && ! $onHold ) {
@@ -493,7 +536,7 @@ class CRM_Cdntaxreceipts_Receipt {
       $this->setContactId($contribution->contact_id);
     }
     if($this->_contactId && ($this->_contactId == $contribution->contact_id)) {
-      $this->$fullContributionObjects[$contribution->id] = $contribution;
+      $this->fullContributionObjects[$contribution->id] = $contribution;
       $inkind_values = array();
       $contributiontype =  _cdntaxreceipts_get_type_for_contribution($contribution);
 
@@ -572,6 +615,7 @@ class CRM_Cdntaxreceipts_Receipt {
    * @return bool
    */
   private function validateIssueSetDuplicate() {
+    // TODO: This function should probably throw exceptions with error messages
     if (!$this->_contactId || !$this->_issue_method || empty($this->_contributions)) {
       return FALSE;
     }
@@ -584,12 +628,20 @@ class CRM_Cdntaxreceipts_Receipt {
       $this->_is_duplicate = 1;
       return TRUE;
     }
-    // TODO: We will validate that no contribs have been issued on other receipts etc.
+    // This is not loaded from DB
+    // For now we will assume that it must be a new original issue so no contribution should be on any other receipt
     $histories = array();
     foreach ($this->_contributions as $contribution) {
-      $histories[$contribution['id']] = CRM_Cdntaxreceipts_Receipt::getIssueHistory($contribution['id']);
+      $histories[$contribution['contribution_id']] = CRM_Cdntaxreceipts_Receipt::getIssueHistory($contribution['contribution_id']);
+      if (!empty($histories[$contribution['contribution_id']]['original'])) {
+        return FALSE;
+      }
     }
 
+    //TODO: Should we store these here?
+    $this->_histories = $histories;
+    $this->_is_duplicate = 0;
+    return TRUE;
   }
 
 }
