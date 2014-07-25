@@ -18,7 +18,7 @@ class CRM_Cdntaxreceipts_Receipt_Batch {
   private $_collectedPDF;
 
   public function __construct(CRM_Cdntaxreceipts_Receipt_BatchBuilder $batchBuilder) {
-    $this->_collectedPDF = CRM_Cdntaxreceipts_Pdf_Factory::getPDFLib();
+    $this->_collectedPDF = CRM_Cdntaxreceipts_PDF_Factory::getPDFLib();
     $this->_batchBuilder = $batchBuilder;
   }
 
@@ -64,7 +64,7 @@ class CRM_Cdntaxreceipts_Receipt_Batch {
 
   private function issueOne(CRM_Cdntaxreceipts_Receipt $receiptToPrint,
                             CRM_Cdntaxreceipts_PDF_Generator $collectedPDF, $previewMode = FALSE) {
-    $singlePDF = CRM_Cdntaxreceipts_Pdf_Factory::getPDFLib();
+    $singlePDF = CRM_Cdntaxreceipts_PDF_Factory::getPDFLib();
     $result = $receiptToPrint->issue($singlePDF, $collectedPDF, $previewMode);
     $issueMethod = $receiptToPrint->getIssueMethod();
     if ($issueMethod == 'email') {

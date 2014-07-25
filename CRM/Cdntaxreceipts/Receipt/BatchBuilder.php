@@ -8,6 +8,7 @@ abstract class CRM_Cdntaxreceipts_Receipt_BatchBuilder {
   function __construct() {
     $this->_errors = array();
 
+    // TODO: Creating any structure here may be useless for now
     $this->_receiptBatch = array(
       'original'  => array('email' => array(), 'print' => array()),
       'duplicate' => array('email' => array(), 'print' => array()),

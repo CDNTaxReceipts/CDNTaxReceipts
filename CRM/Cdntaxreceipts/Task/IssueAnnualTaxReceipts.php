@@ -4,7 +4,7 @@
  * This class provides the common functionality for issuing Annual Tax Receipts for
  * one or a group of contact ids.
  */
-class CRM_Cdntaxreceipts_Task_IssueAnnualTaxReceipts extends CRM_Contact_Form_Task {
+class CRM_Cdntaxreceipts_Task_IssueAnnualTaxReceipts extends CRM_Cdntaxreceipts_Task_IssueTaxReceiptsCommon {
 
   const MAX_RECEIPT_COUNT = 1000;
 
@@ -18,38 +18,12 @@ class CRM_Cdntaxreceipts_Task_IssueAnnualTaxReceipts extends CRM_Contact_Form_Ta
    * @access public
    */
   function preProcess() {
-
-    //check for permission to edit contributions
-    if ( ! CRM_Core_Permission::check('issue cdn tax receipts') ) {
-      CRM_Core_Error::fatal(ts('You do not have permission to access this page', array('domain' => 'org.civicrm.cdntaxreceipts')));
-    }
-
-    parent::preProcess();
-
     $thisYear = date("Y");
     $this->_years = array($thisYear, $thisYear - 1, $thisYear - 2);
 
-    $receipts = array();
-    foreach ( $this->_years as $year ) {
-      $receipts[$year] = array('email' => 0, 'print' => 0, 'total' => 0, 'contrib' => 0);
-    }
-
-    // count and categorize contributions
-    foreach ( $this->_contactIds as $id ) {
-      foreach ( $this->_years as $year ) {
-        list( $issuedOn, $receiptId ) = cdntaxreceipts_annual_issued_on($id, $year);
-
-        $eligible = count(cdntaxreceipts_contributions_not_receipted($id, $year));
-        if ( $eligible > 0 ) {
-          list( $method, $email ) = cdntaxreceipts_sendMethodForContact($id);
-          $receipts[$year][$method]++;
-          $receipts[$year]['total']++;
-          $receipts[$year]['contrib'] += $eligible;
-        }
-      }
-    }
-
-    $this->_receipts = $receipts;
+    $this->_batch = new CRM_Cdntaxreceipts_Receipt_Batch(
+      new CRM_Cdntaxreceipts_Receipt_BatchBuilderAnnual($this->_contactIds, $this->_years));
+    parent::preProcess();
 
   }
 
@@ -114,16 +88,8 @@ class CRM_Cdntaxreceipts_Task_IssueAnnualTaxReceipts extends CRM_Contact_Form_Ta
    */
 
   function postProcess() {
-
-    // lets get around the time limit issue if possible
-    if ( ! ini_get( 'safe_mode' ) ) {
-      set_time_limit( 0 );
-    }
-
-    // Issue 1895204: Turn off geocoding to avoid hitting Google API limits
-    $config =& CRM_Core_Config::singleton();
-    $oldGeocode = $config->geocodeMethod;
-    unset($config->geocodeMethod);
+    $config = CRM_Core_Config::singleton();
+    parent::startPostProcess($config);
 
     $params = $this->controller->exportValues($this->_name);
     $year = $params['receipt_year'];
@@ -193,13 +159,7 @@ class CRM_Cdntaxreceipts_Task_IssueAnnualTaxReceipts extends CRM_Contact_Form_Ta
       CRM_Core_Session::setStatus($status, '', 'error');
     }
 
-
-    // Issue 1895204: Reset geocoding
-    $config->geocodeMethod = $oldGeocode;
-
-    // 4. send the collected PDF for download
-    // NB: This exits if a file is sent.
-    cdntaxreceipts_sendCollectedPDF($receiptsForPrinting, 'Receipts-To-Print-' . (int) $_SERVER['REQUEST_TIME'] . '.pdf');  // EXITS.
+    parent::endPostProcess($oldGeocode, $config);
   }
 }
 

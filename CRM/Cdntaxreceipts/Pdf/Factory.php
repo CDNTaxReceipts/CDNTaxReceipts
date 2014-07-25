@@ -1,6 +1,6 @@
 <?php
 
-class CRM_Cdntaxreceipts_Pdf_Factory {
+class CRM_Cdntaxreceipts_PDF_Factory {
 
   private static $_singleton = NULL;
 
@@ -13,7 +13,7 @@ class CRM_Cdntaxreceipts_Pdf_Factory {
   public static function singleton() {
     if (self::$_singleton === NULL) {
 
-      self::$_singleton = new CRM_Cdntaxreceipts_Pdf_Factory();
+      self::$_singleton = new CRM_Cdntaxreceipts_PDF_Factory();
     }
     return self::$_singleton;
   }

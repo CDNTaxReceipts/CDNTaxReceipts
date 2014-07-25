@@ -165,7 +165,7 @@ class CRM_Cdntaxreceipts_Form_ViewTaxReceipt extends CRM_Core_Form {
       CRM_Core_Session::setStatus( $statusMsg );
     }
     else {
-      $pdfGenerator = CRM_Cdntaxreceipts_Pdf_Factory::getPDFLib();
+      $pdfGenerator = CRM_Cdntaxreceipts_PDF_Factory::getPDFLib();
 
       if ($this->_reissue) {
         $receipt = $this->_receipt;

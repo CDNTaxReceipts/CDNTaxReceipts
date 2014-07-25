@@ -7,7 +7,7 @@
 require_once 'tcpdf/tcpdf.php';
 require_once('FPDI/fpdi.php');
 
-class CRM_Cdntaxreceipts_Pdf_Fpdi extends FPDI {
+class CRM_Cdntaxreceipts_PDF_Fpdi extends FPDI {
   /**
    * "Remembers" the template id of the imported page
    */

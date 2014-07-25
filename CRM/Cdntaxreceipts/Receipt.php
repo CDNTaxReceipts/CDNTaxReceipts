@@ -142,6 +142,24 @@ class CRM_Cdntaxreceipts_Receipt {
     return $receipt;
   }
 
+  /**
+   * createFromContributionList - Create a tax receipt from a single contribution
+   *
+   * @param $contribution
+   * @return CRM_Cdntaxreceipts_Receipt|null
+   */
+  public static function createFromContributionList($issueType, $contactId, $contributions = array()) {
+
+    $receipt = new CRM_Cdntaxreceipts_Receipt();
+    $receipt->setIssueType($issueType);
+    $receipt->setContactId($contactId);
+    foreach ($contributions as $contribution) {
+      // TODO: Make sure we have objects
+      $receipt->addContribution($contribution);
+    }
+    return $receipt;
+  }
+
   private function save($uid = NULL) {
     // TODO: use a transaction
     if (!isset($uid)) {
