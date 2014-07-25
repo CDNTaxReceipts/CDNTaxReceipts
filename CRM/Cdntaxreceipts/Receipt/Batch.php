@@ -30,7 +30,7 @@ class CRM_Cdntaxreceipts_Receipt_Batch {
   public function issue($issueParams = array(), $previewMode = FALSE, $originalOnly = FALSE) {
 
     if ($this->_built) {
-      $this->_batch = $this->_batchBuilder->updateBatch($issueParams, $originalOnly);
+      $this->_batch = $this->_batchBuilder->updateBatch($issueParams, $previewMode, $originalOnly);
       foreach ($this->_batch as $receiptToPrint) {
         $result = $this->issueOne($receiptToPrint, $this->_collectedPDF, $previewMode);
         if ($result == FALSE) {

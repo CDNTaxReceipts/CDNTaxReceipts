@@ -15,8 +15,9 @@ class CRM_Cdntaxreceipts_Task_IssueSingleTaxReceipts extends CRM_Cdntaxreceipts_
    * @access public
    */
   function preProcess() {
-    $this->_batch = new CRM_Cdntaxreceipts_Receipt_Batch(new CRM_Cdntaxreceipts_Receipt_BatchBuilderSingle($this->_contributionIds));
     parent::preProcess();
+    $this->_batch = new CRM_Cdntaxreceipts_Receipt_Batch(new CRM_Cdntaxreceipts_Receipt_BatchBuilderSingle($this->_contributionIds));
+    $this->_receipts = $this->_batch->getPreviewSummary();
   }
 
   /**
@@ -62,37 +63,5 @@ class CRM_Cdntaxreceipts_Task_IssueSingleTaxReceipts extends CRM_Cdntaxreceipts_
     $this->addButtons($buttons);
 
   }
-
-  /**
-   * process the form after the input has been submitted and validated
-   *
-   * @access public
-   *
-   * @return None
-   */
-
-  function postProcess() {
-    $config = CRM_Core_Config::singleton();
-    $oldGeocode = parent::startPostProcess($config);
-
-    $params = $this->controller->exportValues($this->_name);
-
-    $originalOnly = FALSE;
-    if ($params['receipt_option'] == 'original_only') {
-      $originalOnly = TRUE;
-    }
-
-    $previewMode = FALSE;
-    if (isset($params['is_preview']) && $params['is_preview'] == 1 ) {
-      $previewMode = TRUE;
-    }
-
-    $batchCounts = $this->postProcessBatch($this->_batch, $previewMode, $originalOnly);
-
-    parent::setSessionStatus($previewMode, $batchCounts);
-
-    parent::endPostProcess($oldGeocode, $config);
-  }
-
 }
 

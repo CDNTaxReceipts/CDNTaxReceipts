@@ -16,7 +16,7 @@ class CRM_Cdntaxreceipts_Receipt_BatchBuilderSingle extends CRM_Cdntaxreceipts_R
   function buildBatch() {
 
     // count and categorize contributions
-    foreach ( $this->_contactIds as $id ) {
+    foreach ( $this->_contributionIds as $id ) {
       // TODO: This check should be encapsulated somewhere
       if ( cdntaxreceipts_eligibleForReceipt($id) ) {
         $history = CRM_Cdntaxreceipts_Receipt::getIssueHistory($id);

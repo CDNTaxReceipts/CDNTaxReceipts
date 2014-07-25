@@ -18,13 +18,11 @@ class CRM_Cdntaxreceipts_Task_IssueTaxReceiptsCommon extends CRM_Contribute_Form
    * @access public
    */
   function preProcess() {
+    parent::preProcess();
     //check for permission to edit contributions
     if ( ! CRM_Core_Permission::check('issue cdn tax receipts') ) {
       CRM_Core_Error::fatal(ts('You do not have permission to access this page', array('domain' => 'org.civicrm.cdntaxreceipts')));
     }
-
-    $this->_receipts = $this->_batch->getPreviewSummary();
-    parent::preProcess();
   }
 
   /**
@@ -66,18 +64,21 @@ class CRM_Cdntaxreceipts_Task_IssueTaxReceiptsCommon extends CRM_Contribute_Form
       $previewMode = TRUE;
     }
 
-    $batchCounts = $this->postProcessBatch($this->_batch, $previewMode, $originalOnly);
+    $batchCounts = $this->postProcessBatch($this->_batch, $params, $params, $previewMode, $originalOnly);
     $this->setSessionStatus($previewMode, $batchCounts);
     $this->endPostProcess($oldGeocode, $config);
   }
 
   /**
-   * @param $previewMode
-   * @param $originalOnly
+   * @param CRM_Cdntaxreceipts_Receipt_Batch - batch to run
+   * @param $issueParams - Let the batch take any params from the form it wants
+   * @param $previewMode - Special case for this param, all batch types support it
+   * @param $originalOnly - Special case too? Maybe this one should just be in issueParams
    * @return mixed
    */
-  protected function postProcessBatch(CRM_Cdntaxreceipts_Receipt_Batch $batch, $previewMode, $originalOnly) {
-    $batch->issue($previewMode, $originalOnly);
+  protected function postProcessBatch(CRM_Cdntaxreceipts_Receipt_Batch $batch, $issueParams = array(),
+                                      $previewMode = FALSE, $originalOnly = FALSE) {
+    $batch->issue($issueParams, $previewMode, $originalOnly);
     $errors = $batch->getErrors();
     foreach ($errors as $severity => $messages) {
       foreach ($messages as $msg) {
@@ -116,6 +117,8 @@ class CRM_Cdntaxreceipts_Task_IssueTaxReceiptsCommon extends CRM_Contribute_Form
   }
 
   /**
+   * startPostProcess - Turn off geocode and set time limit
+   * @param object - Core global $config
    * @return array
    */
   protected function startPostProcess($config) {
