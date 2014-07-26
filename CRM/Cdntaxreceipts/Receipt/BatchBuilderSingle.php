@@ -47,7 +47,7 @@ class CRM_Cdntaxreceipts_Receipt_BatchBuilderSingle extends CRM_Cdntaxreceipts_R
     return $this->_receiptBatch['toIssue'];
   }
 
-  function updateBatch($issueParams, $originalOnly) {
+  function updateBatch($issueParams, $previewMode, $originalOnly) {
     $statuses = $originalOnly ? array('original') : array('original', 'duplicate');
     $this->_receiptBatch['toIssue'] = array();
     foreach ($statuses as $status) {

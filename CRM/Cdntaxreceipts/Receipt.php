@@ -24,7 +24,7 @@ class CRM_Cdntaxreceipts_Receipt {
 
   // Vars calculated at runtime
   public $_destinationEmail;
-  public $_receive_date;
+  private $_receive_date;
 
   private $fullContributionObjects;
 
@@ -660,6 +660,20 @@ class CRM_Cdntaxreceipts_Receipt {
     $this->_histories = $histories;
     $this->_is_duplicate = 0;
     return TRUE;
+  }
+
+  /**
+   * @return mixed
+   */
+  public function getReceiveDate() {
+    return $this->_receive_date;
+  }
+
+  /**
+   * @param mixed $receive_date
+   */
+  public function setReceiveDate($receive_date) {
+    $this->_receive_date = $receive_date;
   }
 
 }

@@ -4,6 +4,7 @@ class CRM_Cdntaxreceipts_Receipt_BatchBuilderAnnual extends CRM_Cdntaxreceipts_R
 
   private $_contactIds;
   private $_years;
+  private $_issueYear;
 
   function __construct($contactIds, $years) {
     $this->_contactIds = $contactIds;
@@ -47,16 +48,17 @@ class CRM_Cdntaxreceipts_Receipt_BatchBuilderAnnual extends CRM_Cdntaxreceipts_R
               // Update method, if contact now has primary email etc.
               $receipt->updateIssueMethod();
               $method = $receipt->getIssueMethod();
-              $this->_receiptBatch['duplicate'][$method][$contactId] = $receipt;
+              $this->_receiptBatch[$year]['duplicate'][$method][$contactId] = $receipt;
               $this->_receiptBatch['toIssue'][$contactId] = $receipt;
             }
             else {
               $receipt = CRM_Cdntaxreceipts_Receipt::createFromContributionList('annual', $contactId, $contributions);
+              $receipt->setReceiveDate($year);
               if ($receipt == NULL) {
                 CRM_Core_Error::fatal( "CDNTaxReceipts: Could not retrieve details for this contact's contributions: %1", array(1 => $contactId));
               }
               $method = $receipt->getIssueMethod();
-              $this->_receiptBatch['original'][$method][$contactId] = $receipt;
+              $this->_receiptBatch[$year]['original'][$method][$contactId] = $receipt;
               $this->_receiptBatch['toIssue'][$contactId] = $receipt;
             }
             $this->_receiptBatchSummary[$year][$method]++;
@@ -76,12 +78,18 @@ class CRM_Cdntaxreceipts_Receipt_BatchBuilderAnnual extends CRM_Cdntaxreceipts_R
     return $this->_receiptBatch['toIssue'];
   }
 
-  function updateBatch($issueParams, $originalOnly) {
+  function updateBatch($issueParams, $previewOnly, $originalOnly) {
+    $this->_issueYear = $issueParams['receipt_year'];
+    if (!$this->_issueYear) {
+      // No change issue everything
+      return $this->_receiptBatch['toIssue'];
+    }
+    $year = substr($this->_issueYear, strlen('issue_')); // e.g. issue_2012
     $statuses = $originalOnly ? array('original') : array('original', 'duplicate');
     $this->_receiptBatch['toIssue'] = array();
     foreach ($statuses as $status) {
-      $this->_receiptBatch['toIssue'] += $this->_receiptBatch[$status]['email'];
-      $this->_receiptBatch['toIssue'] += $this->_receiptBatch[$status]['print'];
+      $this->_receiptBatch['toIssue'] += $this->_receiptBatch[$year][$status]['email'];
+      $this->_receiptBatch['toIssue'] += $this->_receiptBatch[$year][$status]['print'];
     }
     return $this->_receiptBatch['toIssue'];
   }

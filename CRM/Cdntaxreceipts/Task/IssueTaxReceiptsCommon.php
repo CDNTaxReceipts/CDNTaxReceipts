@@ -64,7 +64,7 @@ class CRM_Cdntaxreceipts_Task_IssueTaxReceiptsCommon extends CRM_Contribute_Form
       $previewMode = TRUE;
     }
 
-    $batchCounts = $this->postProcessBatch($this->_batch, $params, $params, $previewMode, $originalOnly);
+    $batchCounts = $this->postProcessBatch($this->_batch, $params, $previewMode, $originalOnly);
     $this->setSessionStatus($previewMode, $batchCounts);
     $this->endPostProcess($oldGeocode, $config);
   }
@@ -86,6 +86,7 @@ class CRM_Cdntaxreceipts_Task_IssueTaxReceiptsCommon extends CRM_Contribute_Form
       }
     }
     $batchCounts = $batch->getCounts();
+    dpm($batchCounts);
     return $batchCounts;
   }
 

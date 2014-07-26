@@ -40,9 +40,10 @@ abstract class CRM_Cdntaxreceipts_Receipt_BatchBuilder {
    * updateBatch - After the batch has been built we might want to limit it with some information from the submitted
    *   form. This feels like a kludge but is OK for now.
    *   This should still return a flat array for handling in a simple loop.
-   * @param $issueParams
-   * @param $originalOnly
+   * @param $issueParams - array() - any other params we might need from the form exported values
+   * @param $previewMode - Boolean, do not log or send by email
+   * @param $originalOnly - Boolean, do not issue duplicates
    * @return array
    */
-  abstract function updateBatch($issueParams, $originalOnly);
+  abstract function updateBatch($issueParams, $previewMode, $originalOnly);
 }
