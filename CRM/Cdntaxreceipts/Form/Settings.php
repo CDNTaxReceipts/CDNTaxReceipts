@@ -129,11 +129,18 @@ class CRM_Cdntaxreceipts_Form_Settings extends CRM_Core_Form {
       $this->addElement('file', 'receipt_pdftemplate', ts('PDF Template', array('domain' => 'org.civicrm.cdntaxreceipts')), 'size=30 maxlength=60');
       $this->addUploadElement('receipt_pdftemplate');
       $this->addRule( 'receipt_pdftemplate', ts('File size should be less than %1 MBytes (%2 bytes)', array(1 => $uploadSize, 2 => $uploadFileSize)), 'maxfilesize', $uploadFileSize, array('domain' => 'org.civicrm.cdntaxreceipts') );
+
+      $this->addElement(
+        'select', 'receipt_pdflettertemplate',
+        ts('PDF Letter Template', array('domain' => 'org.civicrm.cdntaxreceipts')),
+        array(0 => ts('- do not use -')) + CRM_Core_BAO_MessageTemplate::getMessageTemplates(FALSE),
+        FALSE, array());
     }
     else if ( $mode == 'defaults' ) {
       $defaults = array(
         'receipt_prefix' => CRM_Core_BAO_Setting::getItem(self::SETTINGS, 'receipt_prefix'),
         'receipt_authorized_signature_text' => CRM_Core_BAO_Setting::getItem(self::SETTINGS, 'receipt_authorized_signature_text'),
+        'receipt_pdflettertemplate' => CRM_Core_BAO_Setting::getItem(self::SETTINGS, 'receipt_pdflettertemplate', NULL, 0),
       );
       return $defaults;
     }
@@ -141,6 +148,7 @@ class CRM_Cdntaxreceipts_Form_Settings extends CRM_Core_Form {
       $values = $this->exportValues();
       CRM_Core_BAO_Setting::setItem($values['receipt_prefix'], self::SETTINGS, 'receipt_prefix');
       CRM_Core_BAO_Setting::setItem($values['receipt_authorized_signature_text'], self::SETTINGS, 'receipt_authorized_signature_text');
+      CRM_Core_BAO_Setting::setItem($values['receipt_pdflettertemplate'], self::SETTINGS, 'receipt_pdflettertemplate');
 
       $receipt_logo = $this->getSubmitValue('receipt_logo');
       $receipt_signature = $this->getSubmitValue('receipt_signature');

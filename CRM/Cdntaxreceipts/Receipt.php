@@ -219,6 +219,7 @@ class CRM_Cdntaxreceipts_Receipt {
 
     // Set attachment file name
     $pdf_file  = $this->getFileName();
+
     // Get contact details
     // TODO: I think we can skip this we should already have it
     list($displayName, $email) = CRM_Contact_BAO_Contact::getContactDetails($this->_contactId);
@@ -295,7 +296,7 @@ class CRM_Cdntaxreceipts_Receipt {
 
   /**
    * process - Calculate some temporary display variables before printing
-   * and generate an array for original PDF generator,
+   * and generate an array of varaiables for the PDF generator,
    * @return array
    */
   function process() {
@@ -330,16 +331,14 @@ class CRM_Cdntaxreceipts_Receipt {
         date('M j, Y', mktime(0, 0, 0, 12, 31, $this->_receive_date));
     }
 
-    $line_1 = ts("This is your Official Receipt for income tax purposes.", array('domain' => 'org.civicrm.cdntaxreceipts'));
-
     $this->_issued_on = (int) $_SERVER['REQUEST_TIME'];
     $this->_ip = $_SERVER['REMOTE_ADDR'];
 
     $pdf_variables = array(
-      "preview_mode" => $previewMode,
-      "is_duplicate" => $this->_is_duplicate,
-      "line_1" => $line_1,
-      "source_funds" => isset($receipt['source']) ? $receipt['source'] : '',
+      'contact_id' => $this->_contactId,
+      'preview_mode' => $previewMode,
+      'is_duplicate' => $this->_is_duplicate,
+      'source_funds' => !empty($this->_source) ? $this->_source : '',
       "amount" => $this->_receipt_amount,
       "display_date" => $display_date,
       "display_year" => $display_year,
@@ -353,6 +352,14 @@ class CRM_Cdntaxreceipts_Receipt {
       "address_line_2" => $address_line_2,
       "address_line_3" => $address_line_3,
       "inkind_values" => isset($this->_inkind_values) ? $this->_inkind_values : array(),
+      'org_name' => CRM_Core_BAO_Setting::getItem(CDNTAX_SETTINGS, 'org_name'),
+      'org_address_line1' => CRM_Core_BAO_Setting::getItem(CDNTAX_SETTINGS, 'org_address_line1', NULL, ''),
+      'org_address_line2' => CRM_Core_BAO_Setting::getItem(CDNTAX_SETTINGS, 'org_address_line2', NULL, ''),
+      'org_tel' => CRM_Core_BAO_Setting::getItem(CDNTAX_SETTINGS, 'org_tel', NULL, ''),
+      'org_fax' => CRM_Core_BAO_Setting::getItem(CDNTAX_SETTINGS, 'org_fax', NULL, ''),
+      'org_web' => CRM_Core_BAO_Setting::getItem(CDNTAX_SETTINGS, 'org_web', NULL, ''),
+      'org_email' => CRM_Core_BAO_Setting::getItem(CDNTAX_SETTINGS, 'org_email', NULL, ''),
+      'org_charitable_no' => CRM_Core_BAO_Setting::getItem(CDNTAX_SETTINGS, 'org_charitable_no', NULL, ''),
       "receipt_contributions" => $this->_contributions,
     );
 

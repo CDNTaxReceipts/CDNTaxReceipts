@@ -86,7 +86,6 @@ class CRM_Cdntaxreceipts_Task_IssueTaxReceiptsCommon extends CRM_Contribute_Form
       }
     }
     $batchCounts = $batch->getCounts();
-    dpm($batchCounts);
     return $batchCounts;
   }
 

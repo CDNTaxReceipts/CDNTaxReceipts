@@ -43,7 +43,6 @@ class CRM_Cdntaxreceipts_Receipt_BatchBuilderSingle extends CRM_Cdntaxreceipts_R
         $this->_receiptBatchSummary[$key][$method]++;
       }
     }
-    //dpm($this->_receiptBatch);
     return $this->_receiptBatch['toIssue'];
   }
 

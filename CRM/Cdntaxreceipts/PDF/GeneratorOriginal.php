@@ -47,7 +47,6 @@ class CRM_Cdntaxreceipts_PDF_GeneratorOriginal extends CRM_Cdntaxreceipts_PDF_Ge
     $this->pdf->AddPage();
 
     $pdf_variables['pdf_img_files_path'] = $this->_imageFilesPath;
-    //dpm($pdf_variables);
 
     if ($pdf_variables["is_duplicate"]) {
       // print duplicate copy
@@ -75,7 +74,6 @@ class CRM_Cdntaxreceipts_PDF_GeneratorOriginal extends CRM_Cdntaxreceipts_PDF_Ge
     $mymargin_top = $pdf_variables["mymargin_top"];
     $is_duplicate = $pdf_variables["is_duplicate"];
     $pdf_img_files_path = $pdf_variables["pdf_img_files_path"];
-    $line_1 = $pdf_variables["line_1"];
     $source_funds = $pdf_variables["source_funds"];
     $amount = $pdf_variables["amount"];
     $display_date = $pdf_variables["display_date"];
@@ -91,6 +89,8 @@ class CRM_Cdntaxreceipts_PDF_GeneratorOriginal extends CRM_Cdntaxreceipts_PDF_Ge
     $issue_type = $pdf_variables["issue_type"];
     $receipt_contributions = $pdf_variables['receipt_contributions'];
 
+    // Moved this hard coded string in here from Receipt.php
+    $line_1 = ts("This is your Official Receipt for income tax purposes.", array('domain' => 'org.civicrm.cdntaxreceipts'));
     $pdf = $this->pdf;
     // Middle center section
     if ( $preview_mode ) {

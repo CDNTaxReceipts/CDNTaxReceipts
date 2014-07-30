@@ -92,10 +92,17 @@
         <td class="label">{$form.receipt_pdftemplate.label}</td>
         <td class="content">{$form.receipt_pdftemplate.html}
           <p class="description">{ts domain='org.civicrm.cdntaxreceipts'}Upload your own PDF template: .pdf{/ts}</p>
-	  {if $receipt_pdftemplate}
-	      {if $receipt_pdftemplate_class}<span class="crm-error">The file {$receipt_pdftemplate} was not found</span>
-	      {else}<p class="label">Current {$form.receipt_pdftemplate.label}: {$receipt_pdftemplate}</p>{/if}
-	  {/if}</td>
+          {if $receipt_pdftemplate}
+            {if $receipt_pdftemplate_class}<span class="crm-error">The file {$receipt_pdftemplate} was not found</span>
+            {else}<p class="label">Current {$form.receipt_pdftemplate.label}: {$receipt_pdftemplate}</p>{/if}
+          {/if}</td>
+      </tr>
+      <tr>
+        <td class="label">{$form.receipt_pdflettertemplate.label}</td>
+        <td class="content">{$form.receipt_pdflettertemplate.html}
+          <p class="description">{ts domain='org.civicrm.cdntaxreceipts'}Use a selected CiviCRM PDF Letter template instead of internal PDF generation.<br />
+              Note: This does not work with the above PDF background selection.{/ts}</p>
+        </td>
       </tr>
     </tbody>
   </table>

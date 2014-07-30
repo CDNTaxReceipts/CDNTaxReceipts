@@ -74,7 +74,6 @@ class CRM_Cdntaxreceipts_Receipt_BatchBuilderAnnual extends CRM_Cdntaxreceipts_R
       }
     }
 
-    //dpm($this->_receiptBatch);
     return $this->_receiptBatch['toIssue'];
   }
 
