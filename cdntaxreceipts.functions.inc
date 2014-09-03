@@ -904,7 +904,7 @@ function cdntaxreceipts_sendMethodForContact( $contactId ) {
     }
   }
 
-  return array('print', NULL);
+  return $method;
 
 }
 
