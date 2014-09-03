@@ -878,12 +878,29 @@ function cdntaxreceipts_sendMethodForContact( $contactId ) {
     return array('print', NULL);
   }
 
+  $method = array('print', NULL);
+  
   require_once 'CRM/Contact/BAO/Contact.php';
   list($displayname, $email, $doNotEmail, $onHold) = CRM_Contact_BAO_Contact::getContactDetails($contactId);
 
   if ( isset($email) ) {
     if ( ! $doNotEmail && ! $onHold ) {
-      return array('email', $email);
+      $method = array('email', $email);
+    }
+  }
+  
+  // invoke hook_cdntaxreceipts_method:
+  //   module implementations should return an array containing a single item,
+  //   either 'email' or 'print'. if we receive one or more 'print', the contact
+  //   is disqualified from receiving email receipts. 
+  $results = CRM_Utils_Hook::singleton()->invoke(1, $contactId, CRM_Utils_Hook::$_nullObject, CRM_Utils_Hook::$_nullObject, CRM_Utils_Hook::$_nullObject, CRM_Utils_Hook::$_nullObject, 'cdntaxreceipts_method');
+  $emailOk = TRUE;
+
+  if (is_array($results)) {
+    foreach ( $results as $result ) {
+      if ( $result == 'print' ) {
+        $method = array('print', NULL);
+      }
     }
   }
 
