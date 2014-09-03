@@ -66,6 +66,10 @@ The extension also enables two report templates, which can be used to see a list
 - Tax Receipts - Receipts Issued
 - Tax Receipts - Receipts Not Issued
 
+**Testing Tax Receipts**
+
+- To test your template settings and view a receipt without e-mailing the contact or making a database record, follow the directions for bulk-issueing of receipts: go to Contributions > Find Contributions, run a search, select a search result, and select "Issue Tax Receipts" in the actions drop-down. On the next screen, make sure to select 'Run in preview mode?', and follow on-screen instructions for other options, a pdf will be generated.
+
 
 hook_cdntaxreceipts_eligible()
 ------------
