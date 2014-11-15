@@ -74,7 +74,7 @@ class CRM_Cdntaxreceipts_Task_IssueAggregateTaxReceipts extends CRM_Contribute_F
         $issue_type = empty($status['receipt_id']) ? 'original' : 'duplicate';
         $receipts[$issue_type][$year]['total_contrib']++;
         // Note: non-deductible amount has already had hook called in cdntaxreceipts_contributions_get_status
-        $receipts[$issue_type][$year]['total_amount'] += ($status['total_amount'] - $status['non_deductible_amount']);
+        $receipts[$issue_type][$year]['total_amount'] += ($status['total_amount']);
         $receipts[$issue_type][$year]['not_eligible_amount'] += $status['non_deductible_amount'];
         if ($status['eligible']) {
           list( $method, $email ) = cdntaxreceipts_sendMethodForContact($status['contact_id']);
