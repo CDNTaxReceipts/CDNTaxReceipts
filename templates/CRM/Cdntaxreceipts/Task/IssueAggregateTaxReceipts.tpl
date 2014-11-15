@@ -30,7 +30,8 @@
         <td>{$receiptList.original.$year.print.receipt_count} ({$receiptList.original.$year.print.contribution_count} contributions)</td>
         <td>{$receiptList.original.$year.not_eligible}</td>
         <td>{$receiptList.original.$year.not_eligible_amount|crmMoney}</td>
-        <td>{capture assign=total_issue}{$receiptList.original.$year.total_amount - $receiptList.original.$year.not_eligible}{/capture}{$total_issue|crmMoney}</td>
+        {math equation="x - y" x=$receiptList.original.$year.total_amount y=$receiptList.original.$year.not_eligible_amount assign="total_issue"}
+        <td>{$total_issue|crmMoney}</td>
       </tr>
     {/foreach}
   </table>
