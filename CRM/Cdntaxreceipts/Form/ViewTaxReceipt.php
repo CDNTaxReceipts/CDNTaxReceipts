@@ -104,7 +104,7 @@ class CRM_Cdntaxreceipts_Form_ViewTaxReceipt extends CRM_Core_Form {
 
     $buttons[] = array(
       'type' => 'cancel',
-      'name' => ts('Back', array('domain' => 'org.civicrm.cdntaxreceipts')),
+      'name' => ts('Done', array('domain' => 'org.civicrm.cdntaxreceipts')),
     );
 
     if (CRM_Core_Permission::check( 'issue cdn tax receipts' ) ) {
