@@ -110,7 +110,7 @@ function cdntaxreceipts_civicrm_searchTasks($objectType, &$tasks ) {
     }
     if (!$aggregate_in_list) {
       $tasks[] = array (
-        'title' => ts('Issue Tax Receipts (Combined Receipt for Total Contributed)'),
+        'title' => ts('Issue Tax Receipts (Combined Receipt with Total Contributed)'),
         'class' => 'CRM_Cdntaxreceipts_Task_IssueAggregateTaxReceipts',
         'result' => TRUE);
     }
