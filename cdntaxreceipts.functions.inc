@@ -637,6 +637,18 @@ function cdntaxreceipts_issueTaxReceipt( $contribution, &$collectedPdf = NULL, $
 }
 
 function cdntaxreceipts_eligibleForReceipt( $contributionId ) {
+
+  // This function may be called multiple times throughout a request lifecycle, for the
+  // same contribution. This can be resource intensive, since it must load the Contribution
+  // object each time and will invoke any custom hooks, which may themselves hit the DB. This
+  // adds up quickly, particularly during bulk runs. The basic eligibility of a
+  // contribution will not change through the request lifecycle, so we can cache those we
+  // have already computed.
+  static $cache = array();
+  if ( array_key_exists($contributionId, $cache) ) {
+    return $cache[$contributionId];
+  }
+  
   require_once('CRM/Contribute/DAO/Contribution.php');
   $contribution =  new CRM_Contribute_DAO_Contribution();
   $contribution->id = $contributionId;
@@ -677,15 +689,29 @@ function cdntaxreceipts_eligibleForReceipt( $contributionId ) {
   }
 
   if ( $contributionType->is_deductible && $contributionStatus == '1' && $contribution->is_test == 0 && $deductibleAmount > 0 && $hookOk ) {
-    return TRUE;
+    $cache[$contributionId] = TRUE;
   }
   else {
-    return FALSE;
+    $cache[$contributionId] = FALSE;
   }
+
+  return $cache[$contributionId];
 
 }
 
 function cdntaxreceipts_eligibleAmount( $contributionId ) {
+
+  // This function may be called multiple times throughout a request lifecycle, for the
+  // same contribution. This can be resource intensive, since it must load the Contribution
+  // object each time and will invoke any custom hooks, which may themselves hit the DB. This
+  // adds up quickly, particularly during bulk runs. The basic eligibility amount of a
+  // contribution will not change through the request lifecycle, so we can cache those we
+  // have already computed.
+  static $cache = array();
+  if ( array_key_exists($contributionId, $cache) ) {
+    return $cache[$contributionId];
+  }
+  
   require_once('CRM/Contribute/DAO/Contribution.php');
   $contribution =  new CRM_Contribute_DAO_Contribution();
   $contribution->id = $contributionId;
@@ -712,6 +738,7 @@ function cdntaxreceipts_eligibleAmount( $contributionId ) {
     }
   }
 
+  $cache[$contributionId] = $deductibleAmount;
   return $deductibleAmount;
 }
 
@@ -754,13 +781,14 @@ function cdntaxreceipts_issueAnnualTaxReceipt( $contactId, $year, &$collectedPdf
     $receiptContributions = array();
     $totalReceipt = 0;
     foreach ( $contributions as $c ) {
+      $eligibleAmount = cdntaxreceipts_eligibleAmount($c['contribution_id']);
       $receiptContributions[] = array(
         'contribution_id' => $c['contribution_id'],
         'contribution_amount' => $c['total_amount'],
-        'receipt_amount' => cdntaxreceipts_eligibleAmount($c['contribution_id']),
+        'receipt_amount' => $eligibleAmount,
         'receive_date' => $c['receive_date'],
       );
-      $totalReceipt += cdntaxreceipts_eligibleAmount($c['contribution_id']);
+      $totalReceipt += $eligibleAmount;
     }
 
     // generate a receipt number
@@ -847,13 +875,14 @@ function cdntaxreceipts_issueAggregateTaxReceipt($contactId, $year, $contributio
     $receiptContributions = array();
     $totalReceipt = 0;
     foreach ( $contributions as $c ) {
+      $eligibleAmount =  cdntaxreceipts_eligibleAmount($c['contribution_id']);
       $receiptContributions[] = array(
         'contribution_id' => $c['contribution_id'],
         'contribution_amount' => $c['total_amount'],
-        'receipt_amount' => cdntaxreceipts_eligibleAmount($c['contribution_id']),
+        'receipt_amount' => $eligibleAmount,
         'receive_date' => $c['receive_date'],
       );
-      $totalReceipt += cdntaxreceipts_eligibleAmount($c['contribution_id']);
+      $totalReceipt += $eligibleAmount;
     }
 
     // generate a receipt number
