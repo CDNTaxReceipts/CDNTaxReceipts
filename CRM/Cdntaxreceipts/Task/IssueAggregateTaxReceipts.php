@@ -91,7 +91,7 @@ class CRM_Cdntaxreceipts_Task_IssueAggregateTaxReceipts extends CRM_Contribute_F
         }
         else {
           $receipts[$issue_type][$year]['not_eligible']++;
-          $receipts[$issue_type][$year]['not_eligible_amount'] += $status['total_amount'];
+          // $receipts[$issue_type][$year]['not_eligible_amount'] += $status['total_amount'];
         }
         // Global totals
         $receipts['totals']['total_contrib']++;
