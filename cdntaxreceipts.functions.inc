@@ -830,7 +830,7 @@ function cdntaxreceipts_issueAggregateTaxReceipt($contactId, $year, $contributio
     return array(FALSE, $method, NULL);
   }
 
-  /* Two different formats come into this function in the $contributions array
+  /** Two different formats come into this function in the $contributions array
    * 1. When issuing for the first time:
    * array ($contribution_id => array(
    *   'contribution_id' => $id,
@@ -850,7 +850,7 @@ function cdntaxreceipts_issueAggregateTaxReceipt($contactId, $year, $contributio
    *    'receipt_amount'
    *    'receive_date'
    * );
-   * */
+   **/
 
   $contrib_copy = $contributions;
   $check_contribution = array_shift($contrib_copy);
