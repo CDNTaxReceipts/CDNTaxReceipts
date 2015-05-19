@@ -107,6 +107,9 @@ class CRM_Cdntaxreceipts_Form_Report_ReceiptsNotIssued extends CRM_Report_Form {
           if (CRM_Utils_Array::value('required', $field) ||
             CRM_Utils_Array::value($fieldName, $this->_params['fields'])
           ) {
+            if ( $fieldName == 'total_amount' && $this->_useEligibilityHooks) {
+              $field['dbAlias'] = "cdntax_t.eligible_amount";
+            }
             $alias = "{$tableName}_{$fieldName}";
             $select[] = "{$field['dbAlias']} as {$alias}";
             $this->_columnHeaders["{$tableName}_{$fieldName}"]['type'] = CRM_Utils_Array::value('type', $field);
@@ -171,8 +174,8 @@ class CRM_Cdntaxreceipts_Form_Report_ReceiptsNotIssued extends CRM_Report_Form {
 
     $this->beginPostProcess();
 
-    if (array_key_exists('options', $this->_params) &&
-      CRM_Utils_Array::value('use_advanced_eligibility', $this->_params['options'])) {
+    if (array_key_exists('use_advanced_eligibility', $this->_params) &&
+      CRM_Utils_Array::value('use_advanced_eligibility', $this->_params['use_advanced_eligibility'])) {
       $select[] = " '' as blankColumnBegin";
       $this->_useEligibilityHooks = TRUE;
     }
@@ -194,7 +197,8 @@ class CRM_Cdntaxreceipts_Form_Report_ReceiptsNotIssued extends CRM_Report_Form {
   function createTempEligibilityTable() {
     $sql = "
 CREATE TEMPORARY TABLE cdntaxreceipts_temp_civireport_eligible (
-  contribution_id int unsigned
+  contribution_id int unsigned,
+  eligible_amount decimal(20,2)
 ) ENGINE=HEAP DEFAULT CHARACTER SET utf8 COLLATE utf8_unicode_ci";
     CRM_Core_DAO::executeQuery($sql);
 
@@ -206,7 +210,9 @@ CREATE TEMPORARY TABLE cdntaxreceipts_temp_civireport_eligible (
 
     while ( $dao->fetch() ) {
       if ( cdntaxreceipts_eligibleForReceipt($dao->id) ) {
-        $sql = "INSERT INTO cdntaxreceipts_temp_civireport_eligible (contribution_id) VALUES ($dao->id)";
+        $amount = cdntaxreceipts_eligibleAmount($dao->id);
+        $sql = "INSERT INTO cdntaxreceipts_temp_civireport_eligible (contribution_id,eligible_amount)
+                VALUES ($dao->id, $amount)";
         CRM_Core_DAO::executeQuery($sql);
       }
     }
