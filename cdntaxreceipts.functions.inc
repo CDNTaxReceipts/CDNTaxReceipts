@@ -50,6 +50,17 @@ function cdntaxreceipts_processTaxReceipt( $receipt, &$collectedPdf = NULL, $pre
   // Get contact details
   list($displayname, $email) = CRM_Contact_BAO_Contact::getContactDetails($receipt['contact_id']);
 
+  // allow modules to alter any details
+  // invoke hook_cdntaxreceipts_alter_receipt(&$receipt)
+  //   modules should accept a reference to the $receipt array and alter it directly if they wish
+  //   one useful use case: alter the $receipt['source'] line to include custom text
+  //   to alter receipt amount, use hook_cdntaxreceipts_eligibleAmount() instead
+  if (version_compare(CRM_Utils_System::version(), '4.5', '<')) {
+    CRM_Utils_Hook::singleton()->invoke(1, $receipt, CRM_Utils_Hook::$_nullObject, CRM_Utils_Hook::$_nullObject, CRM_Utils_Hook::$_nullObject, CRM_Utils_Hook::$_nullObject, 'cdntaxreceipts_alter_receipt');
+  } else {
+    CRM_Utils_Hook::singleton()->invoke(1, $receipt, CRM_Utils_Hook::$_nullObject, CRM_Utils_Hook::$_nullObject, CRM_Utils_Hook::$_nullObject, CRM_Utils_Hook::$_nullObject, CRM_Utils_Hook::$_nullObject, 'cdntaxreceipts_alter_receipt');
+  }
+
   // generate the PDF file
   list($pdf_file, $user_friendly) = cdntaxreceipts_generateFormattedReceipt( $receipt, $collectedPdf, $previewMode );
 
@@ -322,12 +333,12 @@ function cdntaxreceipts_createPDF(&$pdf, $pdf_variables) {
     // }
   }
   else if (strlen($source_funds) < 36 && strlen($source_funds) > 0) {
-    $pdf->Write(10, "Source: " . $source_funds);
+    $pdf->Write(10, $source_funds);
   }
   else if (strlen($source_funds) > 0) {
     $source_funds_words = explode(" ", substr($source_funds, 0, 36));
     $source_funds_lastbit = array_pop($source_funds_words);
-    $pdf->Write(10, "Source: " . implode(" ", $source_funds_words));
+    $pdf->Write(10, implode(" ", $source_funds_words));
     $source_funds_count = count($source_funds_words);
     // $source_funds_nextline = array_splice(explode(" ", $source_funds), $source_funds_count);
     $exploded = explode(" ", $source_funds);
@@ -620,9 +631,12 @@ function cdntaxreceipts_issueTaxReceipt( $contribution, &$collectedPdf = NULL, $
     'issue_type' => 'single',
     'issue_method' => $method,
     'receive_date' => $contribution->receive_date,
-    'source' => $contribution->source,
     'inkind_values' => $inkind_values,
   );
+
+  if ( $contribution->source != '' ) {
+    $receipt['source'] = 'Source: ' . $contribution->source;
+  }
 
   $receipt['contributions'] = array(
     array(
@@ -1102,3 +1116,4 @@ function _cdntaxreceipts_get_display_type($issue_type) {
       return '';
   }
 }
+
