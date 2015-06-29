@@ -395,7 +395,7 @@ function cdntaxreceipts_createPDF(&$pdf, $pdf_variables) {
     }
 
     $pdf->SetFont('Helvetica', '', 8);
-    $pdf->SetY($mymargin_top + 74);
+    $pdf->SetY($mymargin_top + 68);
     $pdf->Write(10, $inkind_str, ' - ', 0, 'L', TRUE, 0, FALSE, FALSE, 0);
 
     $appraiser = $inkind_values[1] . ' - '. $inkind_values[2];
