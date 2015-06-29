@@ -674,8 +674,10 @@ function cdntaxreceipts_eligibleForReceipt( $contributionId ) {
   // 1. check that contribution amount is deductible
   $deductibleAmount = cdntaxreceipts_eligibleAmount($contributionId);;
 
-  // 2. check if the contribution is of a Type that is indeed Tax receiptable.
-  $contributionType =  _cdntaxreceipts_get_type_for_contribution($contribution);
+  // 2. we used to check here the financial type -- to see if it is deductible.
+  // Since the introduction of split transactions (4.5 is the cleanest starting point, though they existed prior),
+  // we no longer check the financial type of the contribution, and check instead the tax eligibility of each
+  // line item. This is done in the eligibleAmount() function.
 
   // 3. check if the Contribution Status is Completed ( i.e. = 1 )
   $contributionStatus = $contribution->contribution_status_id;
@@ -702,7 +704,7 @@ function cdntaxreceipts_eligibleForReceipt( $contributionId ) {
     }
   }
 
-  if ( $contributionType->is_deductible && $contributionStatus == '1' && $contribution->is_test == 0 && $deductibleAmount > 0 && $hookOk ) {
+  if ( $contributionStatus == '1' && $contribution->is_test == 0 && $deductibleAmount > 0 && $hookOk ) {
     $cache[$contributionId] = TRUE;
   }
   else {
@@ -735,7 +737,33 @@ function cdntaxreceipts_eligibleAmount( $contributionId ) {
   }
 
   // 1. calculate deductible amount
-  $deductibleAmount = $contribution->total_amount - $contribution->non_deductible_amount;
+  $deductibleAmount = 0;
+  if (version_compare(CRM_Utils_System::version(), '4.5', '<')) {
+    // compute for overall contribution in 4.4
+    $financialType =  _cdntaxreceipts_get_type_for_contribution($contribution);
+    if ( $financialType->is_deductible ) {
+      $deductibleAmount = $contribution->total_amount;
+    }
+  }
+  else {
+    // compute by line item in 4.5+
+    $line_item = new CRM_Price_DAO_LineItem();
+    $line_item->contribution_id = $contributionId;
+    $line_item->find();
+
+    while ( $line_item->fetch() ) {
+      $financialType =  _cdntaxreceipts_get_type_for_line_item($line_item);
+      if ( $financialType->is_deductible ) {
+        $deductibleAmount += $line_item->line_total;
+      }
+    }
+  }
+
+  // account for manually-entered non_deductible_amount
+  $deductibleAmount = $deductibleAmount - $contribution->non_deductible_amount;
+  if ( $deductibleAmount < 0 ) {
+    $deductibleAmount = 0;
+  }
  
   // 2. allow modules to alter the amount. lowest amount wins.
    if (version_compare(CRM_Utils_System::version(), '4.5', '<')) {
@@ -1055,6 +1083,16 @@ function _cdntaxreceipts_get_contribution_dao() {
     $contributionType = new CRM_Contribute_DAO_ContributionType();
   }
   return $contributionType;
+}
+
+function _cdntaxreceipts_get_type_for_line_item($line_item) {
+  require_once 'CRM/Financial/DAO/FinancialType.php';
+  $financialType = new CRM_Financial_DAO_FinancialType();
+  $financialType->id = $line_item->financial_type_id;
+  if ( ! $financialType->find( TRUE ) ) {
+    CRM_Core_Error::fatal( "CDNTaxReceipts: Could not find corresponding contribution type." );
+  }
+  return $financialType;
 }
 
 /**

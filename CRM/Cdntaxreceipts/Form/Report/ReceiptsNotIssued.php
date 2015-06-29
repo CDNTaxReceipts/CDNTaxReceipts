@@ -162,7 +162,6 @@ class CRM_Cdntaxreceipts_Form_Report_ReceiptsNotIssued extends CRM_Report_Form {
     }
     else {
       $this->_where .= "
-      AND {$this->_aliases['civicrm_financial_type']}.is_deductible = 1
       AND {$this->_aliases['civicrm_contribution']}.contribution_status_id = 1
       AND ({$this->_aliases['civicrm_contribution']}.total_amount - COALESCE({$this->_aliases['civicrm_contribution']}.non_deductible_amount,0)) > 0
       ";
