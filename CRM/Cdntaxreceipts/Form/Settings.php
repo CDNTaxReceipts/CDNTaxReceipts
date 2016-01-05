@@ -172,17 +172,25 @@ class CRM_Cdntaxreceipts_Form_Settings extends CRM_Core_Form {
       $yesno_options[] = $this->createElement('radio', NULL, NULL, 'No', 0);
       $this->addGroup($yesno_options, 'enable_email', ts('Send receipts by email?', array('domain' => 'org.civicrm.cdntaxreceipts')));
       $this->addRule('enable_email', 'Enable or disable email receipts', 'required');
+
+      $yesno_options2 = array();
+      $yesno_options2[] = $this->createElement('radio', NULL, NULL, 'Yes', 1);
+      $yesno_options2[] = $this->createElement('radio', NULL, NULL, 'No', 0);
+      $this->addGroup($yesno_options2, 'enable_advanced_eligibility_report', ts('Enable Advanced Eligibility Check?', array('domain' => 'org.civicrm.cdntaxreceipts')));
+
     }
     else if ( $mode == 'defaults' ) {
       $defaults = array(
         'issue_inkind' => 0,
         'enable_email' => CRM_Core_BAO_Setting::getItem(self::SETTINGS, 'enable_email', NULL, 0),
+        'enable_advanced_eligibility_report' => CRM_Core_BAO_Setting::getItem(self::SETTINGS, 'enable_advanced_eligibility_report', NULL, 0),
       );
       return $defaults;
     }
     else if ( $mode == 'post' ) {
       $values = $this->exportValues();
       CRM_Core_BAO_Setting::setItem($values['enable_email'], self::SETTINGS, 'enable_email');
+      CRM_Core_BAO_Setting::setItem($values['enable_advanced_eligibility_report'], self::SETTINGS, 'enable_advanced_eligibility_report');
 
       if (isset($values['issue_inkind']) == TRUE) {
         if ( $values['issue_inkind'] == 1 ) {

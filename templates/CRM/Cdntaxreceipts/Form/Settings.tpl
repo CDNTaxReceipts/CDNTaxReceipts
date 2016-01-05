@@ -114,6 +114,11 @@
         <td class="content">{$form.enable_email.html}
           <p class="description">{ts domain='org.civicrm.cdntaxreceipts'}If enabled, tax receipts will be sent via email to donors who have an email address on file.{/ts}</p></td>
       </tr>
+      <tr>
+        <td class="label">{$form.enable_advanced_eligibility_report.label}</td>
+        <td class="content">{$form.enable_advanced_eligibility_report.html}
+          <p class="description">{ts domain='org.civicrm.cdntaxreceipts'}If enabled, the Receipts not issued Report will have the Advanced Eligibility Check enabled by default.{/ts}</p></td>
+      </tr>
     </tbody>
   </table>
 
