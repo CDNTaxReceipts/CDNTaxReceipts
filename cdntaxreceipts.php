@@ -136,7 +136,7 @@ function cdntaxreceipts_civicrm_searchTasks($objectType, &$tasks ) {
  */
 function cdntaxreceipts_civicrm_permission( &$permissions ) {
   $prefix = ts('CiviCRM CDN Tax Receipts') . ': ';
-  $permissions = array(
+  $permissions += array(
     'issue cdn tax receipts' => $prefix . ts('Issue Tax Receipts', array('domain' => 'org.civicrm.cdntaxreceipts')),
   );
 }
