@@ -12,6 +12,9 @@ class CRM_Cdntaxreceipts_Form_Report_ReceiptsNotIssued extends CRM_Report_Form {
 
   function __construct() {
 
+    $this->_customGroupExtends = array('Contact', 'Individual', 'Organization', 'Contribution');
+    $this->_autoIncludeIndexedFieldsAsOrderBys = TRUE;
+
     $this->_columns = array(
       'civicrm_contact' =>
       array(
