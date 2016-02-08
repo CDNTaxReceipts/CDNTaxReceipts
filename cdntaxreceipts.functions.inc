@@ -322,6 +322,11 @@ function cdntaxreceipts_createPDF(&$pdf, $pdf_variables) {
   $pdf->Write(10, "Received on: " . $display_date);
   $pdf->SetXY($mymargin_left + $x_detailscolumn, $mymargin_top + $y_detailscolumnstart + 18);
   $pdf->Write(10, "Eligible Amount:  $" . number_format($amount, 2));
+  $location_issued = trim(CRM_Core_BAO_Setting::getItem(CDNTAX_SETTINGS, 'org_location_issued'));
+  if ($location_issued) {
+    $pdf->SetXY($mymargin_left + $x_detailscolumn, $mymargin_top + $y_detailscolumnstart + 24);
+    $pdf->Write(10, "Location receipt issued: " . $location_issued);
+  }    
   $pdf->SetXY($mymargin_left + $x_detailscolumn, $mymargin_top + $y_detailscolumnstart + 34);
 
   if ($issue_type == 'annual') {
