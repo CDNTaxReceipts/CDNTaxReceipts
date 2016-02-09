@@ -32,7 +32,7 @@ class CRM_Cdntaxreceipts_Upgrader extends CRM_Cdntaxreceipts_Upgrader_Base {
   public function upgrade_1302() {
     $this->ctx->log->info('Applying update 1302');
     CRM_Core_DAO::executeQuery('ALTER TABLE cdntaxreceipts_log ADD email_tracking_id varchar(64) NULL');
-    CRM_Core_DAO::executeQuery('ALTER TABLE cdntaxreceipts_log ADD email_opened int(1) NOT NULL DEFAULT 0');
+    CRM_Core_DAO::executeQuery('ALTER TABLE cdntaxreceipts_log ADD email_opened datetime NULL');
     CRM_Core_DAO::executeQuery('CREATE INDEX contribution_id ON cdntaxreceipts_log_contributions (contribution_id)');
     return TRUE;
   } 

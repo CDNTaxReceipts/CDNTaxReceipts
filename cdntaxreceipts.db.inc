@@ -286,4 +286,19 @@ function cdntaxreceipts_contributions_get_status($contributionIds = array()) {
   return $contributions;
 }
 
+/**
+ * Record a tax receipt as having been opened by the email
+ * recipient.
+ */
+function cdntaxreceipts_process_open($tracking_id) {
+
+  $sql = "
+UPDATE cdntaxreceipts_log
+SET email_opened = now()
+WHERE email_tracking_id = %1 AND email_opened IS NULL";
+
+  CRM_Core_DAO::executeQuery($sql, array(1 => array($tracking_id, 'String')));
+
+}
+
 

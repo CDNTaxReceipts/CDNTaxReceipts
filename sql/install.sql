@@ -24,7 +24,7 @@ CREATE TABLE cdntaxreceipts_log (
   issue_type varchar(16) NOT NULL COMMENT 'The type of receipt (single or annual).',
   issue_method varchar(16) NULL COMMENT 'The send method (email or print).',
   email_tracking_id varchar(64) NULL COMMENT 'A unique id to track email opens.',
-  email_opened int(1) NOT NULL DEFAULT 0 COMMENT 'Has an email open event been recorded?',
+  email_opened datetime NULL COMMENT 'Timestamp an email open event was detected.',
   PRIMARY KEY (id),
   INDEX contact_id (contact_id),
   INDEX receipt_no (receipt_no)

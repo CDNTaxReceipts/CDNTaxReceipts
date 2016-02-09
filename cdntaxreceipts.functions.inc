@@ -74,6 +74,11 @@ function cdntaxreceipts_processTaxReceipt( $receipt, &$collectedPdf = NULL, $pre
   $email_message = CRM_Core_BAO_Setting::getItem(CDNTAX_SETTINGS, 'email_message');
   $org_name = CRM_Core_BAO_Setting::getItem(CDNTAX_SETTINGS, 'org_name');
 
+  // append open-tracking to the email message
+  $email_message = nl2br(htmlspecialchars($email_message));
+  $email_message .= "\n<p><img src=\"" . CRM_Utils_System::baseURL() .
+        "civicrm/cdntaxreceipts/open?r={$receipt['email_tracking_id']}\" width='1' height='1' alt='' border='0'></p>\n";
+
   $email_subject_admin = CRM_Core_BAO_Setting::getItem(CDNTAX_SETTINGS, 'email_subject');
   $email_subject = $email_subject_admin . " " . $receipt['receipt_no'];
 
@@ -85,7 +90,7 @@ function cdntaxreceipts_processTaxReceipt( $receipt, &$collectedPdf = NULL, $pre
     'toName' => $displayname,
     'attachments' => array( $attachment ),
     'subject' => $email_subject,
-    'text' => $email_message,
+    'html' => $email_message,
     'returnPath' => $email_from,
   );
 
