@@ -74,10 +74,7 @@ function cdntaxreceipts_processTaxReceipt( $receipt, &$collectedPdf = NULL, $pre
   $email_message = CRM_Core_BAO_Setting::getItem(CDNTAX_SETTINGS, 'email_message');
   $org_name = CRM_Core_BAO_Setting::getItem(CDNTAX_SETTINGS, 'org_name');
 
-  // append open-tracking to the email message
   $email_message = nl2br(htmlspecialchars($email_message));
-  $email_message .= "\n<p><img src=\"" . CRM_Utils_System::baseURL() .
-        "civicrm/cdntaxreceipts/open?r={$receipt['email_tracking_id']}\" width='1' height='1' alt='' border='0'></p>\n";
 
   $email_subject_admin = CRM_Core_BAO_Setting::getItem(CDNTAX_SETTINGS, 'email_subject');
   $email_subject = $email_subject_admin . " " . $receipt['receipt_no'];
@@ -94,26 +91,25 @@ function cdntaxreceipts_processTaxReceipt( $receipt, &$collectedPdf = NULL, $pre
     'returnPath' => $email_from,
   );
 
-  // if method is email, we send to contact and BCC email archive.
-  // if method is print, we send to email archive only.
-  if ( $receipt['issue_method'] == 'email' ) {
-    $mailparams['toEmail'] = $email;
-    $mailparams['bcc'] = $email_archive;
-  }
-  else {
-    $mailparams['toEmail'] = $email_archive;
-  }
-
   if ( $previewMode ) {
     $ret = TRUE;
   }
   else {
+    // send one copy to email archive
+    $mailparams['toEmail'] = $email_archive;
     $ret = CRM_Utils_Mail::send( $mailparams );
-    if ( $ret == TRUE ) {
-      // we have successfully processed.  Log the receipt.
-      if (!$receipt['is_duplicate']) {
-        cdntaxreceipts_log($receipt);
-      }
+
+    // send one copy with open tracking to the donor
+    if ( $receipt['issue_method'] == 'email' ) {
+      $mailparams['toEmail'] = $email;
+      $mailparams['html'] .= "\n<img src=\"" . CRM_Utils_System::baseURL() .
+        "civicrm/cdntaxreceipts/open?r={$receipt['email_tracking_id']}\" width='1' height='1' alt='' border='0'>\n";
+      CRM_Utils_Mail::send( $mailparams );
+    }
+
+    // log the receipt
+    if (!$receipt['is_duplicate']) {
+      cdntaxreceipts_log($receipt);
     }
   }
 

@@ -35,8 +35,8 @@ cj(document).ready(
     <tr>
         <td class="label">{ts}Amount{/ts}</td>
         <td class="bold">{$receipt.receipt_amount|crmMoney}</td>
-        <td class="label">&nbsp;</td>
-        <td>&nbsp;</td>
+        <td class="label">Email Opened</td>
+        <td>{$receipt.email_opened|crmDate}</td>
     </tr>
     <tr>
         <td class="label">{ts}Contribution(s){/ts}</td>

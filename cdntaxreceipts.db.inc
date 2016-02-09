@@ -133,7 +133,7 @@ function cdntaxreceipts_load_receipt($receipt_id) {
   }
 
   $sql = "SELECT l.id, l.receipt_no, l.issued_on, l.contact_id, l.receipt_amount as total_receipt,
-        l.is_duplicate, l.uid, l.ip, l.issue_type, l.issue_method,
+        l.is_duplicate, l.uid, l.ip, l.issue_type, l.issue_method, l.email_tracking_id, l.email_opened,
         c.contribution_id, c.contribution_amount, c.receipt_amount, c.receive_date
     FROM cdntaxreceipts_log l
     INNER JOIN cdntaxreceipts_log_contributions c ON l.id = c.receipt_id
@@ -156,6 +156,8 @@ function cdntaxreceipts_load_receipt($receipt_id) {
       'issue_type' => $dao->issue_type,
       'display_type' => _cdntaxreceipts_get_display_type($dao->issue_type),
       'issue_method' => $dao->issue_method,
+      'email_tracking_id' => $dao->email_tracking_id,
+      'email_opened' => $dao->email_opened,
     );
 
     $contributions = array();
