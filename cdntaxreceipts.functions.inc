@@ -759,10 +759,12 @@ function cdntaxreceipts_eligibleAmount( $contributionId ) {
     }
   }
 
-  // account for manually-entered non_deductible_amount
-  $deductibleAmount = $deductibleAmount - $contribution->non_deductible_amount;
-  if ( $deductibleAmount < 0 ) {
-    $deductibleAmount = 0;
+  // account for manually-entered (positive) non_deductible_amount
+  if ($contribution->non_deductible_amount > 0) {
+    $deductibleAmount = $deductibleAmount - $contribution->non_deductible_amount;
+    if ( $deductibleAmount < 0 ) {
+      $deductibleAmount = 0;
+    }
   }
  
   // 2. allow modules to alter the amount. lowest amount wins.
