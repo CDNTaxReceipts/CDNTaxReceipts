@@ -197,10 +197,11 @@ function cdntaxreceipts_log($receipt) {
     7 => array( $_SERVER['REMOTE_ADDR'], 'String' ),
     8 => array( $receipt['issue_type'], 'String' ),
     9 => array( $receipt['issue_method'], 'String' ),
+    10 => array( $receipt['email_tracking_id'], 'String' ),
   );
   $sql = "INSERT INTO cdntaxreceipts_log (receipt_no, issued_on, contact_id, receipt_amount,
-    is_duplicate, uid, ip, issue_type, issue_method)
-      VALUES (%1, %2, %3, %4, %5, %6, %7, %8, %9)";
+    is_duplicate, uid, ip, issue_type, issue_method, email_tracking_id)
+      VALUES (%1, %2, %3, %4, %5, %6, %7, %8, %9, %10)";
   $result = CRM_Core_DAO::executeQuery($sql, $params);
   $receipt_id = CRM_Core_DAO::singleValueQuery('SELECT LAST_INSERT_ID()');
 
@@ -218,6 +219,8 @@ function cdntaxreceipts_log($receipt) {
         VALUES (%1, %2, %3, %4, %5)";
     CRM_Core_DAO::executeQuery($sql, $params);
   }
+
+  return $receipt_id;
 
 }
 

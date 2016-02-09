@@ -106,7 +106,9 @@ function cdntaxreceipts_processTaxReceipt( $receipt, &$collectedPdf = NULL, $pre
     $ret = CRM_Utils_Mail::send( $mailparams );
     if ( $ret == TRUE ) {
       // we have successfully processed.  Log the receipt.
-      cdntaxreceipts_log($receipt);
+      if (!$receipt['is_duplicate']) {
+        cdntaxreceipts_log($receipt);
+      }
     }
   }
 
@@ -632,6 +634,7 @@ function cdntaxreceipts_issueTaxReceipt( $contribution, &$collectedPdf = NULL, $
     'issue_method' => $method,
     'receive_date' => $contribution->receive_date,
     'inkind_values' => $inkind_values,
+    'email_tracking_id' => md5(uniqid(rand(), TRUE)),
   );
 
   if ( $contribution->source != '' ) {
@@ -846,6 +849,7 @@ function cdntaxreceipts_issueAnnualTaxReceipt( $contactId, $year, &$collectedPdf
       'issue_method' => $method,
       'receive_date' => $year,
       'contributions' => $receiptContributions,
+      'email_tracking_id' => md5(uniqid(rand(), TRUE)),
     );
 
   }
@@ -940,6 +944,7 @@ function cdntaxreceipts_issueAggregateTaxReceipt($contactId, $year, $contributio
       'issue_method' => $method,
       'receive_date' => $year,
       'contributions' => $receiptContributions,
+      'email_tracking_id' => md5(uniqid(rand(), TRUE)),
     );
   }
 

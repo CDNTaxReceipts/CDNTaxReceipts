@@ -23,6 +23,8 @@ CREATE TABLE cdntaxreceipts_log (
   ip varchar(128) NOT NULL COMMENT 'IP of the user who issued the reciept.',
   issue_type varchar(16) NOT NULL COMMENT 'The type of receipt (single or annual).',
   issue_method varchar(16) NULL COMMENT 'The send method (email or print).',
+  email_tracking_id varchar(64) NULL COMMENT 'A unique id to track email opens.',
+  email_opened int(1) NOT NULL DEFAULT 0 COMMENT 'Has an email open event been recorded?',
   PRIMARY KEY (id),
   INDEX contact_id (contact_id),
   INDEX receipt_no (receipt_no)
@@ -31,6 +33,8 @@ CREATE TABLE cdntaxreceipts_log (
 
 --
 -- Table structure for table `cdntaxreceipts_log_contributions`
+-- The contribution_id is *deliberately* not a foreign key to civicrm_contribution.
+-- We don't want to destroy audit records if contributions are deleted.
 --
 
 CREATE TABLE cdntaxreceipts_log_contributions (
@@ -41,6 +45,7 @@ CREATE TABLE cdntaxreceipts_log_contributions (
   receipt_amount decimal(10,2) NOT NULL COMMENT 'Receiptable amount, total minus non-recieptable portion.',
   receive_date datetime NOT NULL COMMENT 'Date on which the contribution was received, redundant information!',
   PRIMARY KEY (id),
-  FOREIGN KEY (receipt_id) REFERENCES cdntaxreceipts_log(id)
+  FOREIGN KEY (receipt_id) REFERENCES cdntaxreceipts_log(id),
+  INDEX contribution_id (contribution_id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Contributions for each tax reciept issuing.';
 
