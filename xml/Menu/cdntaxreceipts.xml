@@ -16,6 +16,6 @@
     <path>civicrm/cdntaxreceipts/open</path>
     <page_callback>CRM_Cdntaxreceipts_Page_OpenEvent</page_callback>
     <title>OpenEvent</title>
-    <access_arguments></access_arguments>
+    <access_arguments>track cdn tax receipts</access_arguments>
   </item>
 </menu>
