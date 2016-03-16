@@ -9,6 +9,9 @@ class CRM_Cdntaxreceipts_Form_Report_ReceiptsIssued extends CRM_Report_Form {
 
   function __construct() {
 
+    $this->_customGroupExtends = array('Contact', 'Individual', 'Organization', 'Contribution');
+    $this->_autoIncludeIndexedFieldsAsOrderBys = TRUE;
+
     $this->_columns = array(
       'civicrm_contact' =>
       array(
@@ -45,42 +48,57 @@ class CRM_Cdntaxreceipts_Form_Report_ReceiptsIssued extends CRM_Report_Form {
           'issue_type' => array('title' => 'Issue Type', 'default' => TRUE),
           'issue_method' => array('title' => 'Issue Method', 'default' => TRUE),
           'uid' => array('title' => 'Issued By', 'default' => TRUE),
+          'receipt_status' => array('title' => 'Receipt Status', 'default' => TRUE,),
         ),
         'grouping' => 'tax-fields',
         'filters' =>
         array(
           'issued_on' =>
-          array(
-            'title' => 'Issued On',
-            'type' => CRM_Utils_Type::T_TIMESTAMP,
-            'operatorType' => CRM_Report_Form::OP_DATETIME),
+            array(
+              'title' => 'Issued On',
+              'type' => CRM_Utils_Type::T_TIMESTAMP,
+              'operatorType' => CRM_Report_Form::OP_DATETIME
+            ),
           'issue_type' =>
-          array('title' => ts('Issue Type'),
-            'operatorType' => CRM_Report_Form::OP_MULTISELECT,
-            'options' => array('single' => ts('Single'), 'annual' => ts('Annual'), 'aggregate' => ts('Aggregate')),
-            'type' => CRM_Utils_Type::T_STRING,
-          ),
+            array(
+              'title' => ts('Issue Type'),
+              'operatorType' => CRM_Report_Form::OP_MULTISELECT,
+              'options' => array('single' => ts('Single'), 'annual' => ts('Annual'), 'aggregate' => ts('Aggregate')),
+              'type' => CRM_Utils_Type::T_STRING,
+            ),
           'issue_method' =>
-          array('title' => ts('Issue Method', array('domain' => 'org.civicrm.cdntaxreceipts')),
+            array(
+            'title' => ts('Issue Method', array('domain' => 'org.civicrm.cdntaxreceipts')),
             'operatorType' => CRM_Report_Form::OP_MULTISELECT,
             'options' => array('email' => 'Email', 'print' => 'Print'),
             'type' => CRM_Utils_Type::T_STRING,
           ),
+          'receipt_status' =>
+            array(
+              'title' => ts('Receipt Status', array('domain' => 'org.civicrm.cdntaxreceipts')),
+              'operatorType' => CRM_Report_Form::OP_MULTISELECT,
+              'options' => array('issued' => 'Issued', 'cancelled' => 'Cancelled'),
+              'type' => CRM_Utils_Type::T_STRING,
+            ),
         ),
         'order_bys' =>
         array(
           'issued_on' =>
-          array(
-            'title' => 'Issued On', 'default' => '1', 'default_weight' => '0', 'default_order' => 'DESC',
-          ),
+            array(
+              'title' => 'Issued On', 'default' => '1', 'default_weight' => '0', 'default_order' => 'DESC',
+            ),
           'receipt_no' =>
-          array(
-            'title' => ts('Receipt No.', array('domain' => 'org.civicrm.cdntaxreceipts')),
-          ),
+            array(
+              'title' => ts('Receipt No.', array('domain' => 'org.civicrm.cdntaxreceipts')),
+            ),
           'receipt_amount' =>
-          array(
-            'title' => ts('Receipt Amount', array('domain' => 'org.civicrm.cdntaxreceipts')),
-          ),
+            array(
+              'title' => ts('Receipt Amount', array('domain' => 'org.civicrm.cdntaxreceipts')),
+            ),
+          'receipt_status' =>
+            array(
+              'title' => ts('Receipt Status', array('domain' => 'org.civicrm.cdntaxreceipts')),
+            ),
         ),
       ),
       'civicrm_cdntaxreceipts_log_contributions' =>
@@ -307,6 +325,16 @@ class CRM_Cdntaxreceipts_Form_Report_ReceiptsIssued extends CRM_Report_Form {
         }
         elseif ($rows[$rowNum]['civicrm_cdntaxreceipts_log_issue_method'] == 'email' ) {
           $rows[$rowNum]['civicrm_cdntaxreceipts_log_issue_method'] = ts('Email', array('domain' => 'org.civicrm.cdntaxreceipts'));
+        }
+        $entryFound = TRUE;
+      }
+
+      if (array_key_exists('civicrm_cdntaxreceipts_log_receipt_status', $row)) {
+        if ($rows[$rowNum]['civicrm_cdntaxreceipts_log_receipt_status'] == 'issued' ) {
+          $rows[$rowNum]['civicrm_cdntaxreceipts_log_receipt_status'] = ts('Issued', array('domain' => 'org.civicrm.cdntaxreceipts'));
+        }
+        elseif ($rows[$rowNum]['civicrm_cdntaxreceipts_log_receipt_status'] == 'cancelled' ) {
+          $rows[$rowNum]['civicrm_cdntaxreceipts_log_receipt_status'] = ts('Cancelled', array('domain' => 'org.civicrm.cdntaxreceipts'));
         }
         $entryFound = TRUE;
       }

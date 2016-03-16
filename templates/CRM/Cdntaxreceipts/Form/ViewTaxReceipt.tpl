@@ -35,8 +35,8 @@ cj(document).ready(
     <tr>
         <td class="label">{ts}Amount{/ts}</td>
         <td class="bold">{$receipt.receipt_amount|crmMoney}</td>
-        <td class="label">&nbsp;</td>
-        <td>&nbsp;</td>
+        <td class="label">{ts}Receipt Status{/ts}</td>
+        <td>{if $receipt.receipt_status eq 'issued'}{ts}Issued{/ts}{elseif $receipt.receipt_status eq 'cancelled'}{ts}Cancelled{/ts}{/if}</td>
     </tr>
     <tr>
         <td class="label">{ts}Contribution(s){/ts}</td>
@@ -70,7 +70,7 @@ cj(document).ready(
   <h3>{ts domain='org.civicrm.cdntaxreceipts'}Re-Issue Tax Receipt{/ts}</h3>
   {if call_user_func(array('CRM_Core_Permission','check'), 'issue cdn tax receipts')}
     <p>{ts domain='org.civicrm.cdntaxreceipts'}Click '{$buttonLabel}' to re-issue a tax receipt for this contribution. The
-    tax receipt will be marked 'duplicate' with the same receipt number and amount as
+    tax receipt will be marked {if $isCancelled}'Cancelled'{else}'Duplicate'{/if} with the same receipt number and amount as
     the original copy.{/ts}</p>
     {if $method eq 'email'}
       <p>{ts domain='org.civicrm.cdntaxreceipts'}The receipt will be sent automatically <strong>by email</strong> to the contributor
