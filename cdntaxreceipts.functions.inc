@@ -445,7 +445,7 @@ function cdntaxreceipts_createPDF(&$pdf, $pdf_variables) {
     if (empty($sig_image)) {
       $sig_image = $pdf_img_files_path . 'authorized-signature.png';
     }
-    $pdf->Image(CRM_Core_BAO_Setting::getItem($sig_image), $mymargin_left + 137, $mymargin_top + 67, '', 15);
+    $pdf->Image($sig_image, $mymargin_left + 137, $mymargin_top + 67, '', 15);
     $pdf->Line($mymargin_left + 136, $mymargin_top + 79, $mymargin_left + 186, $mymargin_top + 79);
     $pdf->SetXY($mymargin_left + 148 - $sig_offset, $mymargin_top + 76);
     $pdf->SetFont("Helvetica", "I", 7);
@@ -1050,11 +1050,8 @@ function cdntaxreceipts_sendCollectedPDF(&$pdf, $filename) {
  * @return CRM_Contribute_DAO_ContributionType|CRM_Financial_DAO_FinancialType
  */
 function _cdntaxreceipts_get_type_for_contribution($contribution) {
-  // Require once lines are only needed if the civicrm.settings.php does not have the autoloader line
-  require_once 'CRM/Utils/VersionCheck.php';
-  $version_checker = CRM_Utils_VersionCheck::singleton();
-  $majorVersion = floatval(substr($version_checker->localVersion, 0, 3));
-  if ($majorVersion >= 4.3) {
+
+  if (version_compare(CRM_Utils_System::version(), '4.3', '>=')) {
     require_once 'CRM/Financial/DAO/FinancialType.php';
     $contributionType = new CRM_Financial_DAO_FinancialType();
     $contributionType->id = $contribution->financial_type_id;
