@@ -4,11 +4,12 @@ require_once('CRM/Core/Form.php');
 
 class CRM_Cdntaxreceipts_Form_ViewTaxReceipt extends CRM_Core_Form {
 
-  private $_reissue;
-  private $_receipt;
-  private $_method;
-  private $_sendTarget;
-  private $_pdfFile;
+  protected  $_reissue;
+  protected $_receipt;
+  protected $_method;
+  protected $_sendTarget;
+  protected $_pdfFile;
+  protected $_isCancelled;
 
   /**
    * build all the data structures needed to build the form
@@ -44,19 +45,31 @@ class CRM_Cdntaxreceipts_Form_ViewTaxReceipt extends CRM_Core_Form {
 
     list($issuedOn, $receiptId) = cdntaxreceipts_issued_on($contributionId);
 
-    if ( isset($receiptId) ) {
+    if (isset($receiptId)) {
       $existingReceipt = cdntaxreceipts_load_receipt($receiptId);
-      $this->_reissue = 1;
       $this->_receipt = $existingReceipt;
+      $this->_reissue = 1;
+
+      if ($existingReceipt['receipt_status'] == 'cancelled') {
+        $this->_isCancelled = 1;
+      }
+      else {
+        $this->_isCancelled = 0;
+      }
     }
     else {
+      $this->_receipt = array();
       $this->_reissue = 0;
+      $this->_isCancelled = 0;
     }
 
     list($method, $email) = cdntaxreceipts_sendMethodForContact($contactId);
+    if ($this->_isCancelled == 1) {
+      $method = 'print';
+    }
     $this->_method = $method;
 
-    if ( $method == 'email' ) {
+    if ($method == 'email') {
       $this->_sendTarget = $email;
     }
 
@@ -64,7 +77,7 @@ class CRM_Cdntaxreceipts_Form_ViewTaxReceipt extends CRM_Core_Form {
     // this sets up the form with proper JS to download the file, it doesn't actually send the file.
     // see ?download=1 for sending the file.
     $pdfDownload = CRM_Utils_Array::value('file', $_GET);
-    if ( $pdfDownload == 1 ) {
+    if ($pdfDownload == 1) {
       $this->_pdfFile = 1;
     }
 
@@ -79,8 +92,7 @@ class CRM_Cdntaxreceipts_Form_ViewTaxReceipt extends CRM_Core_Form {
    */
   function buildQuickForm() {
 
-    if ( $this->_reissue ) {
-
+    if ($this->_reissue) {
       $receipt_contributions = array();
       foreach ( $this->_receipt['contributions'] as $c ) {
         $receipt_contributions[] = $c['contribution_id'];
@@ -93,11 +105,13 @@ class CRM_Cdntaxreceipts_Form_ViewTaxReceipt extends CRM_Core_Form {
       $this->assign('contact_id', $this->_receipt['contact_id']);
       $this->assign('contribution_id', $this->get('contribution_id'));
       $this->assign('receipt_contributions', $receipt_contributions);
+      $this->assign('isCancelled', $this->_isCancelled);
     }
     else {
       CRM_Utils_System::setTitle('Tax Receipt');
       $buttonLabel = ts('Issue Tax Receipt', array('domain' => 'org.civicrm.cdntaxreceipts'));
       $this->assign('reissue', 0);
+      $this->assign('isCancelled', 0);
     }
 
     $buttons = array();
@@ -114,8 +128,16 @@ class CRM_Cdntaxreceipts_Form_ViewTaxReceipt extends CRM_Core_Form {
         'isDefault' => TRUE,
         'js' => array('onclick' => "return submitOnce(this,'{$this->_name}','" . ts('Processing', array('domain' => 'org.civicrm.cdntaxreceipts')) . "');"),
       );
+      if ($this->_reissue && !$this->_isCancelled) {
+        $buttons[] = array(
+          'type' => 'submit',
+          'name' => ts('Cancel Tax Receipt', array('domain' => 'org.civicrm.cdntaxreceipts')),
+          'isDefault' => FALSE,
+        );
+      }
     }
     $this->addButtons($buttons);
+
     $this->assign('buttonLabel', $buttonLabel);
 
     $this->assign('method', $this->_method);
@@ -140,10 +162,12 @@ class CRM_Cdntaxreceipts_Form_ViewTaxReceipt extends CRM_Core_Form {
 
   function postProcess() {
 
-    // ensure the user has permission to issue the tax receipt.
+    // ensure the user has permission to cancel or issue the tax receipt.
     if ( ! CRM_Core_Permission::check( 'issue cdn tax receipts' ) ) {
-       CRM_Core_Error::fatal(ts('You do not have permission to access this page', array('domain' => 'org.civicrm.cdntaxreceipts')));
+      CRM_Core_Error::fatal(ts('You do not have permission to access this page', array('domain' => 'org.civicrm.cdntaxreceipts')));
     }
+
+    $method = '';
 
     // load the contribution
     $contributionId = $this->get('contribution_id');
@@ -156,40 +180,64 @@ class CRM_Cdntaxreceipts_Form_ViewTaxReceipt extends CRM_Core_Form {
       CRM_Core_Error::fatal( "CDNTaxReceipts: Could not retrieve details for this contribution" );
     }
 
-    // issue tax receipt, or report error if ineligible
-    if ( ! cdntaxreceipts_eligibleForReceipt($contribution->id) ) {
-      $statusMsg = ts('This contribution is not tax deductible and/or not completed. No receipt has been issued.', array('domain' => 'org.civicrm.cdntaxreceipts'));
-      CRM_Core_Session::setStatus( $statusMsg );
-    }
-    else {
+    $buttonName = $this->controller->getButtonName();
 
-      list( $result, $method, $pdf ) = cdntaxreceipts_issueTaxReceipt( $contribution );
+    // If we are cancelling the tax receipt
+    if ($buttonName == '_qf_ViewTaxReceipt_submit') {
 
-      if ( $result == TRUE ) {
-        if ( $method == 'email' ) {
-          $statusMsg = ts('Tax Receipt has been emailed to the contributor.', array('domain' => 'org.civicrm.cdntaxreceipts'));
-        }
-        else {
-          $statusMsg = ts('Tax Receipt has been generated for printing.', array('domain' => 'org.civicrm.cdntaxreceipts'));
-        }
-        CRM_Core_Session::setStatus( $statusMsg );
+      // Get the Tax Receipt that has already been issued previously for this Contribution
+      list($issued_on, $receipt_id) = cdntaxreceipts_issued_on($contribution->id);
+
+      $result = cdntaxreceipts_cancel($receipt_id);
+
+      if ($result == TRUE) {
+        $statusMsg = ts('Tax Receipt has been cancelled.', array('domain' => 'org.civicrm.cdntaxreceipts'));
       }
       else {
-        $statusMsg = ts('Encountered an error. Tax receipt has not been issued.', array('domain' => 'org.civicrm.cdntaxreceipts'));
-        CRM_Core_Session::setStatus( $statusMsg );
-        unset($pdf);
+        $statusMsg = ts('Encountered an error. Tax receipt has not been cancelled.', array('domain' => 'org.civicrm.cdntaxreceipts'));
+
+      }
+      CRM_Core_Session::setStatus($statusMsg);
+
+      // refresh the form, with file stored in session if we need it.
+      $urlParams = array('reset=1', 'cid='.$contactId, 'id='.$contributionId);
+    }
+    else {
+      // issue tax receipt, or report error if ineligible
+      if ( ! cdntaxreceipts_eligibleForReceipt($contribution->id) ) {
+        $statusMsg = ts('This contribution is not tax deductible and/or not completed. No receipt has been issued.', array('domain' => 'org.civicrm.cdntaxreceipts'));
+        CRM_Core_Session::setStatus($statusMsg);
+      }
+      else {
+
+        list($result, $method, $pdf) = cdntaxreceipts_issueTaxReceipt( $contribution );
+
+        if ($result == TRUE) {
+          if ($method == 'email') {
+            $statusMsg = ts('Tax Receipt has been emailed to the contributor.', array('domain' => 'org.civicrm.cdntaxreceipts'));
+          }
+          else {
+            $statusMsg = ts('Tax Receipt has been generated for printing.', array('domain' => 'org.civicrm.cdntaxreceipts'));
+          }
+          CRM_Core_Session::setStatus($statusMsg);
+        }
+        else {
+          $statusMsg = ts('Encountered an error. Tax receipt has not been issued.', array('domain' => 'org.civicrm.cdntaxreceipts'));
+          CRM_Core_Session::setStatus($statusMsg);
+          unset($pdf);
+        }
+      }
+      // refresh the form, with file stored in session if we need it.
+      $urlParams = array('reset=1', 'cid='.$contactId, 'id='.$contributionId);
+
+      if ( $method == 'print' && isset($pdf) ) {
+        $session = CRM_Core_Session::singleton();
+        $session->set("pdf_file_". $contributionId . "_" . $contactId, $pdf, 'cdntaxreceipts');
+        $urlParams[] = 'file=1';
       }
     }
 
-    // refresh the form, with file stored in session if we need it.
-    $urlParams = array('reset=1', 'cid='.$contactId, 'id='.$contributionId);
-
-    if ( $method == 'print' && isset($pdf) ) {
-      $session = CRM_Core_Session::singleton();
-      $session->set("pdf_file_". $contributionId . "_" . $contactId, $pdf, 'cdntaxreceipts');
-      $urlParams[] = 'file=1';
-    }
-
+    // Forward back to our page
     $url = CRM_Utils_System::url(CRM_Utils_System::currentPath(), implode('&', $urlParams));
     CRM_Utils_System::redirect($url);
   }
