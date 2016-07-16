@@ -28,7 +28,7 @@ class CRM_Cdntaxreceipts_Upgrader extends CRM_Cdntaxreceipts_Upgrader_Base {
    * @return TRUE on success, FALSE on FAILURE
    * @throws Exception
    */
-  public function upgrade_132() {
+  public function upgrade_1320() {
     $this->ctx->log->info('Applying update 1.3.2');
     $dao =& CRM_Core_DAO::executeQuery("SELECT 1");
     $db_name = $dao->_database;
