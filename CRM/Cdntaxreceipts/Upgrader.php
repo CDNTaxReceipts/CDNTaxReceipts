@@ -22,12 +22,6 @@ class CRM_Cdntaxreceipts_Upgrader extends CRM_Cdntaxreceipts_Upgrader_Base {
     $this->executeSqlFile('sql/uninstall.sql');
   }
 
-  /**
-   * Example: Run a couple simple queries
-   *
-   * @return TRUE on success, FALSE on FAILURE
-   * @throws Exception
-   */
   public function upgrade_1320() {
     $this->ctx->log->info('Applying update 1.3.2');
     $dao =& CRM_Core_DAO::executeQuery("SELECT 1");
@@ -59,6 +53,13 @@ AND COLUMN_NAME = 'receipt_status'");
     return FALSE;
   }
 
+  public function upgrade_1321() {
+    $this->ctx->log->info('Applying update 1321');
+    CRM_Core_DAO::executeQuery('ALTER TABLE cdntaxreceipts_log ADD email_tracking_id varchar(64) NULL');
+    CRM_Core_DAO::executeQuery('ALTER TABLE cdntaxreceipts_log ADD email_opened datetime NULL');
+    CRM_Core_DAO::executeQuery('CREATE INDEX contribution_id ON cdntaxreceipts_log_contributions (contribution_id)');
+    return TRUE;
+  } 
 
   /**
    * Example: Run an external SQL script

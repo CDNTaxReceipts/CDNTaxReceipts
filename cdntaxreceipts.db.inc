@@ -134,6 +134,7 @@ function cdntaxreceipts_load_receipt($receipt_id) {
 
   $sql = "SELECT l.id, l.receipt_no, l.issued_on, l.contact_id, l.receipt_amount as total_receipt,
         l.is_duplicate, l.uid, l.ip, l.issue_type, l.issue_method, l.receipt_status,
+        l.email_tracking_id, l.email_opened,
         c.contribution_id, c.contribution_amount, c.receipt_amount, c.receive_date
     FROM cdntaxreceipts_log l
     INNER JOIN cdntaxreceipts_log_contributions c ON l.id = c.receipt_id
@@ -157,6 +158,8 @@ function cdntaxreceipts_load_receipt($receipt_id) {
       'display_type' => _cdntaxreceipts_get_display_type($dao->issue_type),
       'issue_method' => $dao->issue_method,
       'receipt_status' => $dao->receipt_status,
+      'email_tracking_id' => $dao->email_tracking_id,
+      'email_opened' => $dao->email_opened,
     );
 
     $contributions = array();
@@ -202,10 +205,11 @@ function cdntaxreceipts_log($receipt) {
     8 => array( $receipt['issue_type'], 'String' ),
     9 => array( $receipt['issue_method'], 'String' ),
     10 => array( $receipt['receipt_status'], 'String' ),
+    11 => array( $receipt['email_tracking_id'], 'String' ),
   );
   $sql = "INSERT INTO cdntaxreceipts_log (receipt_no, issued_on, contact_id, receipt_amount,
-    is_duplicate, uid, ip, issue_type, issue_method, receipt_status)
-      VALUES (%1, %2, %3, %4, %5, %6, %7, %8, %9, %10)";
+    is_duplicate, uid, ip, issue_type, issue_method, receipt_status, email_tracking_id)
+      VALUES (%1, %2, %3, %4, %5, %6, %7, %8, %9, %10, %11)";
   $result = CRM_Core_DAO::executeQuery($sql, $params);
   if (is_a($result, 'DB_Error')) {
     return FALSE;
@@ -256,6 +260,7 @@ function cdntaxreceipts_cancel($receipt_id) {
   }
 
   return $receipt_id;
+
 }
 
 /**
@@ -318,6 +323,21 @@ function cdntaxreceipts_contributions_get_status($contributionIds = array()) {
   }
 
   return $contributions;
+}
+
+/**
+ * Record a tax receipt as having been opened by the email
+ * recipient.
+ */
+function cdntaxreceipts_process_open($tracking_id) {
+
+  $sql = "
+UPDATE cdntaxreceipts_log
+SET email_opened = now()
+WHERE email_tracking_id = %1 AND email_opened IS NULL";
+
+  CRM_Core_DAO::executeQuery($sql, array(1 => array($tracking_id, 'String')));
+
 }
 
 

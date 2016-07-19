@@ -12,4 +12,10 @@
     <title>Settings</title>
     <access_arguments>administer CiviCRM</access_arguments>
   </item>
+  <item>
+    <path>civicrm/cdntaxreceipts/open</path>
+    <page_callback>CRM_Cdntaxreceipts_Page_OpenEvent</page_callback>
+    <title>OpenEvent</title>
+    <access_arguments>track cdn tax receipts</access_arguments>
+  </item>
 </menu>

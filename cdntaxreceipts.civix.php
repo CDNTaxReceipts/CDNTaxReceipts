@@ -9,26 +9,29 @@
  */
 function _cdntaxreceipts_civix_civicrm_config(&$config = NULL) {
   static $configured = FALSE;
-  if ($configured) return;
+  if ($configured) {
+    return;
+  }
   $configured = TRUE;
 
   $template =& CRM_Core_Smarty::singleton();
 
-  $extRoot = dirname( __FILE__ ) . DIRECTORY_SEPARATOR;
+  $extRoot = dirname(__FILE__) . DIRECTORY_SEPARATOR;
   $extDir = $extRoot . 'templates';
 
   if ( is_array( $template->template_dir ) ) {
       array_unshift( $template->template_dir, $extDir );
-  } else {
+  }
+  else {
       $template->template_dir = array( $extDir, $template->template_dir );
   }
 
   $include_path = $extRoot . PATH_SEPARATOR . get_include_path( );
-  set_include_path( $include_path );
+  set_include_path($include_path);
 }
 
 /**
- * (Delegated) Implementation of hook_civicrm_xmlMenu
+ * (Delegated) Implements hook_civicrm_xmlMenu().
  *
  * @param $files array(string)
  * @link http://wiki.civicrm.org/confluence/display/CRMDOC/hook_civicrm_xmlMenu
@@ -93,7 +96,7 @@ function _cdntaxreceipts_civix_civicrm_disable() {
 }
 
 /**
- * (Delegated) Implementation of hook_civicrm_upgrade
+ * (Delegated) Implements hook_civicrm_upgrade().
  *
  * @param $op string, the type of operation being performed; 'check' or 'enqueue'
  * @param $queue CRM_Queue_Queue, (for 'enqueue') the modifiable list of pending up upgrade tasks
@@ -115,7 +118,8 @@ function _cdntaxreceipts_civix_civicrm_upgrade($op, CRM_Queue_Queue $queue = NUL
 function _cdntaxreceipts_civix_upgrader() {
   if (!file_exists(__DIR__.'/CRM/Cdntaxreceipts/Upgrader.php')) {
     return NULL;
-  } else {
+  }
+  else {
     return CRM_Cdntaxreceipts_Upgrader_Base::instance();
   }
 }
@@ -158,7 +162,7 @@ function _cdntaxreceipts_civix_find_files($dir, $pattern) {
   return $result;
 }
 /**
- * (Delegated) Implementation of hook_civicrm_managed
+ * (Delegated) Implements hook_civicrm_managed().
  *
  * Find any *.mgd.php files, merge their content, and return.
  *
@@ -207,6 +211,31 @@ function _cdntaxreceipts_civix_civicrm_caseTypes(&$caseTypes) {
 }
 
 /**
+* (Delegated) Implements hook_civicrm_angularModules().
+*
+* Find any and return any files matching "ang/*.ang.php"
+*
+* Note: This hook only runs in CiviCRM 4.5+.
+*
+* @link http://wiki.civicrm.org/confluence/display/CRMDOC/hook_civicrm_angularModules
+*/
+function _cdntaxreceipts_civix_civicrm_angularModules(&$angularModules) {
+  if (!is_dir(__DIR__ . '/ang')) {
+    return;
+  }
+
+  $files = _cdntaxreceipts_civix_glob(__DIR__ . '/ang/*.ang.php');
+  foreach ($files as $file) {
+    $name = preg_replace(':\.ang\.php$:', '', basename($file));
+    $module = include $file;
+    if (empty($module['ext'])) {
+      $module['ext'] = 'org.civicrm.cdntaxreceipts';
+    }
+    $angularModules[$name] = $module;
+  }
+}
+
+/**
  * Glob wrapper which is guaranteed to return an array.
  *
  * The documentation for glob() says, "On some systems it is impossible to
@@ -224,12 +253,12 @@ function _cdntaxreceipts_civix_glob($pattern) {
 }
 
 /**
- * Inserts a navigation menu item at a given place in the hierarchy
+ * Inserts a navigation menu item at a given place in the hierarchy.
  *
- * $menu - menu hierarchy
- * $path - path where insertion should happen (ie. Administer/System Settings)
- * $item - menu you need to insert (parent/child attributes will be filled for you)
- * $parentId - used internally to recurse in the menu structure
+ * @param array $menu - menu hierarchy
+ * @param string $path - path where insertion should happen (ie. Administer/System Settings)
+ * @param array $item - menu you need to insert (parent/child attributes will be filled for you)
+ * @param int $parentId - used internally to recurse in the menu structure
  */
 function _cdntaxreceipts_civix_insert_navigation_menu(&$menu, $path, $item, $parentId = NULL) {
   static $navId;
@@ -247,7 +276,8 @@ function _cdntaxreceipts_civix_insert_navigation_menu(&$menu, $path, $item, $par
       ))
     );
     return true;
-  } else {
+  }
+  else {
     // Find an recurse into the next level down
     $found = false;
     $path = explode('/', $path);

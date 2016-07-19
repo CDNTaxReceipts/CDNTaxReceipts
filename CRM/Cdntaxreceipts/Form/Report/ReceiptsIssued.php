@@ -49,16 +49,16 @@ class CRM_Cdntaxreceipts_Form_Report_ReceiptsIssued extends CRM_Report_Form {
           'issue_method' => array('title' => 'Issue Method', 'default' => TRUE),
           'uid' => array('title' => 'Issued By', 'default' => TRUE),
           'receipt_status' => array('title' => 'Receipt Status', 'default' => TRUE,),
+          'email_opened' => array('title' => 'Email Open Date', 'type' => CRM_Utils_Type::T_TIMESTAMP, 'default' => TRUE),
         ),
         'grouping' => 'tax-fields',
         'filters' =>
         array(
           'issued_on' =>
-            array(
-              'title' => 'Issued On',
-              'type' => CRM_Utils_Type::T_TIMESTAMP,
-              'operatorType' => CRM_Report_Form::OP_DATETIME
-            ),
+          array(
+            'title' => 'Issued On',
+            'type' => CRM_Utils_Type::T_TIMESTAMP,
+            'operatorType' => CRM_Report_Form::OP_DATE),
           'issue_type' =>
             array(
               'title' => ts('Issue Type'),
@@ -80,6 +80,11 @@ class CRM_Cdntaxreceipts_Form_Report_ReceiptsIssued extends CRM_Report_Form {
               'options' => array('issued' => 'Issued', 'cancelled' => 'Cancelled'),
               'type' => CRM_Utils_Type::T_STRING,
             ),
+          'email_opened' =>
+          array('title' => ts('Email Open Date', array('domain' => 'org.civicrm.cdntaxreceipts')),
+            'type' => CRM_Utils_Type::T_DATE,
+            'operatorType' => CRM_Report_Form::OP_DATE,
+          ),
         ),
         'order_bys' =>
         array(

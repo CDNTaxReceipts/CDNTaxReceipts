@@ -74,6 +74,8 @@ function cdntaxreceipts_processTaxReceipt($receipt, &$collectedPdf = NULL, $prev
   $email_message = CRM_Core_BAO_Setting::getItem(CDNTAX_SETTINGS, 'email_message');
   $org_name = CRM_Core_BAO_Setting::getItem(CDNTAX_SETTINGS, 'org_name');
 
+  $email_message = nl2br(htmlspecialchars($email_message));
+
   $email_subject_admin = CRM_Core_BAO_Setting::getItem(CDNTAX_SETTINGS, 'email_subject');
   $email_subject = $email_subject_admin . " " . $receipt['receipt_no'];
 
@@ -85,27 +87,28 @@ function cdntaxreceipts_processTaxReceipt($receipt, &$collectedPdf = NULL, $prev
     'toName' => $displayname,
     'attachments' => array( $attachment ),
     'subject' => $email_subject,
-    'text' => $email_message,
+    'html' => $email_message,
     'returnPath' => $email_from,
   );
-
-  // if method is email, we send to contact and BCC email archive.
-  // if method is print, we send to email archive only.
-  if ( $receipt['issue_method'] == 'email' ) {
-    $mailparams['toEmail'] = $email;
-    $mailparams['bcc'] = $email_archive;
-  }
-  else {
-    $mailparams['toEmail'] = $email_archive;
-  }
 
   if ( $previewMode ) {
     $ret = TRUE;
   }
   else {
+    // send one copy to email archive
+    $mailparams['toEmail'] = $email_archive;
     $ret = CRM_Utils_Mail::send( $mailparams );
-    if ( $ret == TRUE ) {
-      // we have successfully processed.  Log the receipt.
+
+    // send one copy with open tracking to the donor
+    if ( $receipt['issue_method'] == 'email' ) {
+      $mailparams['toEmail'] = $email;
+      $mailparams['html'] .= "\n<img src=\"" . CRM_Utils_System::baseURL() .
+        "civicrm/cdntaxreceipts/open?r={$receipt['email_tracking_id']}\" width='1' height='1' alt='' border='0'>\n";
+      CRM_Utils_Mail::send( $mailparams );
+    }
+
+    // log the receipt
+    if (!$receipt['is_duplicate']) {
       cdntaxreceipts_log($receipt);
     }
   }
@@ -653,6 +656,7 @@ function cdntaxreceipts_issueTaxReceipt( $contribution, &$collectedPdf = NULL, $
     'receive_date' => $contribution->receive_date,
     'inkind_values' => $inkind_values,
     'receipt_status' => ($is_duplicate && isset($receipt)) ? $receipt['receipt_status'] : 'issued',
+    'email_tracking_id' => md5(uniqid(rand(), TRUE)),
   );
 
   if ( $contribution->source != '' ) {
@@ -872,6 +876,7 @@ function cdntaxreceipts_issueAnnualTaxReceipt( $contactId, $year, &$collectedPdf
       'receive_date' => $year,
       'receipt_status' => 'issued',
       'contributions' => $receiptContributions,
+      'email_tracking_id' => md5(uniqid(rand(), TRUE)),
     );
 
   }
@@ -971,6 +976,7 @@ function cdntaxreceipts_issueAggregateTaxReceipt($contactId, $year, $contributio
       'receive_date' => $year,
       'receipt_status' => 'issued',
       'contributions' => $receiptContributions,
+      'email_tracking_id' => md5(uniqid(rand(), TRUE)),
     );
   }
 

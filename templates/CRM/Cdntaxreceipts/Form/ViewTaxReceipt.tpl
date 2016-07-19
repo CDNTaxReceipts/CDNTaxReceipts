@@ -44,8 +44,8 @@ cj(document).ready(
               <a href="{crmURL p='civicrm/contact/view/contribution' q="action=view&reset=1&id=$id&cid=$contact_id&context=home"}">{$id}</a>
             {/foreach}
         </td>
-        <td class="label">&nbsp;</td>
-        <td>&nbsp;</td>
+        <td class="label">Email Opened</td>
+        <td>{$receipt.email_opened|crmDate}</td>
     </tr>
 </table>
 {/if}
