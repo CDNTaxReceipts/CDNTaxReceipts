@@ -4,6 +4,10 @@ require_once 'cdntaxreceipts.civix.php';
 require_once 'cdntaxreceipts.functions.inc';
 require_once 'cdntaxreceipts.db.inc';
 
+define('CDNTAXRECEIPTS_MODE_BACKOFFICE', 1);
+define('CDNTAXRECEIPTS_MODE_PREVIEW', 2);
+define('CDNTAXRECEIPTS_MODE_WORKFLOW', 3);
+
 function cdntaxreceipts_civicrm_buildForm( $formName, &$form ) {
   if (is_a( $form, 'CRM_Contribute_Form_ContributionView')) {
     // add "Issue Tax Receipt" button to the "View Contribution" page
@@ -274,5 +278,61 @@ function cdntaxreceipts_civicrm_validate( $formName, &$fields, &$files, &$form )
     }
     return $errors;
   }
+}
+
+function cdntaxreceipts_civicrm_alterMailParams(&$params, $context) {
+
+  $msg_template_types = array('contribution_online_receipt', 'contribution_offline_receipt');
+
+  if (isset($params['groupName'])
+      && $params['groupName'] == 'msg_tpl_workflow_contribution'
+      && isset($params['valueName'])
+      && in_array($params['valueName'], $msg_template_types)) {
+
+    // get the related contribution id for this message
+    if (isset($params['tplParams']['contributionID'])) {
+      $contribution_id = $params['tplParams']['contributionID'];
+    }
+    else if( isset($params['contributionId'])) {
+      $contribution_id = $params['contributionId'];
+    }
+    else {
+      return;
+    }
+
+    // is the extension configured to send receipts attached to automated workflows?
+    if (!CRM_Core_BAO_Setting::getItem(CDNTAX_SETTINGS, 'attach_to_workflows', NULL, FALSE)) {
+      return;
+    }
+
+    // is this particular donation receiptable?
+    if (!cdntaxreceipts_eligibleForReceipt($contribution_id)) {
+      return;
+    }
+
+    $contribution = new CRM_Contribute_DAO_Contribution();
+    $contribution->id = $contribution_id;
+    $contribution->find(TRUE);
+
+    $nullVar = NULL;
+    list($ret, $method, $pdf_file) = cdntaxreceipts_issueTaxReceipt(
+      $contribution,
+      $nullVar,
+      CDNTAXRECEIPTS_MODE_WORKFLOW
+    );
+
+    if ($ret) {
+      $last_in_path = strrpos($pdf_file, '/');
+      $clean_name = substr($pdf_file, $last_in_path);
+      $attachment = array(
+        'fullPath' => $pdf_file,
+        'mime_type' => 'application/pdf',
+        'cleanName' => $clean_name,
+      );
+      $params['attachments'] = array($attachment);
+    }
+
+  }
+
 }
 

@@ -112,7 +112,12 @@
       <tr>
         <td class="label">{$form.enable_email.label}</td>
         <td class="content">{$form.enable_email.html}
-          <p class="description">{ts domain='org.civicrm.cdntaxreceipts'}If enabled, tax receipts will be sent via email to donors who have an email address on file.{/ts}</p></td>
+          <p class="description">{ts domain='org.civicrm.cdntaxreceipts'}If enabled, tax receipts will be sent via email to donors who have an email address on file. This setting applies to manually-triggered tax receipts, and is overridden if you decide to attach receipts to automated messages below.{/ts}</p></td>
+      </tr>
+      <tr>
+        <td class="label">{$form.attach_to_workflows.label}</td>
+        <td class="content">{$form.attach_to_workflows.html}
+          <p class="description">{ts domain='org.civicrm.cdntaxreceipts'}If enabled, tax receipts will be attached to the automated emails that CiviCRM sends via online contribution page, and when "send receipt" is selected during backoffice gift entry. Be sure to alter the Contributions - Receipt (on-line/off-line) message templates to alert the donor that their tax receipt is attached.{/ts}</p></td>
       </tr>
       <tr>
         <td class="label">{$form.enable_advanced_eligibility_report.label}</td>

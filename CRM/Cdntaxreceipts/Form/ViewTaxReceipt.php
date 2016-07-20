@@ -197,7 +197,7 @@ class CRM_Cdntaxreceipts_Form_ViewTaxReceipt extends CRM_Core_Form {
         $statusMsg = ts('Encountered an error. Tax receipt has not been cancelled.', array('domain' => 'org.civicrm.cdntaxreceipts'));
 
       }
-      CRM_Core_Session::setStatus($statusMsg);
+      CRM_Core_Session::setStatus($statusMsg, '', 'error');
 
       // refresh the form, with file stored in session if we need it.
       $urlParams = array('reset=1', 'cid='.$contactId, 'id='.$contributionId);
@@ -206,7 +206,7 @@ class CRM_Cdntaxreceipts_Form_ViewTaxReceipt extends CRM_Core_Form {
       // issue tax receipt, or report error if ineligible
       if ( ! cdntaxreceipts_eligibleForReceipt($contribution->id) ) {
         $statusMsg = ts('This contribution is not tax deductible and/or not completed. No receipt has been issued.', array('domain' => 'org.civicrm.cdntaxreceipts'));
-        CRM_Core_Session::setStatus($statusMsg);
+        CRM_Core_Session::setStatus($statusMsg, '', 'error');
       }
       else {
 
@@ -219,11 +219,11 @@ class CRM_Cdntaxreceipts_Form_ViewTaxReceipt extends CRM_Core_Form {
           else {
             $statusMsg = ts('Tax Receipt has been generated for printing.', array('domain' => 'org.civicrm.cdntaxreceipts'));
           }
-          CRM_Core_Session::setStatus($statusMsg);
+          CRM_Core_Session::setStatus($statusMsg, '', 'success');
         }
         else {
           $statusMsg = ts('Encountered an error. Tax receipt has not been issued.', array('domain' => 'org.civicrm.cdntaxreceipts'));
-          CRM_Core_Session::setStatus($statusMsg);
+          CRM_Core_Session::setStatus($statusMsg, '', 'error');
           unset($pdf);
         }
       }
@@ -272,7 +272,7 @@ class CRM_Cdntaxreceipts_Form_ViewTaxReceipt extends CRM_Core_Form {
     }
     else {
       $statusMsg = ts('File has expired. Please retrieve receipt from the email archive.', array('domain' => 'org.civicrm.cdntaxreceipts'));
-      CRM_Core_Session::setStatus( $statusMsg );
+      CRM_Core_Session::setStatus( $statusMsg, '', 'error' );
     }
   }
 

@@ -171,6 +171,12 @@ class CRM_Cdntaxreceipts_Form_Settings extends CRM_Core_Form {
       $this->addGroup($yesno_options, 'enable_email', ts('Send receipts by email?', array('domain' => 'org.civicrm.cdntaxreceipts')));
       $this->addRule('enable_email', 'Enable or disable email receipts', 'required');
 
+      $yesno_options = array();
+      $yesno_options[] = $this->createElement('radio', NULL, NULL, 'Yes', 1);
+      $yesno_options[] = $this->createElement('radio', NULL, NULL, 'No', 0);
+      $this->addGroup($yesno_options, 'attach_to_workflows', ts('Attach receipts to automated workflow messages?', array('domain' => 'org.civicrm.cdntaxreceipts')));
+      $this->addRule('attach_to_workflows', 'Attach tax receipts to automated messages', 'required');
+
       $yesno_options2 = array();
       $yesno_options2[] = $this->createElement('radio', NULL, NULL, 'Yes', 1);
       $yesno_options2[] = $this->createElement('radio', NULL, NULL, 'No', 0);
@@ -181,6 +187,7 @@ class CRM_Cdntaxreceipts_Form_Settings extends CRM_Core_Form {
       $defaults = array(
         'issue_inkind' => 0,
         'enable_email' => CRM_Core_BAO_Setting::getItem(self::SETTINGS, 'enable_email', NULL, 0),
+        'attach_to_workflows' => CRM_Core_BAO_Setting::getItem(self::SETTINGS, 'attach_to_workflows', NULL, 0),
         'enable_advanced_eligibility_report' => CRM_Core_BAO_Setting::getItem(self::SETTINGS, 'enable_advanced_eligibility_report', NULL, 0),
       );
       return $defaults;
@@ -188,6 +195,7 @@ class CRM_Cdntaxreceipts_Form_Settings extends CRM_Core_Form {
     else if ( $mode == 'post' ) {
       $values = $this->exportValues();
       CRM_Core_BAO_Setting::setItem($values['enable_email'], self::SETTINGS, 'enable_email');
+      CRM_Core_BAO_Setting::setItem($values['attach_to_workflows'], self::SETTINGS, 'attach_to_workflows');
       CRM_Core_BAO_Setting::setItem($values['enable_advanced_eligibility_report'], self::SETTINGS, 'enable_advanced_eligibility_report');
 
       if (isset($values['issue_inkind']) == TRUE) {
