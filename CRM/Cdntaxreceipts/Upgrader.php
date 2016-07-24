@@ -13,6 +13,15 @@ class CRM_Cdntaxreceipts_Upgrader extends CRM_Cdntaxreceipts_Upgrader_Base {
    */
   public function install() {
     $this->executeSqlFile('sql/install.sql');
+
+    $email_message = '{$contact.email_greeting_display},
+
+Attached please find your official tax receipt for income tax purposes.
+
+{$orgName}';
+    $email_subject = 'Your tax receipt {$receipt.receipt_no}';
+
+    $this->_create_message_template($email_message, $email_subject);
   }
 
   /**
@@ -54,12 +63,86 @@ AND COLUMN_NAME = 'receipt_status'");
   }
 
   public function upgrade_1321() {
-    $this->ctx->log->info('Applying update 1321');
+    $this->ctx->log->info('Applying update 1321: Email Tracking');
     CRM_Core_DAO::executeQuery('ALTER TABLE cdntaxreceipts_log ADD email_tracking_id varchar(64) NULL');
     CRM_Core_DAO::executeQuery('ALTER TABLE cdntaxreceipts_log ADD email_opened datetime NULL');
     CRM_Core_DAO::executeQuery('CREATE INDEX contribution_id ON cdntaxreceipts_log_contributions (contribution_id)');
     return TRUE;
   } 
+
+  public function upgrade_1322() {
+    $this->ctx->log->info('Applying update 1322: Message Templates');
+    $current_message = CRM_Core_BAO_Setting::getItem(CDNTAX_SETTINGS, 'email_message');
+    $current_subject = CRM_Core_BAO_Setting::getItem(CDNTAX_SETTINGS, 'email_subject') . ' {$receipt.receipt_no}';
+    return $this->_create_message_template($current_message, $current_subject);
+  }
+
+  function _create_message_template($email_message, $email_subject) {
+
+    // create message template for email that accompanies tax receipts
+    $params = array(
+      'sequential' => 1,
+      'name' => 'msg_tpl_workflow_cdntaxreceipts',
+      'title' => 'Message Template Workflow for CDN Tax Receipts',
+      'description' => 'Message Template Workflow for CDN Tax Receipts',
+      'is_reserved' => 1,
+      'is_active' => 1,
+      'api.OptionValue.create' => array(
+        'label' => 'CDN Tax Receipts - Receipt Email',
+        'value' => 1,
+        'name' => 'cdntaxreceipts_receipt_email',
+        'is_reserved' => 1,
+        'is_active' => 1,
+        'format.only_id' => 1,
+      ),
+    );
+    $result = civicrm_api3('OptionGroup', 'create', $params);
+
+    $html_message = '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+ <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+ <title></title>
+</head>
+<body>
+{capture assign=headerStyle}colspan="2" style="text-align: left; padding: 4px; border-bottom: 1px solid #999; background-color: #eee;"{/capture}
+{capture assign=labelStyle }style="padding: 4px; border-bottom: 1px solid #999; background-color: #f7f7f7;"{/capture}
+{capture assign=valueStyle }style="padding: 4px; border-bottom: 1px solid #999;"{/capture}
+
+<center>
+ <table width="620" border="0" cellpadding="0" cellspacing="0" style="font-family: Arial, Verdana, sans-serif; text-align: left;">
+
+  <!-- BEGIN HEADER -->
+  <!-- You can add table row(s) here with logo or other header elements -->
+  <!-- END HEADER -->
+
+  <!-- BEGIN CONTENT -->
+
+  <tr>
+   <td>
+    <p>' . nl2br(htmlspecialchars($email_message)) . '</p>
+   </td>
+  </tr>
+  <tr>
+ </table>
+</center>
+{$openTracking}
+</body>
+</html>';
+
+    $params = array(
+      'msg_title' => 'CDN Tax Receipts - Receipt Email',
+      'msg_subject' => $email_subject,
+      'msg_text' => $email_message,
+      'msg_html' => $html_message,
+      'workflow_id' => $result['values'][0]['api.OptionValue.create'],
+      'is_default' => 1,
+      'is_reserved' => 0,
+    );
+    civicrm_api3('MessageTemplate', 'create', $params);
+
+    return TRUE;
+  }
 
   /**
    * Example: Run an external SQL script

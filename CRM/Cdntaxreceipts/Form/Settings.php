@@ -208,33 +208,23 @@ class CRM_Cdntaxreceipts_Form_Settings extends CRM_Core_Form {
 
   function processEmailOptions($mode) {
     if ( $mode == 'build' ) {
-      $this->add('text', 'email_subject', ts('Email Subject', array('domain' => 'org.civicrm.cdntaxreceipts')));
       $this->add('text', 'email_from', ts('Email From', array('domain' => 'org.civicrm.cdntaxreceipts')));
       $this->add('text', 'email_archive', ts('Archive Email', array('domain' => 'org.civicrm.cdntaxreceipts')));
-      $this->addElement('textarea', 'email_message', ts('Email Message', array('domain' => 'org.civicrm.cdntaxreceipts')));
 
-      $this->addRule('email_subject', 'Enter email subject', 'required');
       $this->addRule('email_from', 'Enter email from address', 'required');
       $this->addRule('email_archive', 'Enter email archive address', 'required');
-      $this->addRule('email_message', 'Enter email message', 'required');
     }
     else if ( $mode == 'defaults' ) {
-      $subject = ts('Your Tax Receipt', array('domain' => 'org.civicrm.cdntaxreceipts'));
-      $message = ts('Attached please find your official tax receipt for income tax purposes.', array('domain' => 'org.civicrm.cdntaxreceipts'));
       $defaults = array(
-        'email_subject' => CRM_Core_BAO_Setting::getItem(self::SETTINGS, 'email_subject', NULL, $subject),
         'email_from' => CRM_Core_BAO_Setting::getItem(self::SETTINGS, 'email_from'),
         'email_archive' => CRM_Core_BAO_Setting::getItem(self::SETTINGS, 'email_archive'),
-        'email_message' => CRM_Core_BAO_Setting::getItem(self::SETTINGS, 'email_message', NULL, $message),
       );
       return $defaults;
     }
     else if ( $mode == 'post' ) {
       $values = $this->exportValues();
-      CRM_Core_BAO_Setting::setItem($values['email_subject'], self::SETTINGS, 'email_subject');
       CRM_Core_BAO_Setting::setItem($values['email_from'], self::SETTINGS, 'email_from');
       CRM_Core_BAO_Setting::setItem($values['email_archive'], self::SETTINGS, 'email_archive');
-      CRM_Core_BAO_Setting::setItem($values['email_message'], self::SETTINGS, 'email_message');
     }
   }
 

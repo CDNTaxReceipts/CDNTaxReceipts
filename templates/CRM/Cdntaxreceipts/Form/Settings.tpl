@@ -117,7 +117,7 @@
       <tr>
         <td class="label">{$form.attach_to_workflows.label}</td>
         <td class="content">{$form.attach_to_workflows.html}
-          <p class="description">{ts domain='org.civicrm.cdntaxreceipts'}If enabled, tax receipts will be attached to the automated emails that CiviCRM sends via online contribution page, and when "send receipt" is selected during backoffice gift entry. Be sure to alter the Contributions - Receipt (on-line/off-line) message templates to alert the donor that their tax receipt is attached.{/ts}</p></td>
+          <p class="description">{ts domain='org.civicrm.cdntaxreceipts'}** Not recommended if you have ACHEFT payments. **<br />If enabled, tax receipts will be attached to the automated emails that CiviCRM sends via online contribution page, and when "send receipt" is selected during backoffice gift entry. Be sure to alter the Contributions - Receipt (on-line/off-line) message templates to alert the donor that their tax receipt is attached.{/ts}</p></td>
       </tr>
       <tr>
         <td class="label">{$form.enable_advanced_eligibility_report.label}</td>
@@ -132,11 +132,6 @@
   <table class="form-layout">
     <tbody>
       <tr>
-        <td class="label">{$form.email_subject.label}</td>
-        <td class="content">{$form.email_subject.html}
-          <p class="description">{ts domain='org.civicrm.cdntaxreceipts'}Subject of the Email to accompany your Tax Receipt. The receipt number will be appended.{/ts}</p></td>
-      </tr>
-      <tr>
         <td class="label">{$form.email_from.label}</td>
         <td class="content">{$form.email_from.html}
           <p class="description">{ts domain='org.civicrm.cdntaxreceipts'}Address you would like to Email the Tax Receipt from.{/ts}</p></td>
@@ -147,9 +142,8 @@
           <p class="description">{ts domain='org.civicrm.cdntaxreceipts'}Address you would like to Send a copy of the Email containing the Tax Receipt to. This is useful to create an archive.{/ts}</p></td>
       </tr>
       <tr>
-        <td class="label">{$form.email_message.label}</td>
-        <td class="content">{$form.email_message.html}
-          <p class="description">{ts domain='org.civicrm.cdntaxreceipts'}Text in the Email to accompany your Tax Receipt.{/ts}</p></td>
+        <td class="label">{ts domain='org.civicrm.cdntaxreceipts'}Message{/ts}</td>
+        <td class="content"><p class="description">{ts domain='org.civicrm.cdntaxreceipts'}The email message is configured under "System Workflow Messages" in Communication Templates.{/ts}</p></td>
       </tr>
     </tbody>
   </table>
