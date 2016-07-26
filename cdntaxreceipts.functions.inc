@@ -102,13 +102,19 @@ function cdntaxreceipts_processTaxReceipt($receipt, &$collectedPdf = NULL, $mode
 
     $sendTemplateParams = array(
       'groupName' => 'msg_tpl_workflow_cdntaxreceipts',
-      'valueName' => 'cdntaxreceipts_receipt_email',
       'contactId' => $receipt['contact_id'],
       'tplParams' => $tplParams,
       'from' => $org_name . ' <' . $email_from . '> ',
       'toName' => $contact['display_name'],
       'attachments' => array( $attachment ),
     );
+
+    if ($receipt['issue_type'] == 'single') {
+      $sendTemplateParams['valueName'] = 'cdntaxreceipts_receipt_single';
+    }
+    else {
+      $sendTemplateParams['valueName'] = 'cdntaxreceipts_receipt_aggregate';
+    }
 
     // send a copy (without open tracking) to the tax archive
     $sendTemplateParams['toEmail'] = $email_archive;

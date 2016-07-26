@@ -79,25 +79,6 @@ AND COLUMN_NAME = 'receipt_status'");
 
   function _create_message_template($email_message, $email_subject) {
 
-    // create message template for email that accompanies tax receipts
-    $params = array(
-      'sequential' => 1,
-      'name' => 'msg_tpl_workflow_cdntaxreceipts',
-      'title' => 'Message Template Workflow for CDN Tax Receipts',
-      'description' => 'Message Template Workflow for CDN Tax Receipts',
-      'is_reserved' => 1,
-      'is_active' => 1,
-      'api.OptionValue.create' => array(
-        'label' => 'CDN Tax Receipts - Receipt Email',
-        'value' => 1,
-        'name' => 'cdntaxreceipts_receipt_email',
-        'is_reserved' => 1,
-        'is_active' => 1,
-        'format.only_id' => 1,
-      ),
-    );
-    $result = civicrm_api3('OptionGroup', 'create', $params);
-
     $html_message = '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
@@ -130,17 +111,57 @@ AND COLUMN_NAME = 'receipt_status'");
 </body>
 </html>';
 
+    // create message template for email that accompanies tax receipts
     $params = array(
-      'msg_title' => 'CDN Tax Receipts - Receipt Email',
+      'sequential' => 1,
+      'name' => 'msg_tpl_workflow_cdntaxreceipts',
+      'title' => 'Message Template Workflow for CDN Tax Receipts',
+      'description' => 'Message Template Workflow for CDN Tax Receipts',
+      'is_reserved' => 1,
+      'is_active' => 1,
+      'api.OptionValue.create' => array(
+        '0' => array(
+          'label' => 'CDN Tax Receipts - Email Single Receipt',
+          'value' => 1,
+          'name' => 'cdntaxreceipts_receipt_single',
+          'is_reserved' => 1,
+          'is_active' => 1,
+          'format.only_id' => 1,
+        ),
+        '1' => array(
+          'label' => 'CDN Tax Receipts - Email Annual/Aggregate Receipt',
+          'value' => 2,
+          'name' => 'cdntaxreceipts_receipt_aggregate',
+          'is_reserved' => 1,
+          'is_active' => 1,
+          'format.only_id' => 1,
+        ),
+      ),
+    );
+    $result = civicrm_api3('OptionGroup', 'create', $params);
+
+    $params = array(
+      'msg_title' => 'CDN Tax Receipts - Email Single Receipt',
       'msg_subject' => $email_subject,
       'msg_text' => $email_message,
       'msg_html' => $html_message,
-      'workflow_id' => $result['values'][0]['api.OptionValue.create'],
+      'workflow_id' => $result['values'][0]['api.OptionValue.create'][0],
       'is_default' => 1,
       'is_reserved' => 0,
     );
     civicrm_api3('MessageTemplate', 'create', $params);
 
+    $params = array(
+      'msg_title' => 'CDN Tax Receipts - Email Annual/Aggregate Receipt',
+      'msg_subject' => $email_subject,
+      'msg_text' => $email_message,
+      'msg_html' => $html_message,
+      'workflow_id' => $result['values'][0]['api.OptionValue.create'][1],
+      'is_default' => 1,
+      'is_reserved' => 0,
+    );
+    civicrm_api3('MessageTemplate', 'create', $params);
+drupal_set_message(print_r($result['values'],TRUE));
     return TRUE;
   }
 
