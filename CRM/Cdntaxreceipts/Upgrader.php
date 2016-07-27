@@ -161,7 +161,7 @@ AND COLUMN_NAME = 'receipt_status'");
       'is_reserved' => 0,
     );
     civicrm_api3('MessageTemplate', 'create', $params);
-drupal_set_message(print_r($result['values'],TRUE));
+
     return TRUE;
   }
 
