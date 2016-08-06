@@ -242,7 +242,7 @@ function cdntaxreceipts_generateFormattedReceipt($receipt, &$collectedPdf = NULL
 
   foreach ( $output_files as $f ) {
     $f->AddPage();
-    _cdntaxreceipts_writePage($f, $pdf_variables);
+    _cdntaxreceipts_writePage($f, $pdf_variables, $receipt);
   }
 
   // close and output the single receipt, but not the collected receipts...
@@ -252,10 +252,10 @@ function cdntaxreceipts_generateFormattedReceipt($receipt, &$collectedPdf = NULL
   return array($pdf_file, $user_friendly);
 }
 
-function _cdntaxreceipts_writePage(&$f, $pdf_variables) {
+function _cdntaxreceipts_writePage(&$f, $pdf_variables, $receipt) {
 
   //
-  // hook_cdntaxreceipts_writeReceipt(&$pdf, $pdf_variables)
+  // hook_cdntaxreceipts_writeReceipt(&$pdf, $pdf_variables, $receipt)
   //
   // If there's a custom function to write the page, invoke it.
   // Otherwise, provide a default receipt format.
@@ -266,7 +266,7 @@ function _cdntaxreceipts_writePage(&$f, $pdf_variables) {
   // this when testing their particular installs.
   //
 
-  $results = CRM_Utils_Hook::singleton()->invoke(2, $f, $pdf_variables, CRM_Utils_Hook::$_nullObject, CRM_Utils_Hook::$_nullObject, CRM_Utils_Hook::$_nullObject, CRM_Utils_Hook::$_nullObject, 'cdntaxreceipts_writeReceipt');
+  $results = CRM_Utils_Hook::singleton()->invoke(3, $f, $pdf_variables, $receipt, CRM_Utils_Hook::$_nullObject, CRM_Utils_Hook::$_nullObject, CRM_Utils_Hook::$_nullObject, 'cdntaxreceipts_writeReceipt');
 
   if (is_array($results)) {
     foreach ($results as $result) {
