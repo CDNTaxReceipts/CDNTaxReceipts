@@ -217,6 +217,13 @@ CREATE TEMPORARY TABLE cdntaxreceipts_temp_civireport_eligible (
     $this->from(FALSE);
     $this->where(FALSE);
 
+    // if no receive_date filter, then limit to beginning of current month to prevent lock-up on large data sets
+    if (strpos($this->_where, 'receive_date') === FALSE) {
+      $month = date("Ym", time()) . '01';
+      $this->_where .= " AND {$this->_aliases['civicrm_contribution']}.receive_date >= {$month} ";
+      CRM_Core_Session::setStatus(ts('For performance reasons, date range is limited to the current month. If you want to a different date range, please use the date filter.'), '', 'info');
+    }
+    
     $sql = "SELECT {$this->_aliases['civicrm_contribution']}.id $this->_from $this->_where";
     $dao = CRM_Core_DAO::executeQuery($sql);
 
