@@ -171,15 +171,17 @@ function cdntaxreceipts_generateFormattedReceipt($receipt, &$collectedPdf = NULL
 
   $result_get_name = civicrm_api3('Contact', 'get', array(
     'sequential' => 1,
-    'return' => array("first_name", "last_name", "middle_name"),
+    'return' => array("first_name", "last_name", "middle_name","contact_type"),
     'id' => $receipt['contact_id'],
   ));
 
-  if (strlen(trim($result_get_name['values'][0]['middle_name'])) > 0) {
-    $displayname = $result_get_name['values'][0]['first_name'] .' '. $result_get_name['values'][0]['middle_name'][0] .' '. $result_get_name['values'][0]['last_name'];
-  }
-  else {
-    $displayname = $result_get_name['values'][0]['first_name'] . ' '. $result_get_name['values'][0]['last_name'];
+  if ($result_get_name['values'][0]['contact_type'] == 'Individual') {
+    if (strlen(trim($result_get_name['values'][0]['middle_name'])) > 0) {
+      $displayname = $result_get_name['values'][0]['first_name'] . ' ' . $result_get_name['values'][0]['middle_name'][0] . ' ' . $result_get_name['values'][0]['last_name'];
+    }
+    else {
+      $displayname = $result_get_name['values'][0]['first_name'] . ' ' . $result_get_name['values'][0]['last_name'];
+    }
   }
 
   if ( $receipt['issue_type'] == 'single' ) {
