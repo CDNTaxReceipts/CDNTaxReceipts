@@ -169,6 +169,19 @@ function cdntaxreceipts_generateFormattedReceipt($receipt, &$collectedPdf = NULL
 
   list($displayname, $email) = CRM_Contact_BAO_Contact::getContactDetails($receipt['contact_id']);
 
+  $result_get_name = civicrm_api3('Contact', 'get', array(
+    'sequential' => 1,
+    'return' => array("first_name", "last_name", "middle_name"),
+    'id' => $receipt['contact_id'],
+  ));
+
+  if (strlen(trim($result_get_name['values'][0]['middle_name'])) > 0) {
+    $displayname = $result_get_name['values'][0]['first_name'] .' '. $result_get_name['values'][0]['middle_name'][0] .' '. $result_get_name['values'][0]['last_name'];
+  }
+  else {
+    $displayname = $result_get_name['values'][0]['first_name'] . ' '. $result_get_name['values'][0]['last_name'];
+  }
+
   if ( $receipt['issue_type'] == 'single' ) {
     $pos = strpos($receipt['receive_date'], '-');
     if ($pos === FALSE) {
@@ -735,7 +748,7 @@ function cdntaxreceipts_eligibleForReceipt( $contributionId ) {
   if ( array_key_exists($contributionId, $cache) ) {
     return $cache[$contributionId];
   }
-  
+
   require_once('CRM/Contribute/DAO/Contribution.php');
   $contribution =  new CRM_Contribute_DAO_Contribution();
   $contribution->id = $contributionId;
@@ -796,7 +809,7 @@ function cdntaxreceipts_eligibleAmount( $contributionId ) {
   if ( array_key_exists($contributionId, $cache) ) {
     return $cache[$contributionId];
   }
-  
+
   require_once('CRM/Contribute/DAO/Contribution.php');
   $contribution =  new CRM_Contribute_DAO_Contribution();
   $contribution->id = $contributionId;
@@ -828,14 +841,14 @@ function cdntaxreceipts_eligibleAmount( $contributionId ) {
     if ( $financialType->is_deductible ) {
       $deductibleAmount = $contribution->total_amount;
     }
-  } 
+  }
 
   // account for manually-entered non_deductible_amount
   $deductibleAmount = $deductibleAmount - $contribution->non_deductible_amount;
   if ( $deductibleAmount < 0 ) {
     $deductibleAmount = 0;
   }
- 
+
   // 2. allow modules to alter the amount. lowest amount wins.
   $results = CRM_Utils_Hook::singleton()->invoke(1, $contribution, CRM_Utils_Hook::$_nullObject, CRM_Utils_Hook::$_nullObject, CRM_Utils_Hook::$_nullObject, CRM_Utils_Hook::$_nullObject, CRM_Utils_Hook::$_nullObject, 'cdntaxreceipts_eligibleAmount');
 
@@ -1037,7 +1050,7 @@ function cdntaxreceipts_sendMethodForContact( $contactId ) {
   }
 
   $method = array('print', NULL);
-  
+
   require_once 'CRM/Contact/BAO/Contact.php';
   list($displayname, $email, $doNotEmail, $onHold) = CRM_Contact_BAO_Contact::getContactDetails($contactId);
 
@@ -1046,11 +1059,11 @@ function cdntaxreceipts_sendMethodForContact( $contactId ) {
       $method = array('email', $email);
     }
   }
-  
+
   // invoke hook_cdntaxreceipts_method:
   //   module implementations should return an array containing a single item,
   //   either 'email' or 'print'. if we receive one or more 'print', the contact
-  //   is disqualified from receiving email receipts. 
+  //   is disqualified from receiving email receipts.
   $results = CRM_Utils_Hook::singleton()->invoke(1, $contactId, CRM_Utils_Hook::$_nullObject, CRM_Utils_Hook::$_nullObject, CRM_Utils_Hook::$_nullObject, CRM_Utils_Hook::$_nullObject, CRM_Utils_Hook::$_nullObject, 'cdntaxreceipts_method');
   $emailOk = TRUE;
 
@@ -1177,7 +1190,7 @@ function cdntaxreceipts_getAddress($contact_id) {
   $address = isset($address) ? $address : array();
 
   // get actual names for province and country
-  
+
   // add actual names for province and country instead of just having ids
   if (isset($address['state_province_id'])) {
     $address['state_province'] = CRM_Core_DAO::getFieldValue(
