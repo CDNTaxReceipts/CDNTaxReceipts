@@ -107,19 +107,6 @@ class CRM_Cdntaxreceipts_Task_IssueSingleTaxReceipts extends CRM_Contribute_Form
       set_time_limit( 0 );
     }
 
-    // Issue 1895204: Turn off geocoding to avoid hitting Google API limits
-    if (version_compare(CRM_Utils_System::version(), '4.7', '<')) {
-      $config =& CRM_Core_Config::singleton();
-      $oldGeocode = $config->geocodeMethod;
-      unset($config->geocodeMethod);
-    }
-    else {
-      // TODO: test this works in 4.7. Does it affect the current request?
-      // better yet, figure out why Civi is triggering a geocode here, and stop it.
-      $oldGeocode = cdntaxreceipts_getCiviSetting('geoProvider');
-      cdntaxreceipts_setCiviSetting('geoProvider', NULL);
-    }
-
     $params = $this->controller->exportValues($this->_name);
 
     $originalOnly = FALSE;
@@ -197,16 +184,6 @@ class CRM_Cdntaxreceipts_Task_IssueSingleTaxReceipts extends CRM_Contribute_Form
       $status = ts('%1 tax receipt(s) failed to process.', array(1=>$failCount, 'domain' => 'org.civicrm.cdntaxreceipts'));
       CRM_Core_Session::setStatus($status, '', 'error');
     }
-
-    // Issue 1895204: Reset geocoding
-    if (version_compare(CRM_Utils_System::version(), '4.7', '<')) {
-      $config =& CRM_Core_Config::singleton();
-      $config->geocodeMethod = $oldGeocode;
-    }
-    else {
-      cdntaxreceipts_setCiviSetting('geoProvider', $oldGeocode);
-    }
-
 
     // 4. send the collected PDF for download
     // NB: This exits if a file is sent.

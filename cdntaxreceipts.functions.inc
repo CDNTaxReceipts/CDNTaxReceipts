@@ -55,11 +55,7 @@ function cdntaxreceipts_processTaxReceipt($receipt, &$collectedPdf = NULL, $mode
   //   modules should accept a reference to the $receipt array and alter it directly if they wish
   //   one useful use case: alter the $receipt['source'] line to include custom text
   //   to alter receipt amount, use hook_cdntaxreceipts_eligibleAmount() instead
-  if (version_compare(CRM_Utils_System::version(), '4.5', '<')) {
-    CRM_Utils_Hook::singleton()->invoke(1, $receipt, CRM_Utils_Hook::$_nullObject, CRM_Utils_Hook::$_nullObject, CRM_Utils_Hook::$_nullObject, CRM_Utils_Hook::$_nullObject, 'cdntaxreceipts_alter_receipt');
-  } else {
-    CRM_Utils_Hook::singleton()->invoke(1, $receipt, CRM_Utils_Hook::$_nullObject, CRM_Utils_Hook::$_nullObject, CRM_Utils_Hook::$_nullObject, CRM_Utils_Hook::$_nullObject, CRM_Utils_Hook::$_nullObject, 'cdntaxreceipts_alter_receipt');
-  }
+  CRM_Utils_Hook::singleton()->invoke(1, $receipt, CRM_Utils_Hook::$_nullObject, CRM_Utils_Hook::$_nullObject, CRM_Utils_Hook::$_nullObject, CRM_Utils_Hook::$_nullObject, CRM_Utils_Hook::$_nullObject, 'cdntaxreceipts_alter_receipt');
 
   // generate the PDF file
   list($pdf_file, $user_friendly) = cdntaxreceipts_generateFormattedReceipt($receipt, $collectedPdf, $mode);
@@ -172,6 +168,7 @@ function cdntaxreceipts_generateFormattedReceipt($receipt, &$collectedPdf = NULL
   $address_line_3 = isset($address['country']) ? $address['country'] : '';
 
   list($displayname, $email) = CRM_Contact_BAO_Contact::getContactDetails($receipt['contact_id']);
+
   if ( $receipt['issue_type'] == 'single' ) {
     $pos = strpos($receipt['receive_date'], '-');
     if ($pos === FALSE) {
@@ -524,7 +521,8 @@ function _cdntaxreceipts_writeReceipt(&$pdf, $pdf_variables) {
 function cdntaxreceipts_configure_inkind_fields() {
 
   // check if the In-kind contribtion type exists.  if not, create it.
-  $dao = _cdntaxreceipts_get_contribution_dao();
+  require_once 'CRM/Financial/DAO/FinancialType.php';
+  $dao = new CRM_Financial_DAO_FinancialType();
   $dao->name = 'In-kind';
 
   if ( ! $dao->find(true) ) {
@@ -764,11 +762,7 @@ function cdntaxreceipts_eligibleForReceipt( $contributionId ) {
   //   module implementations should return an array containing a single item,
   //   either TRUE or FALSE. assumes TRUE until we receive a FALSE. one FALSE
   //   disqualifies the contribution for a tax receipt.
-  if (version_compare(CRM_Utils_System::version(), '4.5', '<')) {
-    $results = CRM_Utils_Hook::singleton()->invoke(1, $contribution, CRM_Utils_Hook::$_nullObject, CRM_Utils_Hook::$_nullObject, CRM_Utils_Hook::$_nullObject, CRM_Utils_Hook::$_nullObject, 'cdntaxreceipts_eligible');
-  } else {
-    $results = CRM_Utils_Hook::singleton()->invoke(1, $contribution, CRM_Utils_Hook::$_nullObject, CRM_Utils_Hook::$_nullObject, CRM_Utils_Hook::$_nullObject, CRM_Utils_Hook::$_nullObject, CRM_Utils_Hook::$_nullObject, 'cdntaxreceipts_eligible');
-  }
+  $results = CRM_Utils_Hook::singleton()->invoke(1, $contribution, CRM_Utils_Hook::$_nullObject, CRM_Utils_Hook::$_nullObject, CRM_Utils_Hook::$_nullObject, CRM_Utils_Hook::$_nullObject, CRM_Utils_Hook::$_nullObject, 'cdntaxreceipts_eligible');
   $hookOk = TRUE;
 
   if (is_array($results)) {
@@ -813,36 +807,28 @@ function cdntaxreceipts_eligibleAmount( $contributionId ) {
 
   // 1. calculate deductible amount
   $deductibleAmount = 0;
-  if (version_compare(CRM_Utils_System::version(), '4.5', '<')) {
-    // compute for overall contribution in 4.4
+
+  // compute by line item in 4.5+ if there are line items
+  // (if the contribution was done pre-upgrade, it might not have line items)
+  $line_item = new CRM_Price_DAO_LineItem();
+  $line_item->contribution_id = $contributionId;
+  $count = $line_item->find();
+
+  if ($count > 0) {
+    while ( $line_item->fetch() ) {
+      $financialType =  _cdntaxreceipts_get_type_for_line_item($line_item);
+      if ( $financialType->is_deductible ) {
+        $deductibleAmount += $line_item->line_total;
+      }
+    }
+  }
+  else {
+    // compute for overall contribution
     $financialType =  _cdntaxreceipts_get_type_for_contribution($contribution);
     if ( $financialType->is_deductible ) {
       $deductibleAmount = $contribution->total_amount;
     }
-  }
-  else {
-    // compute by line item in 4.5+ if there are line items
-    // (if the contribution was done pre-upgrade, it might not have line items)
-    $line_item = new CRM_Price_DAO_LineItem();
-    $line_item->contribution_id = $contributionId;
-    $count = $line_item->find();
-
-    if ($count > 0) {
-      while ( $line_item->fetch() ) {
-        $financialType =  _cdntaxreceipts_get_type_for_line_item($line_item);
-        if ( $financialType->is_deductible ) {
-          $deductibleAmount += $line_item->line_total;
-        }
-      }
-    }
-    else {
-      // compute for overall contribution
-      $financialType =  _cdntaxreceipts_get_type_for_contribution($contribution);
-      if ( $financialType->is_deductible ) {
-        $deductibleAmount = $contribution->total_amount;
-      }
-    } 
-  }
+  } 
 
   // account for manually-entered non_deductible_amount
   $deductibleAmount = $deductibleAmount - $contribution->non_deductible_amount;
@@ -851,11 +837,7 @@ function cdntaxreceipts_eligibleAmount( $contributionId ) {
   }
  
   // 2. allow modules to alter the amount. lowest amount wins.
-   if (version_compare(CRM_Utils_System::version(), '4.5', '<')) {
-    $results = CRM_Utils_Hook::singleton()->invoke(1, $contribution, CRM_Utils_Hook::$_nullObject, CRM_Utils_Hook::$_nullObject, CRM_Utils_Hook::$_nullObject, CRM_Utils_Hook::$_nullObject, 'cdntaxreceipts_eligibleAmount');
-  } else {
-    $results = CRM_Utils_Hook::singleton()->invoke(1, $contribution, CRM_Utils_Hook::$_nullObject, CRM_Utils_Hook::$_nullObject, CRM_Utils_Hook::$_nullObject, CRM_Utils_Hook::$_nullObject, CRM_Utils_Hook::$_nullObject, 'cdntaxreceipts_eligibleAmount');
-  }
+  $results = CRM_Utils_Hook::singleton()->invoke(1, $contribution, CRM_Utils_Hook::$_nullObject, CRM_Utils_Hook::$_nullObject, CRM_Utils_Hook::$_nullObject, CRM_Utils_Hook::$_nullObject, CRM_Utils_Hook::$_nullObject, 'cdntaxreceipts_eligibleAmount');
 
   if (is_array($results)) {
     foreach ( $results as $result ) {
@@ -1069,11 +1051,7 @@ function cdntaxreceipts_sendMethodForContact( $contactId ) {
   //   module implementations should return an array containing a single item,
   //   either 'email' or 'print'. if we receive one or more 'print', the contact
   //   is disqualified from receiving email receipts. 
-  if (version_compare(CRM_Utils_System::version(), '4.5', '<')) {
-    $results = CRM_Utils_Hook::singleton()->invoke(1, $contactId, CRM_Utils_Hook::$_nullObject, CRM_Utils_Hook::$_nullObject, CRM_Utils_Hook::$_nullObject, CRM_Utils_Hook::$_nullObject, 'cdntaxreceipts_method');
-  } else {
-    $results = CRM_Utils_Hook::singleton()->invoke(1, $contactId, CRM_Utils_Hook::$_nullObject, CRM_Utils_Hook::$_nullObject, CRM_Utils_Hook::$_nullObject, CRM_Utils_Hook::$_nullObject, CRM_Utils_Hook::$_nullObject, 'cdntaxreceipts_method');
-  }
+  $results = CRM_Utils_Hook::singleton()->invoke(1, $contactId, CRM_Utils_Hook::$_nullObject, CRM_Utils_Hook::$_nullObject, CRM_Utils_Hook::$_nullObject, CRM_Utils_Hook::$_nullObject, CRM_Utils_Hook::$_nullObject, 'cdntaxreceipts_method');
   $emailOk = TRUE;
 
   if (is_array($results)) {
@@ -1138,43 +1116,16 @@ function cdntaxreceipts_sendCollectedPDF(&$pdf, $filename) {
 }
 
 /**
- * Isolate version checking code
+ * return a full Financial Type object for corresponding contribution
  * @param $contribution
- * @return CRM_Contribute_DAO_ContributionType|CRM_Financial_DAO_FinancialType
+ * @return CRM_Financial_DAO_FinancialType
  */
 function _cdntaxreceipts_get_type_for_contribution($contribution) {
-
-  if (version_compare(CRM_Utils_System::version(), '4.3', '>=')) {
-    require_once 'CRM/Financial/DAO/FinancialType.php';
-    $contributionType = new CRM_Financial_DAO_FinancialType();
-    $contributionType->id = $contribution->financial_type_id;
-    if ( ! $contributionType->find( TRUE ) ) {
-      CRM_Core_Error::fatal( "CDNTaxReceipts: Could not find corresponding contribution type." );
-    }
-  }
-  else { // Assume 4.2 or lower
-    require_once 'CRM/Contribute/DAO/ContributionType.php';
-    $contributionType = new CRM_Contribute_DAO_ContributionType();
-    $contributionType->id = $contribution->contribution_type_id;
-    if ( ! $contributionType->find( TRUE ) ) {
-      CRM_Core_Error::fatal( "CDNTaxReceipts: Could not find corresponding contribution type." );
-    }
-  }
-  return $contributionType;
-}
-
-function _cdntaxreceipts_get_contribution_dao() {
-  // Require once lines are only needed if the civicrm.settings.php does not have the autoloader line
-  require_once 'CRM/Utils/VersionCheck.php';
-  $version_checker = CRM_Utils_VersionCheck::singleton();
-  $majorVersion = floatval(substr($version_checker->localVersion, 0, 3));
-  if ($majorVersion >= 4.3) {
-    require_once 'CRM/Financial/DAO/FinancialType.php';
-    $contributionType = new CRM_Financial_DAO_FinancialType();
-  }
-  else { // Assume 4.2 or lower
-    require_once 'CRM/Contribute/DAO/ContributionType.php';
-    $contributionType = new CRM_Contribute_DAO_ContributionType();
+  require_once 'CRM/Financial/DAO/FinancialType.php';
+  $contributionType = new CRM_Financial_DAO_FinancialType();
+  $contributionType->id = $contribution->financial_type_id;
+  if ( ! $contributionType->find( TRUE ) ) {
+    CRM_Core_Error::fatal( "CDNTaxReceipts: Could not find corresponding contribution type." );
   }
   return $contributionType;
 }
@@ -1184,7 +1135,7 @@ function _cdntaxreceipts_get_type_for_line_item($line_item) {
   $financialType = new CRM_Financial_DAO_FinancialType();
   $financialType->id = $line_item->financial_type_id;
   if ( ! $financialType->find( TRUE ) ) {
-    CRM_Core_Error::fatal( "CDNTaxReceipts: Could not find corresponding contribution type." );
+    CRM_Core_Error::fatal( "CDNTaxReceipts: Could not find corresponding financial type." );
   }
   return $financialType;
 }
@@ -1203,7 +1154,6 @@ function cdntaxreceipts_getAddress($contact_id) {
     'contact_id' => $contact_id,
     'is_billing' => 1,
   );
-
 
   $address_results = civicrm_api('Address', 'get', $params);
 
@@ -1225,9 +1175,23 @@ function cdntaxreceipts_getAddress($contact_id) {
 
   }
   $address = isset($address) ? $address : array();
+
+  // get actual names for province and country
+  
   // add actual names for province and country instead of just having ids
-  require_once 'CRM/Core/BAO/Address.php';
-  CRM_Core_BAO_Address::fixAddress($address);
+  if (isset($address['state_province_id'])) {
+    $address['state_province'] = CRM_Core_DAO::getFieldValue(
+      'CRM_Core_DAO_StateProvince',
+      $address['state_province_id'],
+      'abbreviation'
+    );
+  }
+  if (isset($address['country_id'])) {
+    $address['country'] = CRM_Core_DAO::getFieldValue(
+      'CRM_Core_DAO_Country',
+      $address['country_id']
+    );
+  }
 
   return $address;
 }
