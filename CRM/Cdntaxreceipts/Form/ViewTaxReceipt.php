@@ -126,7 +126,6 @@ class CRM_Cdntaxreceipts_Form_ViewTaxReceipt extends CRM_Core_Form {
         'type' => 'next',
         'name' => $buttonLabel,
         'isDefault' => TRUE,
-        'js' => array('onclick' => "return submitOnce(this,'{$this->_name}','" . ts('Processing', array('domain' => 'org.civicrm.cdntaxreceipts')) . "');"),
       );
       if ($this->_reissue && !$this->_isCancelled) {
         $buttons[] = array(
