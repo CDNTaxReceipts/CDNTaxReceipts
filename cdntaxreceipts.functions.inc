@@ -13,11 +13,11 @@ require_once('FPDI/fpdi.php');
      * include a background template for every page
      */
     function Header() {
-      $pdf_template_file = CRM_Core_BAO_Setting::getItem(CDNTAX_SETTINGS, 'receipt_pdftemplate');
+      $pdf_template_file = _cdntaxreceipts_get_image_filepath('receipt_pdftemplate');
       if (!empty($pdf_template_file)) {
 
         if (is_null($this->_tplIdx)) {
-          $pdf_template_file = CRM_Core_BAO_Setting::getItem(CDNTAX_SETTINGS, 'receipt_pdftemplate');
+          $pdf_template_file = _cdntaxreceipts_get_image_filepath('receipt_pdftemplate');
           $this->setSourceFile($pdf_template_file);
           $this->_tplIdx = $this->importPage(1);
         }
@@ -342,11 +342,15 @@ function _cdntaxreceipts_writeReceipt(&$pdf, $pdf_variables) {
     $pdf->Image($pdf_img_files_path . 'duplicate_trans.png', $mymargin_left + 65, $mymargin_top, '', 45);
   }
   // Top left section
-  $pdf_template_file = CRM_Core_BAO_Setting::getItem(CDNTAX_SETTINGS, 'receipt_pdftemplate');
+  $pdf_template_file = _cdntaxreceipts_get_image_filepath('receipt_pdftemplate');
   if (!empty($pdf_template_file)) {
   }
   else {
-    $pdf->Image(CRM_Core_BAO_Setting::getItem(CDNTAX_SETTINGS, 'receipt_logo', NULL, $pdf_img_files_path . 'your-logo.png'), $mymargin_left, $mymargin_top, '', 30);
+    $receiptLogo = _cdntaxreceipts_get_image_filepath('receipt_logo');
+    if (empty($receiptLogo)) {
+      $receiptLogo = $pdf_img_files_path . 'your-logo.png';
+    }
+    $pdf->Image($receiptLogo, $mymargin_left, $mymargin_top, '', 30);
 
   // Top right section
   $pdf->SetFont('Helvetica', '', 8);
@@ -381,12 +385,14 @@ function _cdntaxreceipts_writeReceipt(&$pdf, $pdf_variables) {
   // Right section
   $x_detailscolumn = 120;
   $y_detailscolumnstart = 22;
-  $pdf_template_file = CRM_Core_BAO_Setting::getItem(CDNTAX_SETTINGS, 'receipt_pdftemplate');
+  $pdf_template_file = _cdntaxreceipts_get_image_filepath('receipt_pdftemplate');
   if (!empty($pdf_template_file)) {
   }
   else {
-    $background_image = CRM_Core_BAO_Setting::getItem(CDNTAX_SETTINGS, 'receipt_watermark');
-    if ( $background_image ) $pdf->Image(CRM_Core_BAO_Setting::getItem(CDNTAX_SETTINGS, 'receipt_watermark'), $mymargin_left + $x_detailscolumn, $mymargin_top + $y_detailscolumnstart + 6, '', 40);
+    $background_image = _cdntaxreceipts_get_image_filepath('receipt_watermark');
+    if ($background_image) {
+      $pdf->Image($background_image, $mymargin_left + $x_detailscolumn, $mymargin_top + $y_detailscolumnstart + 6, '', 40);
+    }
   }
   $pdf->SetXY($mymargin_left + $x_detailscolumn, $mymargin_top + $y_detailscolumnstart + 6);
   $pdf->SetFont('Helvetica', 'B', 8);
@@ -508,9 +514,9 @@ function _cdntaxreceipts_writeReceipt(&$pdf, $pdf_variables) {
       $signature = ts('Authorized Signature', array('domain' => 'org.civicrm.cdntaxreceipts'));
     }
     $sig_offset = strlen($signature) - 20;
-    $pdf_template_file = CRM_Core_BAO_Setting::getItem(CDNTAX_SETTINGS, 'receipt_pdftemplate');
+    $pdf_template_file = _cdntaxreceipts_get_image_filepath('receipt_pdftemplate');
 
-    $sig_image = CRM_Core_BAO_Setting::getItem(CDNTAX_SETTINGS, 'receipt_signature');
+    $sig_image = _cdntaxreceipts_get_image_filepath('receipt_signature');
     if (empty($sig_image)) {
       $sig_image = $pdf_img_files_path . 'authorized-signature.png';
     }
@@ -1256,3 +1262,21 @@ function _cdntaxreceipts_get_display_type($issue_type) {
   }
 }
 
+/**
+ * Get file name with path of file/image field.
+ *
+ * @param $fieldName
+ *
+ * @return string file path or NULL
+ */
+function _cdntaxreceipts_get_image_filepath($fieldName) {
+  $fileName = CRM_Core_BAO_Setting::getItem(CDNTAX_SETTINGS, $fieldName);
+  if ($fileName) {
+    $config = CRM_Core_Config::singleton();
+    $fileNameWithPath = $config->customFileUploadDir . $fileName;
+    if (file_exists($fileNameWithPath)) {
+      return $fileNameWithPath;
+    }
+  }
+  return NULL;
+}

@@ -35,11 +35,13 @@ class CRM_Cdntaxreceipts_Form_Settings extends CRM_Core_Form {
       ),
     ));
     // Set image defaults
+    $config = CRM_Core_Config::singleton();
     $images = array('receipt_logo', 'receipt_signature', 'receipt_watermark', 'receipt_pdftemplate');
     foreach ($images as $image) {
       if (CRM_Utils_Array::value($image, $defaults)) {
         $this->assign($image, $defaults[$image]);
-        if (!file_exists($defaults[$image])) {
+        $fileName = $config->customFileUploadDir . $defaults[$image];
+        if (!file_exists($fileName)) {
           $this->assign($image.'_class', TRUE);
         }
       }
@@ -145,8 +147,8 @@ class CRM_Cdntaxreceipts_Form_Settings extends CRM_Core_Form {
         $upload_file = $this->getSubmitValue($key);
         if (is_array($upload_file)) {
           if ( $upload_file['error'] == 0 ) {
-            $filename = $config->customFileUploadDir . CRM_Utils_File::makeFileName($upload_file['name']);
-            if (!move_uploaded_file($upload_file['tmp_name'], $filename)) {
+            $filename = CRM_Utils_File::makeFileName($upload_file['name']);
+            if (!move_uploaded_file($upload_file['tmp_name'], $config->customFileUploadDir . $filename)) {
               CRM_Core_Error::fatal(ts('Could not upload the file'));
             }
             CRM_Core_BAO_Setting::setItem($filename, self::SETTINGS, $key);
