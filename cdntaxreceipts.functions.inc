@@ -568,7 +568,7 @@ function cdntaxreceipts_configure_inkind_fields() {
       'is_active' => 1,
       'version' => 3
     );
-    $result =& civicrm_api('custom_group', 'create', $group);
+    $result = civicrm_api('custom_group', 'create', $group);
   }
   foreach ( $result['values'] as $id => $detail ) {
     $custom_group_id = $id;
@@ -578,16 +578,16 @@ function cdntaxreceipts_configure_inkind_fields() {
   foreach ( array( 'Description of property', 'Appraised by', 'Address of Appraiser', 'Original cost' ) as $field ) {
     $params = array(
       'custom_group_id' => $custom_group_id,
-      'label' => $field,
+      'name' => CRM_Utils_String::munge($field, '_', 64),
       'version' => 3,
     );
     $result = civicrm_api( 'custom_field', 'get', $params);
-
     if ( $result['count'] == 0 ) {
       $field_params = array(
         'custom_group_id' => $custom_group_id,
         'label' => $field,
         'data_type' => 'String',
+        'html_type' => 'Text',
         'is_required' => 1,
         'is_active' => 1,
         'version' => 3,
@@ -602,7 +602,7 @@ function cdntaxreceipts_configure_inkind_fields() {
           ' the cost of the item donated (and the creditable amount) if either of those '.
           ' situations apply.';
       }
-      $result =& civicrm_api('custom_field', 'create', $field_params);
+      $result = civicrm_api('custom_field', 'create', $field_params);
     }
   }
 }
