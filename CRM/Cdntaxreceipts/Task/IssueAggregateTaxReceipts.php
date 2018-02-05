@@ -101,7 +101,7 @@ class CRM_Cdntaxreceipts_Task_IssueAggregateTaxReceipts extends CRM_Contribute_F
         }
       }
       else {
-        $receipts['loading_errors']++;
+        $receipts['totals']['loading_errors']++;
       }
     }
 
