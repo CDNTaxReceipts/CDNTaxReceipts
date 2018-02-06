@@ -34,6 +34,9 @@ require_once('FPDI/fpdi.php');
 
 
   const CDNTAX_SETTINGS = 'CDNTaxReceipts';
+  const CDNTAX_DELIVERY_PRINT_ONLY = 0;
+  const CDNTAX_DELIVERY_PRINT_EMAIL = 1;
+  const CDNTAX_DELIVERY_DATA_ONLY = 2;
 
 /**
  * processTaxReceipt()
@@ -57,89 +60,94 @@ function cdntaxreceipts_processTaxReceipt($receipt, &$collectedPdf = NULL, $mode
   //   to alter receipt amount, use hook_cdntaxreceipts_eligibleAmount() instead
   CRM_Utils_Hook::singleton()->invoke(1, $receipt, CRM_Utils_Hook::$_nullObject, CRM_Utils_Hook::$_nullObject, CRM_Utils_Hook::$_nullObject, CRM_Utils_Hook::$_nullObject, CRM_Utils_Hook::$_nullObject, 'cdntaxreceipts_alter_receipt');
 
-  // generate the PDF file
-  list($pdf_file, $user_friendly) = cdntaxreceipts_generateFormattedReceipt($receipt, $collectedPdf, $mode);
-
-  // generate an email to the tax archive and possibly to the donor
-  if ( $mode == CDNTAXRECEIPTS_MODE_PREVIEW ) {
+  if ($receipt['issue_method'] == 'data') {
+    // generate log entry only, no PDF file needed
+    $pdf_file = NULL;
     $sent = TRUE;
   }
   else {
+    // generate the PDF file
+    list($pdf_file, $user_friendly) = cdntaxreceipts_generateFormattedReceipt($receipt, $collectedPdf, $mode);
 
-    $org_name = CRM_Core_BAO_Setting::getItem(CDNTAX_SETTINGS, 'org_name');
-    $email_from = CRM_Core_BAO_Setting::getItem(CDNTAX_SETTINGS, 'email_from');
-    $email_archive = CRM_Core_BAO_Setting::getItem(CDNTAX_SETTINGS, 'email_archive');
-
-    // get all the basic contact information
-    $params = array(
-      'id' => $receipt['contact_id'],
-    );
-    $contact = civicrm_api3('contact', 'getsingle', $params);
-
-    // add in the greetings (not return as part of the api result)
-    $params = array(
-      'id' => $receipt['contact_id'],
-      'return.email_greeting' => 1,
-    );
-    $greetings = civicrm_api3('contact', 'getsingle', $params);
-    $contact['email_greeting_display'] = $greetings['email_greeting_display'];
-
-    $attachment = array(
-      'fullPath' => $pdf_file,
-      'mime_type' => 'application/pdf',
-      'cleanName' => $user_friendly,
-    );
-
-    $tplParams = array(
-      'orgName' => $org_name,
-      'contact' => $contact,
-      'receipt' => $receipt,
-    );
-
-    $sendTemplateParams = array(
-      'groupName' => 'msg_tpl_workflow_cdntaxreceipts',
-      'contactId' => $receipt['contact_id'],
-      'tplParams' => $tplParams,
-      'from' => $org_name . ' <' . $email_from . '> ',
-      'toName' => $contact['display_name'],
-      'attachments' => array( $attachment ),
-    );
-
-    if ($receipt['issue_type'] == 'single') {
-      $sendTemplateParams['valueName'] = 'cdntaxreceipts_receipt_single';
+    if ($mode == CDNTAXRECEIPTS_MODE_PREVIEW) {
+      // no email, just PDF
+      $sent = TRUE;
     }
     else {
-      $sendTemplateParams['valueName'] = 'cdntaxreceipts_receipt_aggregate';
-    }
+      // generate an email to the tax archive and possibly to the donor
+      $org_name = CRM_Core_BAO_Setting::getItem(CDNTAX_SETTINGS, 'org_name');
+      $email_from = CRM_Core_BAO_Setting::getItem(CDNTAX_SETTINGS, 'email_from');
+      $email_archive = CRM_Core_BAO_Setting::getItem(CDNTAX_SETTINGS, 'email_archive');
 
-    // send a copy (without open tracking) to the tax archive
-    $sendTemplateParams['toEmail'] = $email_archive;
-    list($sent, $subject, $message, $html) = CRM_Core_BAO_MessageTemplate::sendTemplate($sendTemplateParams);
+      // get all the basic contact information
+      $params = array(
+        'id' => $receipt['contact_id'],
+      );
+      $contact = civicrm_api3('contact', 'getsingle', $params);
 
-    // send a copy (with open tracking) to the donor (sometimes)
-    if ($sent && $receipt['issue_method'] == 'email' && $mode != CDNTAXRECEIPTS_MODE_WORKFLOW) {
-      $sendTemplateParams['toEmail'] = $contact['email'];
-      $sendTemplateParams['tplParams']['openTracking'] = "<img src=\"" . CRM_Utils_System::baseURL() .
-        "civicrm/cdntaxreceipts/open?r={$receipt['email_tracking_id']}\" width='1' height='1' alt='' border='0'>";
+      // add in the greetings (not return as part of the api result)
+      $params = array(
+        'id' => $receipt['contact_id'],
+        'return.email_greeting' => 1,
+      );
+      $greetings = civicrm_api3('contact', 'getsingle', $params);
+      $contact['email_greeting_display'] = $greetings['email_greeting_display'];
+
+      $attachment = array(
+        'fullPath' => $pdf_file,
+        'mime_type' => 'application/pdf',
+        'cleanName' => $user_friendly,
+      );
+
+      $tplParams = array(
+        'orgName' => $org_name,
+        'contact' => $contact,
+        'receipt' => $receipt,
+      );
+
+      $sendTemplateParams = array(
+        'groupName' => 'msg_tpl_workflow_cdntaxreceipts',
+        'contactId' => $receipt['contact_id'],
+        'tplParams' => $tplParams,
+        'from' => $org_name . ' <' . $email_from . '> ',
+        'toName' => $contact['display_name'],
+        'attachments' => array( $attachment ),
+      );
+
+      if ($receipt['issue_type'] == 'single') {
+        $sendTemplateParams['valueName'] = 'cdntaxreceipts_receipt_single';
+      }
+      else {
+        $sendTemplateParams['valueName'] = 'cdntaxreceipts_receipt_aggregate';
+      }
+
+      // send a copy (without open tracking) to the tax archive
+      $sendTemplateParams['toEmail'] = $email_archive;
       list($sent, $subject, $message, $html) = CRM_Core_BAO_MessageTemplate::sendTemplate($sendTemplateParams);
 
-      // TODO: log an activity
-    }
-
-    // log the receipt
-    if (!$receipt['is_duplicate'] && $sent) {
-      cdntaxreceipts_log($receipt);
+      // send a copy (with open tracking) to the donor
+      if ($sent && $receipt['issue_method'] == 'email' && $mode != CDNTAXRECEIPTS_MODE_WORKFLOW) {
+        $sendTemplateParams['toEmail'] = $contact['email'];
+        $sendTemplateParams['tplParams']['openTracking'] = "<img src=\"" . CRM_Utils_System::baseURL() .
+          "civicrm/cdntaxreceipts/open?r={$receipt['email_tracking_id']}\" width='1' height='1' alt='' border='0'>";
+        list($sent, $subject, $message, $html) = CRM_Core_BAO_MessageTemplate::sendTemplate($sendTemplateParams);
+      }
     }
   }
 
-  if ( isset($collectedPdf) ) {
+  // log the receipt
+  if (!$receipt['is_duplicate'] && $sent && $mode != CDNTAXRECEIPTS_MODE_PREVIEW) {
+    cdntaxreceipts_log($receipt);
+    // TODO: log an activity
+  }
+
+  if (isset($collectedPdf) && $pdf_file) {
     unlink($pdf_file); // file is no longer needed
     $pdf_file = NULL;
   }
 
   // if not unset, cron will clean up the PDF file later on
   return array( $sent, $receipt['issue_method'], $pdf_file );
-
 }
 
 /**
@@ -654,11 +662,11 @@ function cdntaxreceipts_issueTaxReceipt($contribution, &$collectedPdf = NULL, $m
   list($method, $email) = cdntaxreceipts_sendMethodForContact($contribution->contact_id);
 
   // Cancelled receipts are not sent via email
-  if ($is_duplicate && $receipt['receipt_status'] == 'cancelled') {
+  if ($is_duplicate && $receipt['receipt_status'] == 'cancelled' && $method != 'data') {
     $method = 'print';
   }
 
-  // "Attach" receipts are print (we save the file & attach to an email)
+  // "Attach" receipts are email (we save the file & attach to an email)
   if ($mode == CDNTAXRECEIPTS_MODE_WORKFLOW) {
     $method = 'email';
   }
@@ -889,7 +897,7 @@ function cdntaxreceipts_issueAnnualTaxReceipt( $contactId, $year, &$collectedPdf
     // issue an identical receipt
     $receipt = cdntaxreceipts_load_receipt($receipt_id);
     // Cancelled receipts are not sent via email
-    if ($receipt['receipt_status'] == 'cancelled') {
+    if ($receipt['receipt_status'] == 'cancelled' && $method != 'data') {
       $method = 'print';
     }
     $receipt['issued_on'] = (int) $_SERVER['REQUEST_TIME'];
@@ -996,7 +1004,7 @@ function cdntaxreceipts_issueAggregateTaxReceipt($contactId, $year, $contributio
   if ( $is_duplicate ) {
     $receipt = cdntaxreceipts_load_receipt($receipt_id);
     // Cancelled receipts are not sent via email
-    if ($receipt['receipt_status'] == 'cancelled') {
+    if ($receipt['receipt_status'] == 'cancelled' && $method != 'data') {
       $method = 'print';
     }
     $receipt['issued_on'] = (int) $_SERVER['REQUEST_TIME'];
@@ -1046,11 +1054,16 @@ function cdntaxreceipts_issueAggregateTaxReceipt($contactId, $year, $contributio
  */
 function cdntaxreceipts_sendMethodForContact( $contactId ) {
 
-  $global_email = CRM_Core_BAO_Setting::getItem(CDNTAX_SETTINGS, 'enable_email', NULL, TRUE);
-  if ( ! $global_email ) {
+  $delivery_method = CRM_Core_BAO_Setting::getItem(CDNTAX_SETTINGS, 'delivery_method', NULL, CDNTAX_DELIVERY_PRINT_ONLY);
+  if ($delivery_method == CDNTAX_DELIVERY_DATA_ONLY) {
+    return array('data', NULL);
+  }
+  else if ($delivery_method == CDNTAX_DELIVERY_PRINT_ONLY) {
     return array('print', NULL);
   }
 
+  // if we have CDNTAX_DELIVERY_PRINT_OR_EMAIL, assume print unless we can find valid email information
+  // or a hook overrides us.
   $method = array('print', NULL);
 
   require_once 'CRM/Contact/BAO/Contact.php';
@@ -1067,7 +1080,6 @@ function cdntaxreceipts_sendMethodForContact( $contactId ) {
   //   either 'email' or 'print'. if we receive one or more 'print', the contact
   //   is disqualified from receiving email receipts.
   $results = CRM_Utils_Hook::singleton()->invoke(1, $contactId, CRM_Utils_Hook::$_nullObject, CRM_Utils_Hook::$_nullObject, CRM_Utils_Hook::$_nullObject, CRM_Utils_Hook::$_nullObject, CRM_Utils_Hook::$_nullObject, 'cdntaxreceipts_method');
-  $emailOk = TRUE;
 
   if (is_array($results)) {
     foreach ( $results as $result ) {
