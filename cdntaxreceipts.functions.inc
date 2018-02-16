@@ -837,7 +837,7 @@ function cdntaxreceipts_eligibleAmount( $contributionId ) {
   $line_item->contribution_id = $contributionId;
   $count = $line_item->find();
 
-  if ($count > 0) {
+  if ($count > 0 && $contribution->total_amount > 0) {
     while ( $line_item->fetch() ) {
       $financialType =  _cdntaxreceipts_get_type_for_line_item($line_item);
       if ( $financialType->is_deductible ) {
