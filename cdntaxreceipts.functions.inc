@@ -53,6 +53,10 @@ function cdntaxreceipts_processTaxReceipt($receipt, &$collectedPdf = NULL, $mode
   // Get contact details
   list($displayname, $email) = CRM_Contact_BAO_Contact::getContactDetails($receipt['contact_id']);
 
+  // add support for preferred language
+  $preferred_language = CRM_Core_DAO::getFieldValue('CRM_Contact_DAO_Contact', $receipt['contact_id'], 'preferred_language');
+  _cdntaxreceipts_setReceiptanguage($preferred_language);
+
   // allow modules to alter any details
   // invoke hook_cdntaxreceipts_alter_receipt(&$receipt)
   //   modules should accept a reference to the $receipt array and alter it directly if they wish
@@ -1268,3 +1272,37 @@ function _cdntaxreceipts_get_display_type($issue_type) {
   }
 }
 
+
+/**
+ * Change the language for generating the receipt in contact preferred language.
+ *
+ * @language string $language preferred_language (i.e. en_US or fr_CA)
+ */
+function _cdntaxreceipts_setReceiptanguage($language) {
+
+  $cdnLanguages = array('en', 'fr');
+  $short = CRM_Core_I18n_PseudoConstant::shortForLong($language);
+
+  // the preferred language for the user is neither english nor french
+  if (!in_array($short, $cdnLanguages)) {
+    $default = civicrm_api3('setting', 'getvalue', array(
+      'name' => 'lcMessages',
+      'group' => CRM_Core_BAO_Setting::LOCALIZATION_PREFERENCES_NAME,
+    ));
+    $short = CRM_Core_I18n_PseudoConstant::shortForLong($default);
+
+    // site default is neither english nor french, use default US english
+    if (!in_array($short, $cdnLanguages)) {
+      $language = 'en_US';
+    }
+    // use site default
+    else {
+      $language = $default;
+    }
+  }
+
+  // now, we have the language, changed it for generating next receipt
+  $i18n = CRM_Core_I18n::singleton();
+  $i18n->setLocale($language);
+
+}
