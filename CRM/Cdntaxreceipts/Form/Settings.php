@@ -81,6 +81,8 @@ class CRM_Cdntaxreceipts_Form_Settings extends CRM_Core_Form {
         'receipt_signature' => CRM_Core_BAO_Setting::getItem(self::SETTINGS, 'receipt_signature'),
         'receipt_watermark' => CRM_Core_BAO_Setting::getItem(self::SETTINGS, 'receipt_watermark'),
         'receipt_pdftemplate' => CRM_Core_BAO_Setting::getItem(self::SETTINGS, 'receipt_pdftemplate'),
+        'receipt_default_letter' => CRM_Core_BAO_Setting::getItem(self::SETTINGS, 'receipt_default_letter'),
+        'receipt_margin_top' => CRM_Core_BAO_Setting::getItem(self::SETTINGS, 'receipt_margin_top', NULL, 20),
         'org_charitable_no' => CRM_Core_BAO_Setting::getItem(self::SETTINGS, 'org_charitable_no'),
       );
       return $defaults;
@@ -125,9 +127,21 @@ class CRM_Cdntaxreceipts_Form_Settings extends CRM_Core_Form {
       $this->addUploadElement('receipt_watermark');
       $this->addRule( 'receipt_watermark', ts('File size should be less than %1 MBytes (%2 bytes)', array(1 => $uploadSize, 2 => $uploadFileSize)), 'maxfilesize', $uploadFileSize, array('domain' => 'org.civicrm.cdntaxreceipts') );
 
-      $this->addElement('file', 'receipt_pdftemplate', ts('PDF Template', array('domain' => 'org.civicrm.cdntaxreceipts')), 'size=30 maxlength=60');
+      $this->addElement('file', 'receipt_pdftemplate', ts('PDF Letterhead (optional)', array('domain' => 'org.civicrm.cdntaxreceipts')), 'size=30 maxlength=60');
       $this->addUploadElement('receipt_pdftemplate');
       $this->addRule( 'receipt_pdftemplate', ts('File size should be less than %1 MBytes (%2 bytes)', array(1 => $uploadSize, 2 => $uploadFileSize)), 'maxfilesize', $uploadFileSize, array('domain' => 'org.civicrm.cdntaxreceipts') );
+
+      $templates = CRM_Core_BAO_MessageTemplate::getMessageTemplates(FALSE);
+      $this->add('select', 'receipt_default_letter', ts('Default Letter'),
+        array(
+          '' => ts('- select -'),
+        ) + $templates, FALSE,
+        array('onChange' => "selectValue( this.value,'' );")
+      );
+
+      $this->addRule('receipt_default_letter', 'Default Letter', 'required');
+      $this->add('text', 'receipt_margin_top', ts('Top Margin', array('domain' => 'org.civicrm.cdntaxreceipts')));
+      $this->addRule('receipt_margin_top', 'Top Margin', 'required');
     }
     else if ( $mode == 'defaults' ) {
       $defaults = array(
@@ -140,6 +154,8 @@ class CRM_Cdntaxreceipts_Form_Settings extends CRM_Core_Form {
       $values = $this->exportValues();
       CRM_Core_BAO_Setting::setItem($values['receipt_prefix'], self::SETTINGS, 'receipt_prefix');
       CRM_Core_BAO_Setting::setItem($values['receipt_authorized_signature_text'], self::SETTINGS, 'receipt_authorized_signature_text');
+      CRM_Core_BAO_Setting::setItem($values['receipt_default_letter'], self::SETTINGS, 'receipt_default_letter');
+      CRM_Core_BAO_Setting::setItem($values['receipt_margin_top'], self::SETTINGS, 'receipt_margin_top');
 
       $receipt_logo = $this->getSubmitValue('receipt_logo');
       $receipt_signature = $this->getSubmitValue('receipt_signature');

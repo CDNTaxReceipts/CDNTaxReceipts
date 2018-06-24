@@ -88,14 +88,52 @@
 	      {else}<p class="label">Current {$form.receipt_watermark.label}: {$receipt_watermark}</p>{/if}
 	  {/if}</td>
       </tr>
+    </tbody>
+  </table>
+
+<h3>{ts domain='org.civicrm.cdntaxreceipts'}Thank You Letter{/ts}</h3>
+
+  <table class="form-layout">
+    <tbody>
+      <tr>
+        <td class="label">{$form.receipt_default_letter.label}</td>
+        <td class="content">{$form.receipt_default_letter.html}
+          <p class="description">{ts domain='org.civicrm.cdntaxreceipts'}{/ts}</p></td>
+      </tr>
       <tr>
         <td class="label">{$form.receipt_pdftemplate.label}</td>
         <td class="content">{$form.receipt_pdftemplate.html}
-          <p class="description">{ts domain='org.civicrm.cdntaxreceipts'}Upload your own PDF template: .pdf{/ts}</p>
+          <p class="description">{ts domain='org.civicrm.cdntaxreceipts'}Upload your own PDF letterhead or background template{/ts}</p>
 	  {if $receipt_pdftemplate}
 	      {if $receipt_pdftemplate_class}<span class="crm-error">The file {$receipt_pdftemplate} was not found</span>
 	      {else}<p class="label">Current {$form.receipt_pdftemplate.label}: {$receipt_pdftemplate}</p>{/if}
 	  {/if}</td>
+      </tr>
+      <tr>
+        <td class="label">{$form.receipt_margin_top.label}</td>
+        <td class="content">{$form.receipt_margin_top.html}
+          <p class="description">{ts domain='org.civicrm.cdntaxreceipts'}Top margin for the start of the letter (units: mm). Increase or decrease if you are fitting text around a letterhead or PDF template.{/ts}</p></td>
+      </tr>
+    </tbody>
+  </table>
+
+<h3>{ts domain='org.civicrm.cdntaxreceipts'}Email Message{/ts}</h3>
+
+  <table class="form-layout">
+    <tbody>
+      <tr>
+        <td class="label">{$form.email_from.label}</td>
+        <td class="content">{$form.email_from.html}
+          <p class="description">{ts domain='org.civicrm.cdntaxreceipts'}Address you would like to Email the Tax Receipt from.{/ts}</p></td>
+      </tr>
+      <tr>
+        <td class="label">{$form.email_archive.label}</td>
+        <td class="content">{$form.email_archive.html}
+          <p class="description">{ts domain='org.civicrm.cdntaxreceipts'}Address where you would like to send a copy of all issued tax receipts. This creates a compliance archive where you can retrieve any tax receipt issued by the system.{/ts}</p></td>
+      </tr>
+      <tr>
+        <td class="label">{ts domain='org.civicrm.cdntaxreceipts'}Message{/ts}</td>
+        <td class="content"><p class="description">{ts domain='org.civicrm.cdntaxreceipts'}The content of the email message is configured under "System Workflow Messages" in Communication Templates. There are two templates, <em>CDN Tax Receipts - Email Single Receipt</em> and <em>CDN Tax Receipts - Email Annual/Aggregate Receipt</em>.{/ts}</p></td>
       </tr>
     </tbody>
   </table>
@@ -117,33 +155,12 @@
       <tr>
         <td class="label">{$form.attach_to_workflows.label}</td>
         <td class="content">{$form.attach_to_workflows.html}
-          <p class="description">{ts domain='org.civicrm.cdntaxreceipts'}** Not recommended if you have ACHEFT payments. **<br />If enabled, tax receipts will be attached to the automated emails that CiviCRM sends via online contribution page, and when "send receipt" is selected during backoffice gift entry. Be sure to alter the Contributions - Receipt (on-line/off-line) message templates to alert the donor that their tax receipt is attached.{/ts}</p></td>
+          <p class="description">{ts domain='org.civicrm.cdntaxreceipts'}** Not recommended if you have ACHEFT payments. **<br />Automatic tax receipting. If enabled, tax receipts will be attached to the confirmation email that CiviCRM sends immediately after an online donation (and also when "send receipt" is selected during backoffice gift entry). Be sure to alter the <em>Contributions - Receipt (on-line/off-line)</em> message templates to alert the donor that their tax receipt is attached.{/ts}</p></td>
       </tr>
       <tr>
         <td class="label">{$form.enable_advanced_eligibility_report.label}</td>
         <td class="content">{$form.enable_advanced_eligibility_report.html}
           <p class="description">{ts domain='org.civicrm.cdntaxreceipts'}If enabled, the Receipts not issued Report will have the Advanced Eligibility Check enabled by default. Required for accurate reports, but can slow reports.{/ts}</p></td>
-      </tr>
-    </tbody>
-  </table>
-
-<h3>{ts domain='org.civicrm.cdntaxreceipts'}Email Message{/ts}</h3>
-
-  <table class="form-layout">
-    <tbody>
-      <tr>
-        <td class="label">{$form.email_from.label}</td>
-        <td class="content">{$form.email_from.html}
-          <p class="description">{ts domain='org.civicrm.cdntaxreceipts'}Address you would like to Email the Tax Receipt from.{/ts}</p></td>
-      </tr>
-      <tr>
-        <td class="label">{$form.email_archive.label}</td>
-        <td class="content">{$form.email_archive.html}
-          <p class="description">{ts domain='org.civicrm.cdntaxreceipts'}Address you would like to Send a copy of the Email containing the Tax Receipt to. This is useful to create an archive.{/ts}</p></td>
-      </tr>
-      <tr>
-        <td class="label">{ts domain='org.civicrm.cdntaxreceipts'}Message{/ts}</td>
-        <td class="content"><p class="description">{ts domain='org.civicrm.cdntaxreceipts'}The email message is configured under "System Workflow Messages" in Communication Templates.{/ts}</p></td>
       </tr>
     </tbody>
   </table>

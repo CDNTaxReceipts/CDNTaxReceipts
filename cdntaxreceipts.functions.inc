@@ -1,7 +1,7 @@
 <?php
 
 require_once 'tcpdf/tcpdf.php';
-require_once('FPDI/fpdi.php');
+require_once 'FPDI/fpdi.php';
 
   class PDF extends FPDI {
     /**
@@ -158,8 +158,6 @@ function cdntaxreceipts_processTaxReceipt($receipt, &$collectedPdf = NULL, $mode
  */
 function cdntaxreceipts_generateFormattedReceipt($receipt, &$collectedPdf = NULL, $mode) {
 
-  require_once 'tcpdf/tcpdf.php';
-
   $pdf_img_files_path = dirname(__FILE__) . '/img/';
 
   $address = cdntaxreceipts_getAddress($receipt['contact_id']);
@@ -208,8 +206,6 @@ function cdntaxreceipts_generateFormattedReceipt($receipt, &$collectedPdf = NULL
     $display_date = date('M j, Y', mktime(0,0,0,1,1,$receipt['receive_date'])) . ' - ' . date('M j, Y', mktime(0,0,0,12,31,$receipt['receive_date']));
   }
 
-  $line_1 = ts("This is your Official Receipt for income tax purposes.", array('domain' => 'org.civicrm.cdntaxreceipts'));
-
   $config = CRM_Core_Config::singleton();
   $pdf_file = $config->uploadDir . 'Receipt-' . $receipt['receipt_no'] . '.pdf';
   $user_friendly = 'Receipt-' . $receipt['receipt_no'] . '.pdf';
@@ -221,23 +217,12 @@ function cdntaxreceipts_generateFormattedReceipt($receipt, &$collectedPdf = NULL
   $pdf->Open();
 
   $pdf->SetAuthor(CRM_Core_BAO_Setting::getItem(CDNTAX_SETTINGS, 'org_name'));
-
-  $mymargin_left = 12;
-  $mymargin_top = 6;
-  $mymargin_right = 12;
-  $pdf->SetMargins($mymargin_left, $mymargin_top, $mymargin_right);
-
   $pdf->setJPEGQuality('100');
-
-  $pdf->SetAutoPageBreak('', $margin=0);
 
   $pdf_variables = array(
     "mode" => $mode,
-    "mymargin_left" => $mymargin_left,
-    "mymargin_top" => $mymargin_top,
     "is_duplicate" => $receipt['is_duplicate'],
     "pdf_img_files_path" => $pdf_img_files_path,
-    "line_1" => $line_1,
     "source_funds" => isset($receipt['source']) ? $receipt['source'] : '',
     "amount" => $receipt['receipt_amount'],
     "display_date" => $display_date,
@@ -297,32 +282,117 @@ function _cdntaxreceipts_writePage(&$f, $pdf_variables, $receipt) {
   }
 
   // if no custom function, go with default formatting...
-  if ($pdf_variables['is_duplicate']) {
-    // print duplicate copy
-    _cdntaxreceipts_writeReceipt($f, $pdf_variables);
+  // write receipt first, so it always lands on bottom of first page
+  // then write letter to top of first page, overflowing to second page if necessary
+  _cdntaxreceipts_writeReceipt($f, $pdf_variables);
+  $f->SetXY(0,0); // reset to top of page
+  _cdntaxreceipts_writeLetter($f, $pdf_variables, $receipt);
+}
+
+function _cdntaxreceipts_writeLetter(&$pdf, $pdf_variables, $receipt) {
+
+  // set margins for letter area
+  $pdf->SetMargins(25, 25, 25, 25); // 1 inch = 2.54cm all around
+
+  // top margin
+  $top_margin = CRM_Core_BAO_Setting::getItem(CDNTAX_SETTINGS, 'receipt_margin_top', NULL, 20);
+  $pdf->SetXY(0,$top_margin);
+  $pdf->SetAutoPageBreak(TRUE, 96); // use top 2/3 of page, then overflow to back of page
+
+  // message template may override this in HTML but provide a reasonable default
+  $pdf->SetFont('Helvetica', '', 10);
+
+  $html = '';
+
+  // load the html from the template
+  if ($receipt['letter_id']) {
+    $letter = array();
+    $params = array('id' => $receipt['letter_id']);
+    CRM_Core_BAO_MessageTemplate::retrieve($params, $letter);
+    $html = _cdntaxreceipts_cleanUpHTML($letter['msg_html']);
   }
-  else {
-    // print original AND duplicate copy
-    $mymargin_top = $pdf_variables['mymargin_top'];
-    _cdntaxreceipts_writeReceipt($f, $pdf_variables);
-    $pdf_variables["mymargin_top"] = $mymargin_top + 90;
-    $pdf_variables["is_duplicate"] = TRUE;
-    _cdntaxreceipts_writeReceipt($f, $pdf_variables);
-    $pdf_variables["mymargin_top"] = $mymargin_top + 90*2;
-    $pdf_variables["is_duplicate"] = TRUE;
-    _cdntaxreceipts_writeReceipt($f, $pdf_variables);
+
+  // process tokens
+  // TODO CRM_Utils_Hook::tokens($tokens);
+  $messageToken = CRM_Utils_Token::getTokens($html);
+  list($contact) = CRM_Utils_Token::getTokenDetails(
+    array('contact_id' => $receipt['contact_id']),
+    $returnProperties,
+    FALSE,
+    FALSE,
+    NULL,
+    $messageToken,
+    'cdntaxreceipts'
+  );
+  $html = CRM_Utils_Token::replaceContactTokens($html, $contact, TRUE, $messageToken);
+
+  // allow contribution tokens, if it's a single-contribution receipt
+  if (isset($receipt['contributions']) && count($receipt['contributions']) == 1
+      && $receipt['issue_type'] == 'single') {
+    $contribution = CRM_Utils_Token::getContributionTokenDetails(
+      array('contribution_id' => $receipt['contributions'][0]['contribution_id']),
+      $returnProperties,
+      NULL,
+      $messageToken,
+      'cdntaxreceipts' 
+    );
+    $html = CRM_Utils_Token::replaceContributionTokens($html, $contribution, TRUE, $messageToken);
   }
+
+  // write the letter
+  $pdf->writeHTML($html, TRUE, FALSE, FALSE, FALSE, '');
+}
+
+//
+// from CRM/Utils/PDF/Utils.php -- cleans up the letter format, applies print.css
+//
+function _cdntaxreceipts_cleanUpHTML($html_input) {
+  $config = CRM_Core_Config::singleton();
+
+  $html = "
+<html>
+  <head>
+    <meta http-equiv=\"Content-Type\" content=\"text/html; charset=utf-8\"/>
+    <style type=\"text/css\">@import url({$config->userFrameworkResourceURL}css/print.css);</style>
+  </head>
+  <body>
+    <div id=\"crm-container\">\n";
+
+  // Strip <html>, <header>, and <body> tags from each page
+  $htmlElementstoStrip = array(
+    '@<head[^>]*?>.*?</head>@siu',
+    '@<script[^>]*?>.*?</script>@siu',
+    '@<body>@siu',
+    '@</body>@siu',
+    '@<html[^>]*?>@siu',
+    '@</html>@siu',
+    '@<!DOCTYPE[^>]*?>@siu',
+  );
+  $htmlElementsInstead = array('', '', '', '', '', '');
+
+  $html .= preg_replace($htmlElementstoStrip,
+    $htmlElementsInstead,
+    $html_input
+  );
+  $html .= "
+    </div>
+  </body>
+</html>";
+
+  return $html;
 }
 
 function _cdntaxreceipts_writeReceipt(&$pdf, $pdf_variables) {
 
+  $mymargin_left = 12; // bottom third of page
+  $mymargin_top = 190;
+  $pdf->SetMargins(12, 12, 12, 12);
+  $pdf->SetAutoPageBreak(FALSE);
+
   // Extract variables
   $mode = $pdf_variables["mode"];
-  $mymargin_left = $pdf_variables["mymargin_left"];
-  $mymargin_top = $pdf_variables["mymargin_top"];
   $is_duplicate = $pdf_variables["is_duplicate"];
   $pdf_img_files_path = $pdf_variables["pdf_img_files_path"];
-  $line_1 = $pdf_variables["line_1"];
   $source_funds = $pdf_variables["source_funds"];
   $amount = $pdf_variables["amount"];
   $display_date = $pdf_variables["display_date"];
@@ -339,6 +409,9 @@ function _cdntaxreceipts_writeReceipt(&$pdf, $pdf_variables) {
   $receipt_contributions = $pdf_variables['receipt_contributions'];
   $receipt_status = $pdf_variables['receipt_status'];
 
+  // Line at top
+  $pdf->Line($mymargin_left - 5, $mymargin_top, 208, $mymargin_top, 'dash');
+
   // Middle center section
   if ($mode == CDNTAXRECEIPTS_MODE_PREVIEW) {
     $pdf->Image($pdf_img_files_path . 'preview_mode.png', $mymargin_left + 65, $mymargin_top, '', 45);
@@ -354,7 +427,7 @@ function _cdntaxreceipts_writeReceipt(&$pdf, $pdf_variables) {
   if (!empty($pdf_template_file)) {
   }
   else {
-    $pdf->Image(CRM_Core_BAO_Setting::getItem(CDNTAX_SETTINGS, 'receipt_logo', NULL, $pdf_img_files_path . 'your-logo.png'), $mymargin_left, $mymargin_top, '', 30);
+    $pdf->Image(CRM_Core_BAO_Setting::getItem(CDNTAX_SETTINGS, 'receipt_logo', NULL, $pdf_img_files_path . 'your-logo.png'), $mymargin_left, $mymargin_top+4, '', 20);
 
   // Top right section
   $pdf->SetFont('Helvetica', '', 8);
@@ -407,11 +480,6 @@ function _cdntaxreceipts_writeReceipt(&$pdf, $pdf_variables) {
 
   if ($issue_type == 'annual') {
     $pdf->Write(10, ts("Thank you for giving in %1!", array( 1 => $display_year)));
-    // $pdf->Write(10, "Contribution(s): ");
-    // foreach ($receipt_contributions as $key => $value) {
-    //   $test = $receipt_contributions[$key]['contribution_id'];
-    //   $pdf->Write(10, $receipt_contributions[$key]['contribution_id'] . ' ');
-    // }
   }
   else if (strlen($source_funds) < 36 && strlen($source_funds) > 0) {
     $pdf->Write(10, $source_funds);
@@ -500,7 +568,8 @@ function _cdntaxreceipts_writeReceipt(&$pdf, $pdf_variables) {
   else {
     $pdf->SetFont('Helvetica', 'B', 8);
     $pdf->SetY($mymargin_top + 72);
-    $pdf->Write(10, $line_1, '', 0, 'L', TRUE, 0, FALSE, FALSE, 0);
+    $pdf->Write(10, ts("This is your Official Receipt for income tax purposes.", array('domain' => 'org.civicrm.cdntaxreceipts')), '', 0, 'L', TRUE, 0, FALSE, FALSE, 0);
+
     $pdf->SetFont('Helvetica', '', 8);
     $pdf->SetY($mymargin_top + 76, 0, 'L', TRUE, 0, FALSE, FALSE, 0);
     $pdf->Write(10, ts('Canada Revenue Agency: canada.ca/charities-giving', array('domain' => 'org.civicrm.cdntaxreceipts')));
@@ -515,22 +584,20 @@ function _cdntaxreceipts_writeReceipt(&$pdf, $pdf_variables) {
     if ( $signature == '' ) {
       $signature = ts('Authorized Signature', array('domain' => 'org.civicrm.cdntaxreceipts'));
     }
-    $sig_offset = strlen($signature) - 20;
+    $sig_offset = strlen($signature) - 25;
     $pdf_template_file = CRM_Core_BAO_Setting::getItem(CDNTAX_SETTINGS, 'receipt_pdftemplate');
 
     $sig_image = CRM_Core_BAO_Setting::getItem(CDNTAX_SETTINGS, 'receipt_signature');
     if (empty($sig_image)) {
       $sig_image = $pdf_img_files_path . 'authorized-signature.png';
     }
-    $pdf->Image($sig_image, $mymargin_left + 137, $mymargin_top + 67, '', 15);
-    $pdf->Line($mymargin_left + 136, $mymargin_top + 79, $mymargin_left + 186, $mymargin_top + 79);
+    $pdf->Image($sig_image, $mymargin_left + 137, $mymargin_top + 67, '', 10);
+    $pdf->Line($mymargin_left + 120, $mymargin_top + 79, $mymargin_left + 186, $mymargin_top + 79);
     $pdf->SetXY($mymargin_left + 148 - $sig_offset, $mymargin_top + 76);
     $pdf->SetFont("Helvetica", "I", 7);
     $pdf->Write(10, $signature);
   }
 
-  // Line at the bottom
-  $pdf->Line($mymargin_left, $mymargin_top + 85, 198, $mymargin_top + 85, 'dash');
 }
 
 /**************************************
@@ -728,6 +795,7 @@ function cdntaxreceipts_issueTaxReceipt($contribution, &$collectedPdf = NULL, $m
     'inkind_values' => $inkind_values,
     'receipt_status' => ($is_duplicate && isset($receipt)) ? $receipt['receipt_status'] : 'issued',
     'email_tracking_id' => md5(uniqid(rand(), TRUE)),
+    'letter_id' => CRM_Core_BAO_Setting::getItem(CDNTAX_SETTINGS, 'receipt_default_letter'),
   );
 
   if ( $contribution->source != '' ) {
@@ -942,6 +1010,7 @@ function cdntaxreceipts_issueAnnualTaxReceipt( $contactId, $year, &$collectedPdf
       'receipt_status' => 'issued',
       'contributions' => $receiptContributions,
       'email_tracking_id' => md5(uniqid(rand(), TRUE)),
+      'letter_id' => CRM_Core_BAO_Setting::getItem(CDNTAX_SETTINGS, 'receipt_default_letter'),
     );
 
   }
@@ -1042,6 +1111,7 @@ function cdntaxreceipts_issueAggregateTaxReceipt($contactId, $year, $contributio
       'receipt_status' => 'issued',
       'contributions' => $receiptContributions,
       'email_tracking_id' => md5(uniqid(rand(), TRUE)),
+      'letter_id' => CRM_Core_BAO_Setting::getItem(CDNTAX_SETTINGS, 'receipt_default_letter'),
     );
   }
 
@@ -1111,21 +1181,11 @@ function cdntaxreceipts_openCollectedPDF() {
 
   if ( ! isset($pdf) ) {
     //define ('K_PATH_IMAGES', '');
-    require_once 'tcpdf/tcpdf.php';
-
     $pdf = new PDF(PDF_PAGE_ORIENTATION, PDF_UNIT, 'LETTER', TRUE, 'UTF-8', FALSE);
     $pdf->Open();
 
     $pdf->SetAuthor(CRM_Core_BAO_Setting::getItem(CDNTAX_SETTINGS, 'org_name'));
-
-    $mymargin_left = 12;
-    $mymargin_top = 6;
-    $mymargin_right = 12;
-    $pdf->SetMargins($mymargin_left, $mymargin_top, $mymargin_right);
-
     $pdf->setJPEGQuality('100');
-
-    $pdf->SetAutoPageBreak('', $margin=0);
   }
 
   return $pdf;
