@@ -142,6 +142,15 @@ class CRM_Cdntaxreceipts_Task_IssueAggregateTaxReceipts extends CRM_Contribute_F
     }
     $this->addRule('receipt_year', ts('Selection required', array('domain' => 'org.civicrm.cdntaxreceipts')), 'required');
 
+    $templates = CRM_Core_BAO_MessageTemplate::getMessageTemplates(FALSE);
+    $this->add('select', 'receipt_letter', ts('Thank-you Letter'),
+      array(
+        '' => ts('- select -'),
+      ) + $templates, FALSE,
+      array('onChange' => "selectValue( this.value,'' );")
+    );
+    $this->addRule('receipt_letter', 'Thank-you Letter', 'required');
+
     if ($delivery_method != CDNTAX_DELIVERY_DATA_ONLY) {
       $this->add('checkbox', 'is_preview', ts('Run in preview mode?', array('domain' => 'org.civicrm.cdntaxreceipts')));
     }
@@ -164,7 +173,10 @@ class CRM_Cdntaxreceipts_Task_IssueAggregateTaxReceipts extends CRM_Contribute_F
 
   function setDefaultValues() {
     // TODO: Handle case where year -1 was not an option
-    return array('receipt_year' => 'issue_' . (date("Y") - 1),);
+    return array(
+      'receipt_year' => 'issue_' . (date("Y") - 1),
+      'receipt_letter' => CRM_Core_BAO_Setting::getItem(CDNTAX_SETTINGS, 'receipt_default_letter'),
+    );
   }
 
   /**
@@ -193,6 +205,8 @@ class CRM_Cdntaxreceipts_Task_IssueAggregateTaxReceipts extends CRM_Contribute_F
       $previewMode = TRUE;
     }
 
+    $receipt_letter = $params['receipt_letter'];
+
     // start a PDF to collect receipts that cannot be emailed
     $receiptsForPrintingPDF = cdntaxreceipts_openCollectedPDF();
 
@@ -216,7 +230,7 @@ class CRM_Cdntaxreceipts_Task_IssueAggregateTaxReceipts extends CRM_Contribute_F
 
       if ( empty($issuedOn) && count($contributions) > 0 ) {
         $ret = cdntaxreceipts_issueAggregateTaxReceipt($contact_id, $year, $contributions, $method,
-          $receiptsForPrintingPDF, $previewMode);
+          $receiptsForPrintingPDF, $previewMode, $receipt_letter);
 
         if ( $ret == 0 ) {
           $failCount++;

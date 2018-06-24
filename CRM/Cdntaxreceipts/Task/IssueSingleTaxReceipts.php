@@ -68,6 +68,15 @@ class CRM_Cdntaxreceipts_Task_IssueSingleTaxReceipts extends CRM_Contribute_Form
     $delivery_method = CRM_Core_BAO_Setting::getItem(CDNTAX_SETTINGS, 'delivery_method', NULL, CDNTAX_DELIVERY_PRINT_ONLY);
     $this->assign('deliveryMethod', $delivery_method);
 
+    $templates = CRM_Core_BAO_MessageTemplate::getMessageTemplates(FALSE);
+    $this->add('select', 'receipt_letter', ts('Thank-you Letter'),
+      array(
+        '' => ts('- select -'),
+      ) + $templates, FALSE,
+      array('onChange' => "selectValue( this.value,'' );")
+    );
+    $this->addRule('receipt_letter', 'Thank-you Letter', 'required');
+
     // add radio buttons
     $this->addElement('radio', 'receipt_option', NULL, ts('Issue tax receipts for the %1 unreceipted contributions only.', array(1=>$originalTotal, 'domain' => 'org.civicrm.cdntaxreceipts')), 'original_only');
     $this->addElement('radio', 'receipt_option', NULL, ts('Issue tax receipts for all %1 contributions. Previously-receipted contributions will be marked \'duplicate\'.', array(1=>$receiptTotal, 'domain' => 'org.civicrm.cdntaxreceipts')), 'include_duplicates');
@@ -94,7 +103,10 @@ class CRM_Cdntaxreceipts_Task_IssueSingleTaxReceipts extends CRM_Contribute_Form
   }
 
   function setDefaultValues() {
-    return array('receipt_option' => 'original_only');
+    return array(
+      'receipt_option' => 'original_only',
+      'receipt_letter' => CRM_Core_BAO_Setting::getItem(CDNTAX_SETTINGS, 'receipt_default_letter'),
+    );
   }
 
   /**
@@ -123,6 +135,8 @@ class CRM_Cdntaxreceipts_Task_IssueSingleTaxReceipts extends CRM_Contribute_Form
     if (isset($params['is_preview']) && $params['is_preview'] == 1 ) {
       $previewMode = TRUE;
     }
+
+    $receipt_letter = $params['receipt_letter'];
 
     /**
      * Drupal module include
@@ -161,7 +175,7 @@ class CRM_Cdntaxreceipts_Task_IssueSingleTaxReceipts extends CRM_Contribute_Form
         list($issued_on, $receipt_id) = cdntaxreceipts_issued_on($contribution->id);
         if ( empty($issued_on) || ! $originalOnly ) {
 
-          list( $ret, $method ) = cdntaxreceipts_issueTaxReceipt( $contribution, $receiptsForPrinting, $previewMode );
+          list( $ret, $method ) = cdntaxreceipts_issueTaxReceipt( $contribution, $receiptsForPrinting, $previewMode, $receipt_letter );
 
           if ( $ret == 0 ) {
             $failCount++;

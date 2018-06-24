@@ -29,6 +29,7 @@
       </tr>
     {/foreach}
   </table>
+  <p>{$form.receipt_letter.label} {$form.receipt_letter.html}</p>
   <p>{ts domain='org.civicrm.cdntaxreceipts'}Clicking 'Issue Tax Receipts' will issue annual tax receipts for the selected year. Annual tax receipts are a sum
     total of all eligible contributions, received from the donor during the selected year, that have not been receipted individually.{/ts}</p>
   <p>{ts domain='org.civicrm.cdntaxreceipts'}Only one annual tax receipt can be issued per donor, per year. If the donor has eligible contributions that

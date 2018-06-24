@@ -86,6 +86,15 @@ class CRM_Cdntaxreceipts_Task_IssueAnnualTaxReceipts extends CRM_Contact_Form_Ta
     }
     $this->addRule('receipt_year', ts('Selection required', array('domain' => 'org.civicrm.cdntaxreceipts')), 'required');
 
+    $templates = CRM_Core_BAO_MessageTemplate::getMessageTemplates(FALSE);
+    $this->add('select', 'receipt_letter', ts('Thank-you Letter'),
+      array(
+        '' => ts('- select -'),
+      ) + $templates, FALSE,
+      array('onChange' => "selectValue( this.value,'' );")
+    );
+    $this->addRule('receipt_letter', 'Thank-you Letter', 'required');
+
     if ($delivery_method != CDNTAX_DELIVERY_DATA_ONLY) {
       $this->add('checkbox', 'is_preview', ts('Run in preview mode?', array('domain' => 'org.civicrm.cdntaxreceipts')));
     }
@@ -107,7 +116,10 @@ class CRM_Cdntaxreceipts_Task_IssueAnnualTaxReceipts extends CRM_Contact_Form_Ta
   }
 
   function setDefaultValues() {
-    return array('receipt_year' => 'issue_' . (date("Y") - 1),);
+    return array(
+      'receipt_year' => 'issue_' . (date("Y") - 1),
+      'receipt_letter' => CRM_Core_BAO_Setting::getItem(CDNTAX_SETTINGS, 'receipt_default_letter'),
+    );
   }
 
   /**
@@ -136,6 +148,8 @@ class CRM_Cdntaxreceipts_Task_IssueAnnualTaxReceipts extends CRM_Contact_Form_Ta
       $previewMode = TRUE;
     }
 
+    $receipt_letter = $params['receipt_letter'];
+
     /**
      * Drupal module include
      */
@@ -163,7 +177,7 @@ class CRM_Cdntaxreceipts_Task_IssueAnnualTaxReceipts extends CRM_Contact_Form_Ta
 
       if ( empty($issuedOn) && count($contributions) > 0 ) {
 
-        list( $ret, $method ) = cdntaxreceipts_issueAnnualTaxReceipt($contactId, $year, $receiptsForPrinting, $previewMode);
+        list( $ret, $method ) = cdntaxreceipts_issueAnnualTaxReceipt($contactId, $year, $receiptsForPrinting, $previewMode, $receipt_letter);
 
         if ( $ret == 0 ) {
           $failCount++;

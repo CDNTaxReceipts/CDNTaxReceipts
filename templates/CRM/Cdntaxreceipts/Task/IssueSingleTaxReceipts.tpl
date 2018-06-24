@@ -32,6 +32,7 @@
   </table>
   <p>{$form.receipt_option.original_only.html}<br />
      {$form.receipt_option.include_duplicates.html}</p>
+  <p>{$form.receipt_letter.label} {$form.receipt_letter.html}</p>
   <p>{ts domain='org.civicrm.cdntaxreceipts'}Clicking 'Issue Tax Receipts' will issue the selected tax receipts.
     <strong>This action cannot be undone.</strong> Tax receipts will be logged for auditing purposes,
     and a copy of each receipt will be submitted to the tax receipt archive.{/ts}</p>

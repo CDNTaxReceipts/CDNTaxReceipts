@@ -44,6 +44,7 @@
     {/foreach}
   </table>
 
+  <p>{$form.receipt_letter.label} {$form.receipt_letter.html}</p>
   <p>{ts domain='org.civicrm.cdntaxreceipts'}Clicking 'Issue Tax Receipts' will issue aggregate tax receipts grouped into the selected year(s). These tax receipts are a sum
     total of all selected eligible contributions, received from the donor during the selected year, that have not already been receipted individually.{/ts}</p>
     <p>{ts domain='org.civicrm.cdntaxreceipts'}<strong>This action cannot be undone.</strong> Tax receipts will be logged for auditing purposes,

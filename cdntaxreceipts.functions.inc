@@ -315,6 +315,7 @@ function _cdntaxreceipts_writeLetter(&$pdf, $pdf_variables, $receipt) {
   // process tokens
   // TODO CRM_Utils_Hook::tokens($tokens);
   $messageToken = CRM_Utils_Token::getTokens($html);
+  $returnProperties = array();
   list($contact) = CRM_Utils_Token::getTokenDetails(
     array('contact_id' => $receipt['contact_id']),
     $returnProperties,
@@ -691,7 +692,7 @@ function cdntaxreceipts_configure_inkind_fields() {
  * Issues a tax receipt for a single contribution.
  * Detects if the receipt is a duplicate and reacts appropriately.
  */
-function cdntaxreceipts_issueTaxReceipt($contribution, &$collectedPdf = NULL, $mode = CDNTAXRECEIPTS_MODE_BACKOFFICE) {
+function cdntaxreceipts_issueTaxReceipt($contribution, &$collectedPdf = NULL, $mode = CDNTAXRECEIPTS_MODE_BACKOFFICE, $receipt_letter = NULL) {
 
   // This function basically needs to set up a $receipt[] array and pass it to
   // processTaxReceipt() which does the hard work
@@ -783,6 +784,10 @@ function cdntaxreceipts_issueTaxReceipt($contribution, &$collectedPdf = NULL, $m
     $inkind_values[] = $values[$custom_id];
   }
 
+  if ($receipt_letter == NULL) {
+    $receipt_letter = CRM_Core_BAO_Setting::getItem(CDNTAX_SETTINGS, 'receipt_default_letter');
+  }
+
   $receipt = array(
     'receipt_no' => $receipt_no,
     'issued_on' =>  (int) $_SERVER['REQUEST_TIME'],
@@ -795,7 +800,7 @@ function cdntaxreceipts_issueTaxReceipt($contribution, &$collectedPdf = NULL, $m
     'inkind_values' => $inkind_values,
     'receipt_status' => ($is_duplicate && isset($receipt)) ? $receipt['receipt_status'] : 'issued',
     'email_tracking_id' => md5(uniqid(rand(), TRUE)),
-    'letter_id' => CRM_Core_BAO_Setting::getItem(CDNTAX_SETTINGS, 'receipt_default_letter'),
+    'letter_id' => $receipt_letter,
   );
 
   if ( $contribution->source != '' ) {
@@ -947,7 +952,7 @@ function cdntaxreceipts_eligibleAmount( $contributionId ) {
  * Issues an annual tax receipt for a given year.
  * Detects if the receipt is a duplicate and reacts appropriately.
  */
-function cdntaxreceipts_issueAnnualTaxReceipt( $contactId, $year, &$collectedPdf = NULL, $mode = CDNTAXRECEIPTS_MODE_BACKOFFICE ) {
+function cdntaxreceipts_issueAnnualTaxReceipt( $contactId, $year, &$collectedPdf = NULL, $mode = CDNTAXRECEIPTS_MODE_BACKOFFICE, $receipt_letter = NULL ) {
 
   // determine the send method
   list( $method, $email ) = cdntaxreceipts_sendMethodForContact($contactId);
@@ -998,6 +1003,10 @@ function cdntaxreceipts_issueAnnualTaxReceipt( $contactId, $year, &$collectedPdf
     // generate a receipt number
     $receiptNo = CRM_Core_BAO_Setting::getItem(CDNTAX_SETTINGS, 'receipt_prefix') . str_pad($receiptContributions[0]['contribution_id'], 8, 0, STR_PAD_LEFT);
 
+    if ($receipt_letter == NULL) {
+      $receipt_letter = CRM_Core_BAO_Setting::getItem(CDNTAX_SETTINGS, 'receipt_default_letter');
+    }
+
     $receipt = array(
       'receipt_no' => $receiptNo,
       'issued_on' =>  (int) $_SERVER['REQUEST_TIME'],
@@ -1010,7 +1019,7 @@ function cdntaxreceipts_issueAnnualTaxReceipt( $contactId, $year, &$collectedPdf
       'receipt_status' => 'issued',
       'contributions' => $receiptContributions,
       'email_tracking_id' => md5(uniqid(rand(), TRUE)),
-      'letter_id' => CRM_Core_BAO_Setting::getItem(CDNTAX_SETTINGS, 'receipt_default_letter'),
+      'letter_id' => $receipt_letter,
     );
 
   }
@@ -1032,7 +1041,7 @@ function cdntaxreceipts_issueAnnualTaxReceipt( $contactId, $year, &$collectedPdf
  * @return array
  */
 function cdntaxreceipts_issueAggregateTaxReceipt($contactId, $year, $contributions, $method, &$collectedPdf = NULL,
-                                                 $mode = CDNTAXRECEIPTS_MODE_BACKOFFICE) {
+                                                 $mode = CDNTAXRECEIPTS_MODE_BACKOFFICE, $receipt_letter = NULL) {
   if ( count($contributions) == 0 ) {
     return array(FALSE, $method, NULL);
   }
@@ -1099,6 +1108,10 @@ function cdntaxreceipts_issueAggregateTaxReceipt($contactId, $year, $contributio
     // generate a receipt number
     $receiptNo = CRM_Core_BAO_Setting::getItem(CDNTAX_SETTINGS, 'receipt_prefix') . str_pad($receiptContributions[0]['contribution_id'], 8, 0, STR_PAD_LEFT);
 
+    if ($receipt_letter == NULL) {
+      $receipt_letter = CRM_Core_BAO_Setting::getItem(CDNTAX_SETTINGS, 'receipt_default_letter');
+    }
+
     $receipt = array(
       'receipt_no' => $receiptNo,
       'issued_on' =>  (int) $_SERVER['REQUEST_TIME'],
@@ -1111,7 +1124,7 @@ function cdntaxreceipts_issueAggregateTaxReceipt($contactId, $year, $contributio
       'receipt_status' => 'issued',
       'contributions' => $receiptContributions,
       'email_tracking_id' => md5(uniqid(rand(), TRUE)),
-      'letter_id' => CRM_Core_BAO_Setting::getItem(CDNTAX_SETTINGS, 'receipt_default_letter'),
+      'letter_id' => $receipt_letter,
     );
   }
 
