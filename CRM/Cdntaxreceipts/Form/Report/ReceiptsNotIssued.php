@@ -12,7 +12,7 @@ class CRM_Cdntaxreceipts_Form_Report_ReceiptsNotIssued extends CRM_Report_Form {
 
   function __construct() {
 
-    $this->_customGroupExtends = array('Contact', 'Individual', 'Organization', 'Contribution');
+    $this->_customGroupExtends = array('Contact', 'Individual', 'Organization');
     $this->_autoIncludeIndexedFieldsAsOrderBys = TRUE;
 
     $this->_columns = array(
@@ -223,7 +223,7 @@ CREATE TEMPORARY TABLE cdntaxreceipts_temp_civireport_eligible (
       $this->_where .= " AND {$this->_aliases['civicrm_contribution']}.receive_date >= {$month} ";
       CRM_Core_Session::setStatus(ts('For performance reasons, date range is limited to the current month. If you want to a different date range, please use the date filter.'), '', 'info');
     }
-    
+
     $sql = "SELECT {$this->_aliases['civicrm_contribution']}.id $this->_from $this->_where";
     $dao = CRM_Core_DAO::executeQuery($sql);
 
