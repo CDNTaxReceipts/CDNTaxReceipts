@@ -9,7 +9,7 @@ class CRM_Cdntaxreceipts_Form_Report_ReceiptsIssued extends CRM_Report_Form {
 
   function __construct() {
 
-    $this->_customGroupExtends = array('Contact', 'Individual', 'Organization', 'Contribution');
+    $this->_customGroupExtends = array('Contact', 'Individual', 'Organization');
     $this->_autoIncludeIndexedFieldsAsOrderBys = TRUE;
 
     $this->_columns = array(
