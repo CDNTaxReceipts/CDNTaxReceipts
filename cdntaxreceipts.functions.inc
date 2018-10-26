@@ -54,6 +54,7 @@ function cdntaxreceipts_processTaxReceipt($receipt, &$collectedPdf = NULL, $mode
   list($displayname, $email) = CRM_Contact_BAO_Contact::getContactDetails($receipt['contact_id']);
 
   // add support for preferred language
+  $old_locale = CRM_Core_I18n::singleton()->getLocale();
   $preferred_language = CRM_Core_DAO::getFieldValue('CRM_Contact_DAO_Contact', $receipt['contact_id'], 'preferred_language');
   _cdntaxreceipts_setReceiptanguage($preferred_language);
 
@@ -138,6 +139,9 @@ function cdntaxreceipts_processTaxReceipt($receipt, &$collectedPdf = NULL, $mode
       }
     }
   }
+
+  // Switch the locale back to the original locale
+  CRM_Core_I18n::singleton()->setLocale($old_locale);
 
   // log the receipt
   if (!$receipt['is_duplicate'] && $sent && $mode != CDNTAXRECEIPTS_MODE_PREVIEW) {
