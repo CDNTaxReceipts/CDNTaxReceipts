@@ -57,8 +57,7 @@ cj(document).ready(
     This action cannot be undone. The tax receipt will be logged for auditing purposes,
     and a copy of the receipt will be submitted to the tax receipt archive.{/ts}</p>
     {if $method eq 'email'}
-      <p>{ts domain='org.civicrm.cdntaxreceipts'}The receipt will be sent <strong>by email</strong>
-      to the contributor ({$receiptEmail}).{/ts}</p>
+      <p>{ts domain='org.civicrm.cdntaxreceipts' 1=$receiptEmail}The receipt will be sent <strong>by email</strong> to the contributor (%1).{/ts}</p>
     {elseif $method eq 'print'}
       <p class='status-warning'>{ts domain='org.civicrm.cdntaxreceipts'}Please <strong>download and print</strong> the receipt that
       is generated. You will need to send a printed copy to the contributor.{/ts}</p>
@@ -69,12 +68,13 @@ cj(document).ready(
 {elseif $reissue eq 1}
   <h3>{ts domain='org.civicrm.cdntaxreceipts'}Re-Issue Tax Receipt{/ts}</h3>
   {if call_user_func(array('CRM_Core_Permission','check'), 'issue cdn tax receipts')}
-    <p>{ts domain='org.civicrm.cdntaxreceipts'}Click '{$buttonLabel}' to re-issue a tax receipt for this contribution. The
-    tax receipt will be marked {if $isCancelled}'Cancelled'{else}'Duplicate'{/if} with the same receipt number and amount as
-    the original copy.{/ts}</p>
+    {if $isCancelled}
+      <p>{ts domain='org.civicrm.cdntaxreceipts' 1=$buttonLabel}Click '%1' to re-issue a tax receipt for this contribution. The tax receipt will be marked 'Cancelled' with the same receipt number and amount as the original copy.{/ts}</p>
+    {else}
+      <p>{ts domain='org.civicrm.cdntaxreceipts' 1=$buttonLabel}Click '%1' to re-issue a tax receipt for this contribution. The tax receipt will be marked 'Duplicate' with the same receipt number and amount as the original copy.{/ts}</p>
+    {/if}
     {if $method eq 'email'}
-      <p>{ts domain='org.civicrm.cdntaxreceipts'}The receipt will be sent automatically <strong>by email</strong> to the contributor
-      ({$receiptEmail}).{/ts}</p>
+      <p>{ts domain='org.civicrm.cdntaxreceipts' 1=$receiptEmail}The receipt will be sent <strong>by email</strong> to the contributor (%1).{/ts}</p>
     {elseif $method eq 'print'}
       <p class='status-warning'>{ts domain='org.civicrm.cdntaxreceipts'}Please <strong>download and print</strong> the receipt that
       is generated. You will need to send a printed copy to the contributor.{/ts}</p>
