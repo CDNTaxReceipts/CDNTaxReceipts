@@ -99,7 +99,7 @@ class CRM_Cdntaxreceipts_Task_IssueAnnualTaxReceipts extends CRM_Contact_Form_Ta
         'type' => 'next',
         'name' => 'Issue Tax Receipts',
         'isDefault' => TRUE,
-        'js' => array('onclick' => "return submitOnce(this,'{$this->_name}','" . ts('Processing', array('domain' => 'org.civicrm.cdntaxreceipts')) . "');"),
+        'submitOnce' => TRUE,
       ),
     );
     $this->addButtons($buttons);
