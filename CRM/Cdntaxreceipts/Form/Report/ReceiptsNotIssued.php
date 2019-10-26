@@ -64,6 +64,12 @@ class CRM_Cdntaxreceipts_Form_Report_ReceiptsNotIssued extends CRM_Report_Form {
           'receive_date' =>
           array(
             'operatorType' => CRM_Report_Form::OP_DATE),
+	  'contribution_source' =>
+	  array(
+	    'title' => ts('Contribution Source'),
+	    'operator' => 'like',
+	    'type' => CRM_Utils_Type::T_STRING,
+	  ),
           'financial_type_id' =>
           array('title' => ts('Financial Type', array('domain' => 'org.civicrm.cdntaxreceipts')),
             'operatorType' => CRM_Report_Form::OP_MULTISELECT,
