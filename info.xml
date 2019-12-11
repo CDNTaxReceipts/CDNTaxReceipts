@@ -16,7 +16,7 @@
   <version>1.5.0</version>
   <develStage>stable</develStage>
   <compatibility>
-    <ver>5.7</ver>
+    <ver>5.12</ver>
   </compatibility>
   <urls>
     <url desc="documentation">https://github.com/jake-mw/CDNTaxReceipts/blob/master/README.md</url>
