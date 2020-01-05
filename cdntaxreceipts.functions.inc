@@ -243,7 +243,7 @@ function cdntaxreceipts_generateFormattedReceipt($receipt, &$collectedPdf = NULL
   $pdf = new PDF(PDF_PAGE_ORIENTATION, PDF_UNIT, 'LETTER', TRUE, 'UTF-8', FALSE);
   $pdf->Open();
 
-  $pdf->SetAuthor(Civi::settings()->get('org_name');
+  $pdf->SetAuthor(Civi::settings()->get('org_name'));
 
   $mymargin_left = 12;
   $mymargin_top = 6;
