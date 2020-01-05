@@ -89,10 +89,10 @@ class CRM_Cdntaxreceipts_Form_Report_ReceiptsNotIssued extends CRM_Report_Form {
       ),
     );
 
-    if (CRM_Core_BAO_Setting::getItem(self::SETTINGS, 'enable_advanced_eligibility_report', NULL, 0) == 1) {
+    if (Civi::settings()->get('enable_advanced_eligibility_report') == 1) {
       $enable_options = array( 1 => ts('Yes'), 0 => ts('No'));
     }
-    elseif (CRM_Core_BAO_Setting::getItem(self::SETTINGS, 'enable_advanced_eligibility_report', NULL, 0) == 0) {
+    elseif (Civi::settings()->get('enable_advanced_eligibility_report') == 0) {
       $enable_options = array( 0 => ts('No'), 1 => ts('Yes'));
     }
     $this->_options =
