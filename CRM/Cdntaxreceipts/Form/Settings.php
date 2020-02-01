@@ -141,7 +141,7 @@ class CRM_Cdntaxreceipts_Form_Settings extends CRM_Core_Form {
     else if ( $mode == 'post' ) {
       $values = $this->exportValues();
       CRM_Core_BAO_Setting::setItem($values['receipt_prefix'], self::SETTINGS, 'receipt_prefix');
-      CRM_Core_BAO_Setting::setItem('1', self::SETTINGS, 'receipt_serial');
+      CRM_Core_BAO_Setting::setItem($values['receipt_serial'] ?? 0, self::SETTINGS, 'receipt_serial');
       CRM_Core_BAO_Setting::setItem($values['receipt_authorized_signature_text'], self::SETTINGS, 'receipt_authorized_signature_text');
 
       $receipt_logo = $this->getSubmitValue('receipt_logo');
