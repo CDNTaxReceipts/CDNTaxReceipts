@@ -312,7 +312,7 @@ function cdntaxreceipts_civicrm_alterMailParams(&$params, $context) {
     }
 
     // is the extension configured to send receipts attached to automated workflows?
-    if (!CRM_Core_BAO_Setting::getItem(CDNTAX_SETTINGS, 'attach_to_workflows', NULL, FALSE)) {
+    if (!Civi::settings()->get('attach_to_workflows')) {
       return;
     }
 

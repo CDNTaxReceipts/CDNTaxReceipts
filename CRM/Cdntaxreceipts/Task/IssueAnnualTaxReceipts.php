@@ -77,7 +77,7 @@ class CRM_Cdntaxreceipts_Task_IssueAnnualTaxReceipts extends CRM_Contact_Form_Ta
     $this->assign('receiptTotal', $receiptTotal);
     $this->assign('receiptYears', $this->_years);
 
-    $delivery_method = CRM_Core_BAO_Setting::getItem(CDNTAX_SETTINGS, 'delivery_method', NULL, CDNTAX_DELIVERY_PRINT_ONLY);
+    $delivery_method = Civi::settings()->get('delivery_method') ?? CDNTAX_DELIVERY_PRINT_ONLY;
     $this->assign('deliveryMethod', $delivery_method);
 
     // add radio buttons
