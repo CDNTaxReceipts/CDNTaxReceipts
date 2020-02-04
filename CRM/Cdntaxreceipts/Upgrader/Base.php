@@ -221,7 +221,7 @@ class CRM_Cdntaxreceipts_Upgrader_Base {
   public function getCurrentRevision() {
     // return CRM_Core_BAO_Extension::getSchemaVersion($this->extensionName);
     $key = $this->extensionName . ':version';
-    return CRM_Core_BAO_Setting::getItem('Extension', $key);
+    return Civi::settings()->get($key);
   }
 
   public function setCurrentRevision($revision) {
@@ -231,7 +231,9 @@ class CRM_Cdntaxreceipts_Upgrader_Base {
     // CRM_Core_BAO_Extension::setSchemaVersion($this->extensionName, $revision);
 
     $key = $this->extensionName . ':version';
-    CRM_Core_BAO_Setting::setItem($revision, 'Extension', $key);
+    // Longer-term this file should be brought in line with newer versions of
+    // civix but this should still work for now.
+    Civi::settings()->set($key, $revision);
     return TRUE;
   }
 
