@@ -1,6 +1,16 @@
 <?php
 
-require_once 'tcpdf/tcpdf.php';
+// A require statement doesn't work on drupal 8 because civi purposely
+// specifies the include_path to tecknicom in its composer.json in order
+// to have backwards compatibility with extensions that use require
+// statements in other CMS's, but then this breaks in drupal 8 because
+// it doesn't get the include_path right. So force a load via autoloader.
+// The reason we need to do this at all is because when we require FPDI
+// below it assumes TCPDF is already loaded when it tries to figure out
+// which PDF library to use.
+// Aside: FPDI is out of date and it seems like they want you to use
+// composer.
+class_exists('TCPDF', TRUE);
 require_once('FPDI/fpdi.php');
 
   class PDF extends FPDI {
