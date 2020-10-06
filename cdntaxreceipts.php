@@ -38,7 +38,8 @@ function cdntaxreceipts_civicrm_buildForm( $formName, &$form ) {
         'type'      => 'submit',
         'subName'   => $subName,
         'name'      => ts('Tax Receipt', array('domain' => 'org.civicrm.cdntaxreceipts')),
-        'isDefault' => FALSE
+        'isDefault' => FALSE,
+        'icon'      => 'fa-check-square',
       );
       $form->addButtons($buttons);
     }
@@ -58,17 +59,10 @@ function cdntaxreceipts_civicrm_postProcess( $formName, &$form ) {
   if ( ! is_a( $form, 'CRM_Contribute_Form_ContributionView' ) ) {
     return;
   }
-  $types = array('issue_tax_receipt','view_tax_receipt');
-  $action = '';
-  foreach($types as $type) {
-    $post = '_qf_ContributionView_submit_'.$type;
-    if (isset($_POST[$post])) {
-      if ($_POST[$post] == ts('Tax Receipt', array('domain' => 'org.civicrm.cdntaxreceipts'))) {
-        $action = $post;
-      }
-    }
-  }
-  if (empty($action)) {
+
+  // Is it one of our tax receipt buttons?
+  $buttonName = $form->controller->getButtonName();
+  if ($buttonName !== '_qf_ContributionView_submit_issue_tax_receipt' && $buttonName !== '_qf_ContributionView_submit_view_tax_receipt') {
     return;
   }
 
