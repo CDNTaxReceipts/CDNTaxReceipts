@@ -191,8 +191,6 @@ function cdntaxreceipts_processTaxReceipt($receipt, &$collectedPdf = NULL, $mode
  */
 function cdntaxreceipts_generateFormattedReceipt($receipt, &$collectedPdf = NULL, $mode) {
 
-  require_once 'tcpdf/tcpdf.php';
-
   $pdf_img_files_path = dirname(__FILE__) . '/img/';
 
   $address = cdntaxreceipts_getAddress($receipt['contact_id']);
@@ -1151,7 +1149,6 @@ function cdntaxreceipts_openCollectedPDF() {
 
   if ( ! isset($pdf) ) {
     //define ('K_PATH_IMAGES', '');
-    require_once 'tcpdf/tcpdf.php';
 
     $pdf = new PDF(PDF_PAGE_ORIENTATION, PDF_UNIT, 'LETTER', TRUE, 'UTF-8', FALSE);
     $pdf->Open();
