@@ -12,7 +12,7 @@ class CRM_Cdntaxreceipts_Upgrader extends CRM_Cdntaxreceipts_Upgrader_Base {
    * Example: Run an external SQL script when the module is installed.
    */
   public function install() {
-    $this->executeSqlFile('sql/install.sql');
+    $this->createTables();
 
     $email_message = '{$contact.email_greeting_display},
 
@@ -29,6 +29,78 @@ Attached please find your official tax receipt for income tax purposes.
    */
   public function uninstall() {
     $this->executeSqlFile('sql/uninstall.sql');
+  }
+
+  /**
+   * Get the character set and collation that the core CiviCRM tables are
+   * currently using.
+   * @return array
+   */
+  private function getDatabaseCharacterSettings():array {
+    $values = [
+      'charset' => 'utf8',
+      'collation' => 'utf8_unicode_ci',
+    ];
+    // This doesn't exist before 5.29. Not worth implementing ourselves, just
+    // use defaults above.
+    if (method_exists('CRM_Core_BAO_SchemaHandler', 'getInUseCollation')) {
+      $values['collation'] = CRM_Core_BAO_SchemaHandler::getInUseCollation();
+      if (stripos($values['collation'], 'utf8mb4') !== FALSE) {
+        $values['charset'] = 'utf8mb4';
+      }
+    }
+    return $values;
+  }
+
+  /**
+   * Create the tables.
+   *
+   * changes made in:
+   *   0.9.beta1
+   *   1.5.4 - use same character set that core tables are currently using
+   *
+   * NOTE: We avoid direct foreign keys to CiviCRM schema because this log should
+   * remain intact even if a particular contact or contribution is deleted (for
+   * auditing purposes).
+   */
+  protected function createTables() {
+    $character_settings = $this->getDatabaseCharacterSettings();
+
+    CRM_Core_DAO::executeQuery("DROP TABLE IF EXISTS cdntaxreceipts_log_contributions");
+    CRM_Core_DAO::executeQuery("DROP TABLE IF EXISTS cdntaxreceipts_log");
+
+    CRM_Core_DAO::executeQuery("CREATE TABLE cdntaxreceipts_log (
+id int(11) NOT NULL AUTO_INCREMENT COMMENT 'The internal id of the issuance.',
+receipt_no varchar(128) NOT NULL  COMMENT 'Receipt Number.',
+issued_on int(11) NOT NULL COMMENT 'Unix timestamp of when the receipt was issued, or re-issued.',
+contact_id int(10) unsigned NOT NULL COMMENT 'CiviCRM contact id to whom the receipt is issued.',
+receipt_amount decimal(10,2) NOT NULL COMMENT 'Receiptable amount, total minus non-receiptable portion.',
+is_duplicate tinyint(4) NOT NULL COMMENT 'Boolean indicating whether this is a re-issue.',
+uid int(10) unsigned NOT NULL COMMENT 'Drupal user id of the person issuing the receipt.',
+ip varchar(128) NOT NULL COMMENT 'IP of the user who issued the receipt.',
+issue_type varchar(16) NOT NULL COMMENT 'The type of receipt (single or annual).',
+issue_method varchar(16) NULL COMMENT 'The send method (email or print).',
+receipt_status varchar(10) DEFAULT 'issued' COMMENT 'The status of the receipt (issued or cancelled)',
+email_tracking_id varchar(64) NULL COMMENT 'A unique id to track email opens.',
+email_opened datetime NULL COMMENT 'Timestamp an email open event was detected.',
+PRIMARY KEY (id),
+INDEX contact_id (contact_id),
+INDEX receipt_no (receipt_no)
+) ENGINE=InnoDB DEFAULT CHARSET={$character_settings['charset']} COLLATE {$character_settings['collation']} COMMENT='Log file of tax receipt issuing.'");
+
+    // The contribution_id is *deliberately* not a foreign key to civicrm_contribution.
+    // We don't want to destroy audit records if contributions are deleted.
+    CRM_Core_DAO::executeQuery("CREATE TABLE cdntaxreceipts_log_contributions (
+id int(11) NOT NULL AUTO_INCREMENT COMMENT 'The internal id of this line.',
+receipt_id int(11) NOT NULL COMMENT 'The internal receipt ID this line belongs to.',
+contribution_id int(10) unsigned NOT NULL COMMENT 'CiviCRM contribution id for which the receipt is issued.',
+contribution_amount decimal(10,2) DEFAULT NULL COMMENT 'Total contribution amount.',
+receipt_amount decimal(10,2) NOT NULL COMMENT 'Receiptable amount, total minus non-receiptable portion.',
+receive_date datetime NOT NULL COMMENT 'Date on which the contribution was received, redundant information!',
+PRIMARY KEY (id),
+FOREIGN KEY (receipt_id) REFERENCES cdntaxreceipts_log(id),
+INDEX contribution_id (contribution_id)
+) ENGINE=InnoDB DEFAULT CHARSET={$character_settings['charset']} COLLATE {$character_settings['collation']} COMMENT='Contributions for each tax reciept issuing.'");
   }
 
   /**
