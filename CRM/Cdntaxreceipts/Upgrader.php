@@ -42,23 +42,23 @@ WHERE
     TABLE_SCHEMA = '{$db_name}'
 AND TABLE_NAME = 'cdntaxreceipts_log'
 AND COLUMN_NAME = 'receipt_status'");
-   if ($dao->fetch()) {
-     if ($dao->col_count == 0) {
-       CRM_Core_DAO::executeQuery("ALTER TABLE cdntaxreceipts_log ADD COLUMN receipt_status varchar(10) DEFAULT 'issued'");
-       $ndao =& CRM_Core_DAO::executeQuery("
+    if ($dao->fetch()) {
+      if ($dao->col_count == 0) {
+        CRM_Core_DAO::executeQuery("ALTER TABLE cdntaxreceipts_log ADD COLUMN receipt_status varchar(10) DEFAULT 'issued'");
+        $ndao =& CRM_Core_DAO::executeQuery("
 SELECT COUNT(*) as col_count
 FROM information_schema.COLUMNS
 WHERE
     TABLE_SCHEMA = '{$db_name}'
 AND TABLE_NAME = 'cdntaxreceipts_log'
 AND COLUMN_NAME = 'receipt_status'");
-       if($ndao->fetch()) {
-         if ($ndao->col_count == 1) {
-           return TRUE;
-         }
-       }
-     }
-   }
+        if ($ndao->fetch()) {
+          if ($ndao->col_count == 1) {
+            return TRUE;
+          }
+        }
+      }
+    }
     return FALSE;
   }
 
@@ -68,7 +68,7 @@ AND COLUMN_NAME = 'receipt_status'");
     CRM_Core_DAO::executeQuery('ALTER TABLE cdntaxreceipts_log ADD email_opened datetime NULL');
     CRM_Core_DAO::executeQuery('CREATE INDEX contribution_id ON cdntaxreceipts_log_contributions (contribution_id)');
     return TRUE;
-  } 
+  }
 
   public function upgrade_1322() {
     $this->ctx->log->info('Applying update 1322: Message Templates');
@@ -89,8 +89,7 @@ AND COLUMN_NAME = 'receipt_status'");
     return TRUE;
   }
 
-
-  function _create_message_template($email_message, $email_subject) {
+  public function _create_message_template($email_message, $email_subject) {
 
     $html_message = '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
@@ -183,11 +182,13 @@ AND COLUMN_NAME = 'receipt_status'");
    *
    * @return TRUE on success
    * @throws Exception
+   */
+  /*
   public function upgrade_4201() {
-    $this->ctx->log->info('Applying update 4201');
-    // this path is relative to the extension base dir
-    $this->executeSqlFile('sql/upgrade_4201.sql');
-    return TRUE;
-  } // */
+  $this->ctx->log->info('Applying update 4201');
+  // this path is relative to the extension base dir
+  $this->executeSqlFile('sql/upgrade_4201.sql');
+  return TRUE;
+  } */
 
 }
