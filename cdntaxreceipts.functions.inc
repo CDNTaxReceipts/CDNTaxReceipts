@@ -611,7 +611,7 @@ function cdntaxreceipts_configure_inkind_fields() {
       'is_active' => 1,
       'version' => 3
     );
-    $result =& civicrm_api('custom_group', 'create', $group);
+    $result = civicrm_api('custom_group', 'create', $group);
   }
   foreach ( $result['values'] as $id => $detail ) {
     $custom_group_id = $id;
@@ -646,7 +646,7 @@ function cdntaxreceipts_configure_inkind_fields() {
           ' the cost of the item donated (and the creditable amount) if either of those '.
           ' situations apply.';
       }
-      $result =& civicrm_api('custom_field', 'create', $field_params);
+      civicrm_api('custom_field', 'create', $field_params);
     }
   }
 }
