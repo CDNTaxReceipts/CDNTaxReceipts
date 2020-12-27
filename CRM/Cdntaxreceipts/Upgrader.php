@@ -89,6 +89,20 @@ AND COLUMN_NAME = 'receipt_status'");
     return TRUE;
   }
 
+  /**
+   * Update uploaded file paths to be relative instead of absolute.
+   */
+  public function upgrade_1411() {
+    $this->ctx->log->info('Applying update 1411: uploaded file paths');
+    foreach (array('receipt_logo', 'receipt_signature', 'receipt_watermark', 'receipt_pdftemplate') as $fileSettingName) {
+      $path = Civi::settings()->get($fileSettingName);
+      if (!empty($path)) {
+        Civi::settings()->set($fileSettingName, basename($path));
+      }
+    }
+    return TRUE;
+  }
+
   public function _create_message_template($email_message, $email_subject) {
 
     $html_message = '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
