@@ -391,34 +391,34 @@ function _cdntaxreceipts_writeReceipt(&$pdf, $pdf_variables) {
     }
     $pdf->Image($receipt_logo, $mymargin_left, $mymargin_top, '', 30);
 
-  // Top right section
-  $pdf->SetFont('Helvetica', '', 8);
-  $pdf->SetY($mymargin_top);
-  $pdf->Write(10, Civi::settings()->get('org_name'), '', 0, 'R', TRUE, 0, FALSE, FALSE, 0);
-  $pdf->SetY($mymargin_top + 4);
-  $pdf->Write(10, Civi::settings()->get('org_address_line1'), '', 0, 'R', TRUE, 0, FALSE, FALSE, 0);
-  $pdf->SetY($mymargin_top + 8);
-  $pdf->Write(10, Civi::settings()->get('org_address_line2'), '', 0, 'R', TRUE, 0, FALSE, FALSE, 0);
-  $pdf->SetY($mymargin_top + 12);
+    // Top right section
+    $pdf->SetFont('Helvetica', '', 8);
+    $pdf->SetY($mymargin_top);
+    $pdf->Write(10, Civi::settings()->get('org_name'), '', 0, 'R', TRUE, 0, FALSE, FALSE, 0);
+    $pdf->SetY($mymargin_top + 4);
+    $pdf->Write(10, Civi::settings()->get('org_address_line1'), '', 0, 'R', TRUE, 0, FALSE, FALSE, 0);
+    $pdf->SetY($mymargin_top + 8);
+    $pdf->Write(10, Civi::settings()->get('org_address_line2'), '', 0, 'R', TRUE, 0, FALSE, FALSE, 0);
+    $pdf->SetY($mymargin_top + 12);
 
-  $telTxt = ts('Tel: %1', array(1 => Civi::settings()->get('org_tel'), 'domain' => 'org.civicrm.cdntaxreceipts'));
-  if ( Civi::settings()->get('org_fax' ) != '' ) {
-    $telTxt .= '; ' . ts('Fax: %1', array(1 => Civi::settings()->get('org_fax'), 'domain' => 'org.civicrm.cdntaxreceipts'));
-  }
-  $pdf->Write(10, $telTxt, '', 0, 'R', TRUE, 0, FALSE, FALSE, 0);
-  $pdf->SetFont('Helvetica', 'I', 8);
-  $pdf->SetY($mymargin_top + 16);
+    $telTxt = ts('Tel: %1', array(1 => Civi::settings()->get('org_tel'), 'domain' => 'org.civicrm.cdntaxreceipts'));
+    if ( Civi::settings()->get('org_fax' ) != '' ) {
+      $telTxt .= '; ' . ts('Fax: %1', array(1 => Civi::settings()->get('org_fax'), 'domain' => 'org.civicrm.cdntaxreceipts'));
+    }
+    $pdf->Write(10, $telTxt, '', 0, 'R', TRUE, 0, FALSE, FALSE, 0);
+    $pdf->SetFont('Helvetica', 'I', 8);
+    $pdf->SetY($mymargin_top + 16);
 
-  $emailTxt = ts('Email: %1; Website: %2', array(
-    1 => Civi::settings()->get('org_email'),
-    2 => Civi::settings()->get('org_web'),
-    'domain' => 'org.civicrm.cdntaxreceipts')
-  );
-  $registrationTxt = ts('Charitable Registration: %1', array(1 => Civi::settings()->get('org_charitable_no'), 'domain' => 'org.civicrm.cdntaxreceipts'));
+    $emailTxt = ts('Email: %1; Website: %2', array(
+      1 => Civi::settings()->get('org_email'),
+      2 => Civi::settings()->get('org_web'),
+      'domain' => 'org.civicrm.cdntaxreceipts')
+    );
+    $registrationTxt = ts('Charitable Registration: %1', array(1 => Civi::settings()->get('org_charitable_no'), 'domain' => 'org.civicrm.cdntaxreceipts'));
 
-  $pdf->Write(10, $emailTxt, '', 0, 'R', TRUE, 0, FALSE, FALSE, 0);
-  $pdf->SetY($mymargin_top + 20);
-  $pdf->Write(10, $registrationTxt, '', 0, 'R', TRUE, 0, FALSE, FALSE, 0);
+    $pdf->Write(10, $emailTxt, '', 0, 'R', TRUE, 0, FALSE, FALSE, 0);
+    $pdf->SetY($mymargin_top + 20);
+    $pdf->Write(10, $registrationTxt, '', 0, 'R', TRUE, 0, FALSE, FALSE, 0);
   }
 
   // Right section
