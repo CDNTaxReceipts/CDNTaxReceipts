@@ -68,6 +68,7 @@ function cdntaxreceipts_processTaxReceipt($receipt, &$collectedPdf = NULL, $mode
   $preferred_language = CRM_Core_DAO::getFieldValue('CRM_Contact_DAO_Contact', $receipt['contact_id'], 'preferred_language');
   _cdntaxreceipts_setReceiptanguage($preferred_language);
 
+  // @todo Deprecate this function - see issue 103. This used to be on the settings form but has been removed. For now if it had been previously set we still use the same (broken) implementation from before.
   $serial_receipt = Civi::settings()->get('receipt_serial');
   if ($serial_receipt && empty($receipt['is_duplicate'])) {
     // use my experimental alternative to generating serial receipt numbers, unless this is a re-issue
