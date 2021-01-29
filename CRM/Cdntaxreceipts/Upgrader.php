@@ -9,7 +9,7 @@ class CRM_Cdntaxreceipts_Upgrader extends CRM_Cdntaxreceipts_Upgrader_Base {
   // upgrade tasks. They are executed in order (like Drupal's hook_update_N).
 
   /**
-   * Run the fresh install script when the module is installed
+   * Example: Run an external SQL script when the module is installed.
    */
   public function install() {
     $this->executeSqlFile('sql/install.sql');
@@ -25,12 +25,16 @@ Attached please find your official tax receipt for income tax purposes.
   }
 
   /**
-   * Run the uninstall script when the module is uninstalled
+   * Example: Run an external SQL script when the module is uninstalled.
    */
   public function uninstall() {
     $this->executeSqlFile('sql/uninstall.sql');
   }
 
+  /**
+   * @TODO This function is buggy - it returns false when the field already
+   * exists. Also the entire function could just be replaced with CRM_Upgrade...addColumn().
+   */
   public function upgrade_1320() {
     $this->ctx->log->info('Applying update 1.3.2');
     $dao =& CRM_Core_DAO::executeQuery("SELECT 1");
@@ -62,6 +66,10 @@ AND COLUMN_NAME = 'receipt_status'");
     return FALSE;
   }
 
+  /**
+   * @TODO replace with CRM_Upgrade...addColumn and also there's one called
+   * safeIndex() or something like that.
+   */
   public function upgrade_1321() {
     $this->ctx->log->info('Applying update 1321: Email Tracking');
     CRM_Core_DAO::executeQuery('ALTER TABLE cdntaxreceipts_log ADD email_tracking_id varchar(64) NULL');

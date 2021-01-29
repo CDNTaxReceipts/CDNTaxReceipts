@@ -166,6 +166,13 @@ function cdntaxreceipts_civicrm_install() {
 }
 
 /**
+ * Implements hook_civicrm_postInstall().
+ */
+function cdntaxreceipts_civicrm_postInstall() {
+  _cdntaxreceipts_civix_civicrm_postInstall();
+}
+
+/**
  * Implementation of hook_civicrm_uninstall
  */
 function cdntaxreceipts_civicrm_uninstall() {
@@ -209,8 +216,63 @@ function cdntaxreceipts_civicrm_upgrade($op, CRM_Queue_Queue $queue = NULL) {
 function cdntaxreceipts_civicrm_managed(&$entities) {
   return _cdntaxreceipts_civix_civicrm_managed($entities);
 }
+
 /**
- * Implementation of hook_civicrm_managed
+ * Implements hook_civicrm_caseTypes().
+ *
+ * Generate a list of case-types.
+ *
+ * Note: This hook only runs in CiviCRM 4.4+.
+ *
+ * @link https://docs.civicrm.org/dev/en/latest/hooks/hook_civicrm_caseTypes
+ */
+function cdntaxreceipts_civicrm_caseTypes(&$caseTypes) {
+  _cdntaxreceipts_civix_civicrm_caseTypes($caseTypes);
+}
+
+/**
+ * Implements hook_civicrm_angularModules().
+ *
+ * Generate a list of Angular modules.
+ *
+ * Note: This hook only runs in CiviCRM 4.5+. It may
+ * use features only available in v4.6+.
+ *
+ * @link https://docs.civicrm.org/dev/en/latest/hooks/hook_civicrm_angularModules
+ */
+function cdntaxreceipts_civicrm_angularModules(&$angularModules) {
+  _cdntaxreceipts_civix_civicrm_angularModules($angularModules);
+}
+
+/**
+ * Implements hook_civicrm_alterSettingsFolders().
+ *
+ * @link https://docs.civicrm.org/dev/en/latest/hooks/hook_civicrm_alterSettingsFolders
+ */
+function cdntaxreceipts_civicrm_alterSettingsFolders(&$metaDataFolders = NULL) {
+  _cdntaxreceipts_civix_civicrm_alterSettingsFolders($metaDataFolders);
+}
+
+/**
+ * Implements hook_civicrm_entityTypes().
+ *
+ * Declare entity types provided by this module.
+ *
+ * @link https://docs.civicrm.org/dev/en/latest/hooks/hook_civicrm_entityTypes
+ */
+function cdntaxreceipts_civicrm_entityTypes(&$entityTypes) {
+  _cdntaxreceipts_civix_civicrm_entityTypes($entityTypes);
+}
+
+/**
+ * Implements hook_civicrm_themes().
+ */
+function cdntaxreceipts_civicrm_themes(&$themes) {
+  _cdntaxreceipts_civix_civicrm_themes($themes);
+}
+
+/**
+ * Implementation of hook_civicrm_navigationMenu
  *
  * Add entries to the navigation menu, automatically removed on uninstall
  */
