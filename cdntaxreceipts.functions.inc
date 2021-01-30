@@ -23,11 +23,10 @@ require_once('FPDI/fpdi.php');
      * include a background template for every page
      */
     function Header() {
-      $pdf_template_file = Civi::settings()->get('receipt_pdftemplate');
+      $pdf_template_file = _cdntaxreceipts_get_image_filepath('receipt_pdftemplate');
       if (!empty($pdf_template_file)) {
 
         if (is_null($this->_tplIdx)) {
-          $pdf_template_file = Civi::settings()->get('receipt_pdftemplate');
           $this->setSourceFile($pdf_template_file);
           $this->_tplIdx = $this->importPage(1);
         }
@@ -382,11 +381,9 @@ function _cdntaxreceipts_writeReceipt(&$pdf, $pdf_variables) {
     $pdf->Image($pdf_img_files_path . 'duplicate_trans.png', $mymargin_left + 65, $mymargin_top, '', 45);
   }
   // Top left section
-  $pdf_template_file = Civi::settings()->get('receipt_pdftemplate');
-  if (!empty($pdf_template_file)) {
-  }
-  else {
-    $receipt_logo = Civi::settings()->get('receipt_logo');
+  $pdf_template_file = _cdntaxreceipts_get_image_filepath('receipt_pdftemplate');
+  if (empty($pdf_template_file)) {
+    $receipt_logo = _cdntaxreceipts_get_image_filepath('receipt_logo');
     if ( empty($receipt_logo) ) {
       $receipt_logo = $pdf_img_files_path . 'your-logo.png';
     }
@@ -425,12 +422,12 @@ function _cdntaxreceipts_writeReceipt(&$pdf, $pdf_variables) {
   // Right section
   $x_detailscolumn = 120;
   $y_detailscolumnstart = 22;
-  $pdf_template_file = Civi::settings()->get('receipt_pdftemplate');
-  if (!empty($pdf_template_file)) {
-  }
-  else {
-    $background_image = Civi::settings()->get('receipt_watermark');
-    if ( $background_image ) $pdf->Image(Civi::settings()->get('receipt_watermark'), $mymargin_left + $x_detailscolumn, $mymargin_top + $y_detailscolumnstart + 6, '', 40);
+  $pdf_template_file = _cdntaxreceipts_get_image_filepath('receipt_pdftemplate');
+  if (empty($pdf_template_file)) {
+    $background_image = _cdntaxreceipts_get_image_filepath('receipt_watermark');
+    if ($background_image) {
+      $pdf->Image($background_image, $mymargin_left + $x_detailscolumn, $mymargin_top + $y_detailscolumnstart + 6, '', 40);
+    }
   }
   $pdf->SetXY($mymargin_left + $x_detailscolumn, $mymargin_top + $y_detailscolumnstart + 6);
   $pdf->SetFont('Helvetica', 'B', 8);
@@ -552,9 +549,7 @@ function _cdntaxreceipts_writeReceipt(&$pdf, $pdf_variables) {
       $signature = ts('Authorized Signature', array('domain' => 'org.civicrm.cdntaxreceipts'));
     }
     $sig_offset = strlen($signature) - 20;
-    $pdf_template_file = Civi::settings()->get('receipt_pdftemplate');
-
-    $sig_image = Civi::settings()->get('receipt_signature');
+    $sig_image = _cdntaxreceipts_get_image_filepath('receipt_signature');
     if (empty($sig_image)) {
       $sig_image = $pdf_img_files_path . 'authorized-signature.png';
     }
@@ -1339,4 +1334,22 @@ function _cdntaxreceipts_setReceiptanguage($language) {
   $i18n = CRM_Core_I18n::singleton();
   $i18n->setLocale($language);
 
+}
+
+/**
+ * Get file name with path of file/image field.
+ *
+ * @param string $imageSettingName
+ *
+ * @return string file path or NULL
+ */
+function _cdntaxreceipts_get_image_filepath($imageSettingName) {
+  $fileName = Civi::settings()->get($imageSettingName);
+  if ($fileName) {
+    $fileNameWithPath = CRM_Core_Config::singleton()->customFileUploadDir . $fileName;
+    if (file_exists($fileNameWithPath)) {
+      return $fileNameWithPath;
+    }
+  }
+  return NULL;
 }
