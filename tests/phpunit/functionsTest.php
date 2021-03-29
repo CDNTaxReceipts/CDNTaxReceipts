@@ -23,12 +23,12 @@ class functionsTest extends \CiviUnitTestCase implements HeadlessInterface {
     return \Civi\Test::headless()->installMe(__DIR__)->apply();
   }
 
-  public function setUp() {
+  public function setUp(): void {
     parent::setUp();
     $this->custom_group = $this->customGroupCreate();
   }
 
-  public function tearDown() {
+  public function tearDown(): void {
     $this->callAPISuccess('CustomField', 'delete', ['id' => $this->custom_field['id']]);
     $this->callAPISuccess('CustomGroup', 'delete', ['id' => $this->custom_group['id']]);
     parent::tearDown();

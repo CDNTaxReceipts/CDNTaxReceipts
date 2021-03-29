@@ -24,14 +24,6 @@ class CRM_Cdntaxreceipts_HookTest extends \CiviUnitTestCase implements HeadlessI
       ->apply();
   }
 
-  public function setUp() {
-    parent::setUp();
-  }
-
-  public function tearDown() {
-    parent::tearDown();
-  }
-
   /**
    * Test eligibleAmount
    */
