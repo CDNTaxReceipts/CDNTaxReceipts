@@ -33,10 +33,12 @@ class IssueTest extends CdntaxreceiptsBase {
 
     // view the contribution
     $this->drupalGet(\CRM_Utils_System::url("civicrm/contact/view/contribution", "reset=1&id={$contribution['id']}&cid={$this->contact['id']}&action=view", TRUE, NULL, FALSE));
+    $this->assertPageHasNoErrorMessages();
 
     // click the tax receipt button
     $this->getSession()->getPage()->pressButton('Tax Receipt');
     $this->assertSession()->pageTextContains('A tax receipt has not been issued for this contribution.');
+    $this->assertPageHasNoErrorMessages();
 
     // I don't know why but we need to wait for it. It's strange because if we
     // don't wait for it then it's not like it can't find it to press, it's that
@@ -46,6 +48,7 @@ class IssueTest extends CdntaxreceiptsBase {
     $this->getSession()->getPage()->pressButton('_qf_ViewTaxReceipt_next-bottom');
     $this->assertSession()->pageTextContains("C-0000000{$contribution['id']}");
     $this->assertSession()->pageTextContains('Re-Issue Tax Receipt');
+    $this->assertPageHasNoErrorMessages();
     $this->htmlOutput();
   }
 
