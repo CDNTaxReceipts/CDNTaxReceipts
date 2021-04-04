@@ -3,9 +3,6 @@
 use Civi\Test\HeadlessInterface;
 
 /**
- * @todo This might need to be wrapped in a class to get it to autorun
- * in a test suite. It's not clear to me which files get picked up.
- *
  * @group headless
  */
 class functionsTest extends \CiviUnitTestCase implements HeadlessInterface {
