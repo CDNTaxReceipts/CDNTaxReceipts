@@ -5,6 +5,15 @@ use Drupal\Tests\civicrm\FunctionalJavascript\CiviCrmTestBase;
 
 class CdntaxreceiptsBase extends CiviCrmTestBase {
 
+  use \Drupal\Tests\mink_civicrm_helpers\Traits\Utils;
+
+  /**
+   * @var array
+   */
+  protected static $modules = [
+    'mink_civicrm_helpers',
+  ];
+
   /**
    * @var int
    *   The uf_id of the logged in user.
