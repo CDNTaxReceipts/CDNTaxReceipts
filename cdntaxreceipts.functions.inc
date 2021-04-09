@@ -1082,7 +1082,7 @@ function cdntaxreceipts_issueAggregateTaxReceipt($contactId, $year, $contributio
  */
 function cdntaxreceipts_sendMethodForContact( $contactId ) {
 
-  $delivery_method = Civi::settings()->get('delivery_method', NULL, CDNTAX_DELIVERY_PRINT_ONLY);
+  $delivery_method = Civi::settings()->get('delivery_method') ?? CDNTAX_DELIVERY_PRINT_ONLY;
   if ($delivery_method == CDNTAX_DELIVERY_DATA_ONLY) {
     return array('data', NULL);
   }
