@@ -843,9 +843,11 @@ function cdntaxreceipts_eligibleAmount( $contributionId ) {
   // adds up quickly, particularly during bulk runs. The basic eligibility amount of a
   // contribution will not change through the request lifecycle, so we can cache those we
   // have already computed.
-  static $cache = array();
-  if ( array_key_exists($contributionId, $cache) ) {
-    return $cache[$contributionId];
+  if (!isset(\Civi::$statics[__FUNCTION__]['cache'])) {
+    \Civi::$statics[__FUNCTION__]['cache'] = array();
+  }
+  if (array_key_exists($contributionId, \Civi::$statics[__FUNCTION__]['cache'])) {
+    return \Civi::$statics[__FUNCTION__]['cache'][$contributionId];
   }
 
   require_once('CRM/Contribute/DAO/Contribution.php');
@@ -898,7 +900,7 @@ function cdntaxreceipts_eligibleAmount( $contributionId ) {
     }
   }
 
-  $cache[$contributionId] = $deductibleAmount;
+  \Civi::$statics[__FUNCTION__]['cache'][$contributionId] = $deductibleAmount;
   return $deductibleAmount;
 }
 
