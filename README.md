@@ -1,7 +1,7 @@
 CDNTaxReceipts
 ==============
 
-Canadian Tax Receipts extension for CiviCRM
+Canadian Tax Receipts extension for CiviCRM now with Automated Testing!
 
 Upgrading from previous versions:
 ------------
