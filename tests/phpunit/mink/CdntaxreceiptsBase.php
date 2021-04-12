@@ -39,7 +39,7 @@ class CdntaxreceiptsBase extends CiviCrmTestBase {
     }
 
     require_once 'api/api.php';
-    civicrm_api3('Extension', 'install', ['keys' => 'org.civicrm.cdntaxreceipts']);
+    civicrm_api3('Extension', 'download', ['key' => 'org.civicrm.cdntaxreceipts']);
     // Drupal 8 is super cache-y.
     drupal_flush_all_caches();
 
