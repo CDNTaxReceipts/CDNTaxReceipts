@@ -1100,7 +1100,7 @@ function cdntaxreceipts_sendMethodForContact( $contactId ) {
   list($displayname, $email, $doNotEmail, $onHold) = CRM_Contact_BAO_Contact::getContactDetails($contactId);
 
   if ( isset($email) ) {
-    if ( ! $doNotEmail && ! $onHold ) {
+    if ( ! $onHold ) {
       $method = array('email', $email);
     }
   }
