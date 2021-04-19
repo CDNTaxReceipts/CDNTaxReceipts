@@ -1,13 +1,8 @@
 <?php
-use Civi\Test\HeadlessInterface;
-
 /**
  * @group headless
  */
-class CRM_Cdntaxreceipts_UtfTest extends \CiviUnitTestCase implements HeadlessInterface {
-
-  public function setUpHeadless() {
-  }
+class CRM_Cdntaxreceipts_UtfTest extends \CiviUnitTestCase {
 
   /**
    * Make sure the extension installs properly on all types of unicode.
@@ -16,6 +11,14 @@ class CRM_Cdntaxreceipts_UtfTest extends \CiviUnitTestCase implements HeadlessIn
    * @param string $charset
    */
   public function testInstallCharsets(string $charset) {
+    // When run as part of a whole suite, the extension is already installed
+    // by tests that come before us. For whatever reason it doesn't reset the
+    // extensions table in between classes when it repopulates the db:
+    // https://github.com/civicrm/civicrm-core/blob/21e76730c425bf985c2a1708cb87eba1269bed3d/Civi/Test/Schema.php#L102
+    // So we need to manually do it for this test.
+    $this->callAPISuccess('Extension', 'disable', ['keys' => 'org.civicrm.cdntaxreceipts']);
+    $this->callAPISuccess('Extension', 'uninstall', ['keys' => 'org.civicrm.cdntaxreceipts']);
+
     // Yeah this is awkward since it means we need to know what's in the
     // dataProvider and what the possibilities are but good enough for now.
     // Run the conversion task or the reverse if needed to get a starting
