@@ -20,10 +20,6 @@ class IssueTest extends CdntaxreceiptsBase {
     $this->contact = $this->createContact();
   }
 
-  public function tearDown(): void {
-    parent::tearDown();
-  }
-
   public function testIssueTaxReceipt() {
     $contribution = civicrm_api3('Contribution', 'create', [
       'contact_id' => $this->contact['id'],
