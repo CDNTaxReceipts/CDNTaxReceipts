@@ -23,31 +23,9 @@ class CdntaxreceiptsBase extends CiviCrmTestBase {
   public function setUp(): void {
     parent::setUp();
 
-    /**
-     * Not much point to these tests if our extension isn't installed!
-     * But you need to have set the path to the extensions dir where you're
-     * developing this extension, since it's expecting everything under
-     * the simpletest directory, but that doesn't exist yet until the tests
-     * start.
-     * Set it in phpunit.xml with <env name="DEV_EXTENSION_DIR" value="path_to_ext_folder"/>
-     */
-    if ($extdir = getenv('DEV_EXTENSION_DIR')) {
-      \Civi::settings()->set('extensionsDir', $extdir);
-      // Is there a better way to reset the extension system?
-      \CRM_Core_Config::singleton(TRUE, TRUE);
-      \CRM_Extension_System::setSingleton(new \CRM_Extension_System());
-    }
-
-    require_once 'api/api.php';
-    civicrm_api3('Extension', 'install', ['keys' => 'org.civicrm.cdntaxreceipts']);
-    // Drupal 8 is super cache-y.
-    drupal_flush_all_caches();
-
-    // Need this otherwise our new permission isn't available yet.
-    unset(\Civi::$statics['CRM_Core_Permission']['basicPermissions']);
+    $this->setUpExtension('org.civicrm.cdntaxreceipts');
 
     $this->configureTaxReceiptSettings();
-    $this->configureCiviSettings();
   }
 
   /**
@@ -123,16 +101,6 @@ class CdntaxreceiptsBase extends CiviCrmTestBase {
       'enable_advanced_eligibility_report' => 0,
       'email_from' => 'cdntaxorg@example.org',
       'email_archive' => 'cdntaxorg@example.org',
-    ]);
-  }
-
-  /**
-   * Miscellaneous civi settings
-   */
-  private function configureCiviSettings(): void {
-    \Civi::settings()->add([
-      'ajaxPopupsEnabled' => 0,
-      'backtrace' => 1,
     ]);
   }
 
