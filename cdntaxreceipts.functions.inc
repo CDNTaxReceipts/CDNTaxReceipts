@@ -746,7 +746,7 @@ function cdntaxreceipts_issueTaxReceipt($contribution, &$collectedPdf = NULL, $m
 
   $receipt = array(
     'receipt_no' => $receipt_no,
-    'issued_on' =>  (int) $_SERVER['REQUEST_TIME'],
+    'issued_on' => CRM_Cdntaxreceipts_Utils_Time::time(),
     'contact_id' => $contribution->contact_id,
     'receipt_amount' => cdntaxreceipts_eligibleAmount($contribution->id),
     'is_duplicate' => $is_duplicate,
@@ -930,7 +930,7 @@ function cdntaxreceipts_issueAnnualTaxReceipt( $contactId, $year, &$collectedPdf
     if ($receipt['receipt_status'] == 'cancelled' && $method != 'data') {
       $method = 'print';
     }
-    $receipt['issued_on'] = (int) $_SERVER['REQUEST_TIME'];
+    $receipt['issued_on'] = CRM_Cdntaxreceipts_Utils_Time::time();
     $receipt['is_duplicate'] = 1;
     $receipt['receive_date'] = $year;
     $receipt['issue_method'] = $method;
@@ -962,7 +962,7 @@ function cdntaxreceipts_issueAnnualTaxReceipt( $contactId, $year, &$collectedPdf
 
     $receipt = array(
       'receipt_no' => $receiptNo,
-      'issued_on' =>  (int) $_SERVER['REQUEST_TIME'],
+      'issued_on' => CRM_Cdntaxreceipts_Utils_Time::time(),
       'contact_id' => $contactId,
       'receipt_amount' => $totalReceipt,
       'is_duplicate' => 0,
@@ -1037,7 +1037,7 @@ function cdntaxreceipts_issueAggregateTaxReceipt($contactId, $year, $contributio
     if ($receipt['receipt_status'] == 'cancelled' && $method != 'data') {
       $method = 'print';
     }
-    $receipt['issued_on'] = (int) $_SERVER['REQUEST_TIME'];
+    $receipt['issued_on'] = CRM_Cdntaxreceipts_Utils_Time::time();
     $receipt['is_duplicate'] = 1;
     $receipt['issue_method'] = $method;
     $receipt['receive_date'] = $year;
@@ -1062,7 +1062,7 @@ function cdntaxreceipts_issueAggregateTaxReceipt($contactId, $year, $contributio
 
     $receipt = array(
       'receipt_no' => $receiptNo,
-      'issued_on' =>  (int) $_SERVER['REQUEST_TIME'],
+      'issued_on' => CRM_Cdntaxreceipts_Utils_Time::time(),
       'contact_id' => $contactId,
       'receipt_amount' => $totalReceipt,
       'is_duplicate' => 0,
