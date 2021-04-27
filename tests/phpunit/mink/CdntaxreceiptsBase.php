@@ -50,36 +50,6 @@ class CdntaxreceiptsBase extends CiviCrmTestBase {
   }
 
   /**
-   * Create a contact. Helper function since the usual individualCreate()
-   * is not available.
-   * @param int $index There are a couple stock contacts. You can pick one as the base params to use.
-   * @param array $params Some params to merge into the base.
-   * @return array
-   */
-  public function createContact(int $index = 0, array $params = []): array {
-    $stockContacts = [
-      'first_name' => ['Anthony', 'Joe', 'Terrence', 'Lucie', 'Albert', 'Bill', 'Kim'],
-      'last_name' => ['Anderson', 'Miller', 'Smith', 'Collins', 'Peterson', 'Johnson', 'Li'],
-    ];
-    $vars = array_merge([
-      'contact_type' => 'Individual',
-      'first_name' => $stockContacts['first_name'][$index],
-      'last_name' => $stockContacts['last_name'][$index],
-      'email' => strtolower("{$stockContacts['first_name'][$index]}.{$stockContacts['last_name'][$index]}@example.org"),
-      'phone' => preg_replace('/[^0-9]/', '', bin2hex("{$stockContacts['first_name'][$index]}{$stockContacts['last_name'][$index]}")),
-    ], $params);
-
-    // Phone doesn't work the same as email for create.
-    // If the input params didn't blank it out, convert to right format.
-    if (!empty($vars['phone'])) {
-      $vars['api.Phone.create'] = ['phone' => $vars['phone']];
-      unset($vars['phone']);
-    }
-
-    return civicrm_api3('Contact', 'create', $vars);
-  }
-
-  /**
    * Configure the extension, i.e. fill out the settings page.
    */
   private function configureTaxReceiptSettings(): void {
@@ -102,6 +72,95 @@ class CdntaxreceiptsBase extends CiviCrmTestBase {
       'email_from' => 'cdntaxorg@example.org',
       'email_archive' => 'cdntaxorg@example.org',
     ]);
+  }
+
+  /**
+   * Set a delivery method.
+   * The default is data only, which is useful for just testing the logs.
+   * If we want a different method, we need to also remember to adjust the
+   * mail settings since otherwise drupal gives errors about failed mail.
+   * @param int $method
+   */
+  protected function setDeliveryMethod(int $method) {
+    $mb = \Civi::settings()->get('mailing_backend');
+    \Civi::settings()->set('mailing_backend', array_merge($mb, ['outBound_option' => \CRM_Mailing_Config::OUTBOUND_OPTION_MOCK]));
+
+    \Civi::settings()->set('delivery_method', $method);
+  }
+
+  /**
+   * Compare two files efficiently.
+   * @param string $a First file
+   * @param string $b Second file
+   * @return bool
+   */
+  private function compareFiles($a, $b): bool {
+    // Check if filesize is different
+    if (filesize($a) !== filesize($b)) {
+      return FALSE;
+    }
+
+    // Check if content is different
+    $ah = fopen($a, 'rb');
+    $bh = fopen($b, 'rb');
+
+    $result = TRUE;
+    while (!feof($ah)) {
+      if (fread($ah, 8192) != fread($bh, 8192)) {
+        $result = FALSE;
+        break;
+      }
+    }
+
+    fclose($ah);
+    fclose($bh);
+
+    return $result;
+  }
+
+  /**
+   * Return the full path to the associated fixture file for a given function.
+   * @param string $class The fully qualified class name.
+   * @param string $func The function name. Who called us.
+   * @param string $type The file type.
+   * @return string
+   */
+  protected function getFixtureFileFor(string $class, string $func, $type = '.pdf') {
+    return str_replace('\\', '/', __DIR__) . '/fixtures/' . preg_replace('/[^a-zA-Z0-9_]/', '_', "{$class}{$func}") . $type;
+  }
+
+  /**
+   * There should be a file named test.pdf created when running under tests
+   * that generate pdfs. We have to fudge the creation dates inside it a bit
+   * but otherwise it should be identical to one we're expecting.
+   * @param string $class The fully qualified class name.
+   * @param string $func The function name. Who called us.
+   */
+  protected function assertExpectedPDF(string $class, string $func) {
+    // Replace windows backslashes.
+    $pdf_file = str_replace('\\', '/', \CRM_Core_Config::singleton()->uploadDir . 'test.pdf');
+    $this->assertTrue(file_exists($pdf_file));
+    $new_name = str_replace('\\', '/', $this->getBrowserOutputDirectory()) . 'Receipts-To-Print-' . \CRM_Cdntaxreceipts_Utils_Time::time() . '.pdf';
+    $this->assertTrue(rename($pdf_file, $new_name), "Can't rename $pdf_file to $new_name");
+    $this->fudgePDFFile($new_name);
+    $expectedFile = $this->getFixtureFileFor($class, $func);
+    $this->assertTrue($this->compareFiles($new_name, $expectedFile), "$new_name differs from $expectedFile");
+  }
+
+  /**
+   * Make the dates in the file match our mock timestamp.
+   * Also there's a uuid, which we change to match our fixtures.
+   * @param string $filename
+   */
+  protected function fudgePDFFile(string $filename) {
+    $s = file_get_contents($filename);
+    // The +10 is because for some reason that's the timezone that ends up
+    // in our fixture file.
+    $s = preg_replace('/\d{14}\+\d\d/', date('YmdHis', \CRM_Cdntaxreceipts_Utils_Time::time()) . '+10', $s);
+    $s = preg_replace('/\d{4}-\d\d-\d\dT\d\d:\d\d:\d\d\+\d\d/', date('Y-m-d\TH:i:s', \CRM_Cdntaxreceipts_Utils_Time::time()) . '+10', $s);
+    $s = preg_replace('/[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}/', '9e7bde6b-2ad3-c6ba-6656-86ba3cf7b7a2', $s);
+    $s = preg_replace('/<[a-f0-9]{32}>/', '<9e7bde6b2ad3c6ba665686ba3cf7b7a2>', $s);
+    $this->assertGreaterThan(0, file_put_contents($filename, $s));
   }
 
 }
