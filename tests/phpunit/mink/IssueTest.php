@@ -48,4 +48,25 @@ class IssueTest extends CdntaxreceiptsBase {
     $this->htmlOutput();
   }
 
+  /**
+   * This is identical to testIssueTaxReceipt() but we use print method.
+   * We don't verify the PDF here.
+   */
+  public function testIssueTaxReceiptPrint() {
+    $this->setDeliveryMethod(CDNTAX_DELIVERY_PRINT_ONLY);
+    $this->testIssueTaxReceipt();
+    $this->assertSession()->pageTextContains('Please download and print the receipt that is generated. You will need to send a printed copy to the contributor.');
+  }
+
+  /**
+   * This is identical to testIssueTaxReceipt() but we use email method.
+   * We don't verify the PDF here.
+   */
+  public function testIssueTaxReceiptEmail() {
+    $this->setDeliveryMethod(CDNTAX_DELIVERY_PRINT_EMAIL);
+    $this->testIssueTaxReceipt();
+    $this->assertSession()->pageTextContains('The receipt will be sent by email to the contributor (anthony.anderson@example.org).');
+    $this->assertSession()->pageTextContains('Tax Receipt has been emailed to the contributor.');
+  }
+
 }

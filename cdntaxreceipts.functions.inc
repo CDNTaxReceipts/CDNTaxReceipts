@@ -1163,7 +1163,16 @@ function cdntaxreceipts_openCollectedPDF() {
 
 function cdntaxreceipts_sendCollectedPDF(&$pdf, $filename) {
   if ( $pdf->getNumPages() > 0 ) {
-    $pdf->Output($filename, 'D');
+    if (defined('CIVICRM_TEST')) {
+      // Put it in uploadDir the same as the other places we put a file, then
+      // the tests can pick it up and do whatever with it. It would be better
+      // if there was a way to pass the full $filename to the tests or have
+      // the tests provide it, but it means refactoring a bit.
+      $pdf->Output(CRM_Core_Config::singleton()->uploadDir . 'test.pdf', 'F');
+    }
+    else {
+      $pdf->Output($filename, 'D');
+    }
     CRM_Utils_System::civiExit();
   }
   else {
