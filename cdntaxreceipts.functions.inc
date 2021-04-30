@@ -311,6 +311,10 @@ function _cdntaxreceipts_writePage(&$f, $pdf_variables, $receipt) {
   // If there's a custom function to write the page, invoke it.
   // Otherwise, provide a default receipt format.
   //
+  // return array(TRUE) from the hook if you are completely replacing the
+  // default implementation, otherwise return anything that isn't an array
+  // if you want the default implementation to still write after yours.
+  //
   // Note: if hook_cdntaxreceipts_writeReceipt is implemented in more than one active
   // module/extension, the receipt will get written into the PDF file multiple
   // times. It's one peril of using the hook system here. Implementers will need to catch
