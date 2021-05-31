@@ -1,11 +1,9 @@
 <?php
-namespace Cdntaxreceipts\Tests\Mink;
+namespace Civi\Cdntaxreceipts\Tests\Mink;
 
-// This feels awkward, but the extension and civi aren't installed yet, so the
-// autoloader at the time this gets compiled won't be able to find it since
-// it's within our extension. Or at least that seems like what's happening.
-require_once 'CdntaxreceiptsBase.php';
-
+/**
+ * @group mink
+ */
 class IssueTest extends CdntaxreceiptsBase {
 
   /**

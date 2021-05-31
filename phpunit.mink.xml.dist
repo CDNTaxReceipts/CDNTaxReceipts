@@ -5,7 +5,7 @@
  https://www.drupal.org/node/2116263 for details.
 -->
 <phpunit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         bootstrap="../../../../../../../web/core/tests/bootstrap.php"
+         bootstrap="tests/phpunit/bootstrap.mink.php"
          colors="true"
          beStrictAboutTestsThatDoNotTestAnything="true"
          beStrictAboutOutputDuringTests="true"

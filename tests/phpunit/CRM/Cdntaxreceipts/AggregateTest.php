@@ -1,6 +1,4 @@
 <?php
-// @todo fix autoloading in this extension - something is off
-require_once 'Base.php';
 
 /**
  * @group headless
