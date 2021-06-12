@@ -138,11 +138,15 @@ class CdntaxreceiptsBase extends CiviCrmTestBase {
    * but otherwise it should be identical to one we're expecting.
    * @param string $class The fully qualified class name.
    * @param string $func The function name. Who called us.
+   * @param string $expectedFileName Something like 'Receipt-C-00000001.pdf' or
+   *   leave out for some tests where it has a timestamp because then it's not
+   *   possible to know, so cdntax has to do some fudging for us.
+   *
    */
-  protected function assertExpectedPDF(string $class, string $func) {
+  protected function assertExpectedPDF(string $class, string $func, string $expectedFileName = 'test.pdf') {
     // Replace windows backslashes.
-    $pdf_file = str_replace('\\', '/', \CRM_Core_Config::singleton()->uploadDir . 'test.pdf');
-    $this->assertTrue(file_exists($pdf_file));
+    $pdf_file = str_replace('\\', '/', \CRM_Core_Config::singleton()->uploadDir . $expectedFileName);
+    $this->assertTrue(file_exists($pdf_file), "$pdf_file does not exist");
     $new_name = str_replace('\\', '/', $this->getBrowserOutputDirectory()) . 'Receipts-To-Print-' . \CRM_Cdntaxreceipts_Utils_Time::time() . '.pdf';
     $this->assertTrue(rename($pdf_file, $new_name), "Can't rename $pdf_file to $new_name");
     $this->fudgePDFFile($new_name);
