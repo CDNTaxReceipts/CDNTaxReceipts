@@ -3,7 +3,7 @@
 /**
  * @group headless
  */
-class CRM_Cdntaxreceipts_AggregateTest extends CRM_Cdntaxreceipts_Base {
+class CRM_Cdntaxreceipts_AnnualTest extends CRM_Cdntaxreceipts_Base {
 
   public function tearDown(): void {
     $this->_tablesToTruncate = [
@@ -14,12 +14,12 @@ class CRM_Cdntaxreceipts_AggregateTest extends CRM_Cdntaxreceipts_Base {
   }
 
   /**
-   * Test aggregate receipts.
-   * @dataProvider aggregateProvider
+   * Test annual receipts.
+   * @dataProvider annualProvider
    * @param array $input
    * @param array $expected
    */
-  public function testAggregate(array $input, array $expected) {
+  public function testAnnual(array $input, array $expected) {
     // set up mock time
     $mock_time = '2021-01-02 10:11:12';
     \CRM_Cdntaxreceipts_Utils_Time::setTime($mock_time);
@@ -40,7 +40,7 @@ class CRM_Cdntaxreceipts_AggregateTest extends CRM_Cdntaxreceipts_Base {
       ])['id'];
     }
 
-    // issue some receipts for the totals
+    // issue some receipts
     $receiptsForPrintingPDF = cdntaxreceipts_openCollectedPDF();
     $counter = 0;
     foreach ($input['grouped'] as $contact_index => $contributionList) {
@@ -51,11 +51,9 @@ class CRM_Cdntaxreceipts_AggregateTest extends CRM_Cdntaxreceipts_Base {
       }
 
       // issue receipt for this contact
-      $status = cdntaxreceipts_issueAggregateTaxReceipt(
+      $status = cdntaxreceipts_issueAnnualTaxReceipt(
         $contact[$contact_index],
         '2020',
-        $input['grouped'][$contact_index],
-        'print',
         $receiptsForPrintingPDF,
         FALSE
       );
@@ -92,10 +90,10 @@ class CRM_Cdntaxreceipts_AggregateTest extends CRM_Cdntaxreceipts_Base {
   }
 
   /**
-   * Dataprovider for testAggregate.
+   * Dataprovider for testAnnual.
    * @return array
    */
-  public function aggregateProvider(): array {
+  public function annualProvider(): array {
     return [
       0 => [
         'input' => [
@@ -160,7 +158,7 @@ class CRM_Cdntaxreceipts_AggregateTest extends CRM_Cdntaxreceipts_Base {
             'receipt_no' => 'C-00000001',
             'receipt_amount' => '30.00',
             'is_duplicate' => '0',
-            'issue_type' => 'aggregate',
+            'issue_type' => 'annual',
             'issue_method' => 'print',
             'receipt_status' => 'issued',
           ],
@@ -170,7 +168,7 @@ class CRM_Cdntaxreceipts_AggregateTest extends CRM_Cdntaxreceipts_Base {
             'receipt_no' => 'C-00000003',
             'receipt_amount' => '40.00',
             'is_duplicate' => '0',
-            'issue_type' => 'aggregate',
+            'issue_type' => 'annual',
             'issue_method' => 'print',
             'receipt_status' => 'issued',
           ],
@@ -240,7 +238,7 @@ class CRM_Cdntaxreceipts_AggregateTest extends CRM_Cdntaxreceipts_Base {
             'receipt_no' => 'C-00000001',
             'receipt_amount' => '10.00',
             'is_duplicate' => '0',
-            'issue_type' => 'aggregate',
+            'issue_type' => 'annual',
             'issue_method' => 'print',
             'receipt_status' => 'issued',
           ],
@@ -250,7 +248,7 @@ class CRM_Cdntaxreceipts_AggregateTest extends CRM_Cdntaxreceipts_Base {
             'receipt_no' => 'C-00000003',
             'receipt_amount' => '40.00',
             'is_duplicate' => '0',
-            'issue_type' => 'aggregate',
+            'issue_type' => 'annual',
             'issue_method' => 'print',
             'receipt_status' => 'issued',
           ],
