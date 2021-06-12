@@ -1,8 +1,11 @@
 <?php
-namespace Cdntaxreceipts\Tests\Mink;
+namespace Civi\Cdntaxreceipts\Tests\Mink;
 
 use Drupal\Tests\civicrm\FunctionalJavascript\CiviCrmTestBase;
 
+/**
+ * @group mink
+ */
 class CdntaxreceiptsBase extends CiviCrmTestBase {
 
   use \Drupal\Tests\mink_civicrm_helpers\Traits\Utils;
@@ -126,7 +129,7 @@ class CdntaxreceiptsBase extends CiviCrmTestBase {
    * @return string
    */
   protected function getFixtureFileFor(string $class, string $func, $type = '.pdf') {
-    return str_replace('\\', '/', __DIR__) . '/fixtures/' . preg_replace('/[^a-zA-Z0-9_]/', '_', "{$class}{$func}") . $type;
+    return str_replace('\\', '/', __DIR__) . '/../../../../fixtures/' . preg_replace('/[^a-zA-Z0-9_]/', '_', "{$class}{$func}") . $type;
   }
 
   /**

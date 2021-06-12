@@ -1,8 +1,9 @@
 <?php
-namespace Cdntaxreceipts\Tests\Mink;
+namespace Civi\Cdntaxreceipts\Tests\Mink;
 
-require_once 'CdntaxreceiptsBase.php';
-
+/**
+ * @group mink
+ */
 class AggregateTest extends CdntaxreceiptsBase {
 
   /**
