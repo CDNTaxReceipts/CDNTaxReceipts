@@ -7,5 +7,30 @@
         "civicrm": "dev-master"
       }
     ]
+  },
+  "periodic": {
+    "MyWeekly": {
+      "cronSpec": "30 3 * * *",
+      "testType": "all",
+      "matrix": {
+        "include": [
+          {
+            "php-versions": "CIVICARROT_PHP_SENSIBLE",
+            "drupal": "CIVICARROT_DRUPAL_LATEST",
+            "civicrm": "dev-master"
+          },
+          {
+            "php-versions": "CIVICARROT_PHP_SENSIBLE",
+            "drupal": "CIVICARROT_DRUPAL_LATEST",
+            "civicrm": "CIVICARROT_CIVI_RELEASECANDIDATE"
+          },
+          {
+            "php-versions": "CIVICARROT_PHP_SENSIBLE",
+            "drupal": "CIVICARROT_DRUPAL_LATEST",
+            "civicrm": "CIVICARROT_CIVI_LATEST"
+          }
+        ]
+      }
+    }
   }
 }
