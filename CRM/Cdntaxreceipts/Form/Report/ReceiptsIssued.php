@@ -124,7 +124,7 @@ class CRM_Cdntaxreceipts_Form_Report_ReceiptsIssued extends CRM_Report_Form {
             'default' => FALSE,
             'type' => CRM_Utils_Type::T_STRING,
             // look up words in alterDisplay
-            'dbAlias' => "GROUP_CONCAT(DISTINCT line_item_civireport.financial_type_id ORDER BY line_item_civireport.contribution_id SEPARATOR ',')",
+            'dbAlias' => "GROUP_CONCAT(DISTINCT line_item_civireport.financial_type_id ORDER BY line_item_civireport.contribution_id, line_item_civireport.financial_type_id SEPARATOR ',')",
           ),
         ),
         'filters' => array(),
@@ -138,7 +138,7 @@ class CRM_Cdntaxreceipts_Form_Report_ReceiptsIssued extends CRM_Report_Form {
             'default' => FALSE,
             'type' => CRM_Utils_Type::T_STRING,
             // look up words in alterDisplay
-            'dbAlias' => "GROUP_CONCAT(DISTINCT contribution_civireport.payment_instrument_id ORDER BY contribution_civireport.id SEPARATOR ',')",
+            'dbAlias' => "GROUP_CONCAT(DISTINCT contribution_civireport.payment_instrument_id ORDER BY contribution_civireport.id, contribution_civireport.payment_instrument_id SEPARATOR ',')",
           ),
         ),
         'filters' => array(
