@@ -103,7 +103,7 @@ class ReceiptsIssuedReportTest extends CdntaxreceiptsBase {
     $this->assertPageHasNoErrorMessages();
 
     $this->assertSession()->pageTextContains('Financial Type (current value)');
-    $this->assertSession()->pageTextContains('Event Fee, Donation');
+    $this->assertSession()->pageTextContains('Donation, Event Fee');
     $this->assertSession()->pageTextContains('Payment Method (current value)');
     $this->assertSession()->pageTextContains('Check');
     // Amount should only be the donation part
