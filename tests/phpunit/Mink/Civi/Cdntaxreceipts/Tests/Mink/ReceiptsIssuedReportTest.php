@@ -14,6 +14,9 @@ class ReceiptsIssuedReportTest extends CdntaxreceiptsBase {
 
   public function setUp(): void {
     parent::setUp();
+    if (!\CRM_Core_BAO_Domain::isDBVersionAtLeast('5.43.alpha1')) {
+      $this->markTestIncomplete('Test requires E_NOTICE fix that is only in 5.43+');
+    }
     $this->createUserAndLogIn();
     $this->contact = $this->createContact();
     $this->setDeliveryMethod(CDNTAX_DELIVERY_PRINT_ONLY);
