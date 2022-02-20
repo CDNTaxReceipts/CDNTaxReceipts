@@ -47,6 +47,12 @@ cj(document).ready(
         <td class="label">Email Opened</td>
         <td>{$receipt.email_opened|crmDate}</td>
     </tr>
+    <tr>
+        <td class="label">{ts domain='org.civicrm.cdntaxreceipts'}Location Issued{/ts}</td>
+        <td>{$receipt.location_issued|escape}</td>
+        <td class="label"></td>
+        <td></td>
+    </tr>
 </table>
 {/if}
 

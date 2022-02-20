@@ -132,7 +132,7 @@ function cdntaxreceipts_load_receipt($receipt_id) {
     return $receipt;
   }
 
-  $sql = "SELECT l.id, l.receipt_no, l.issued_on, l.contact_id, l.receipt_amount as total_receipt,
+  $sql = "SELECT l.id, l.receipt_no, l.issued_on, l.location_issued, l.contact_id, l.receipt_amount as total_receipt,
         l.is_duplicate, l.uid, l.ip, l.issue_type, l.issue_method, l.receipt_status,
         l.email_tracking_id, l.email_opened,
         c.contribution_id, c.contribution_amount, c.receipt_amount, c.receive_date
@@ -148,6 +148,7 @@ function cdntaxreceipts_load_receipt($receipt_id) {
       'id' => $dao->id,
       'receipt_no' => $dao->receipt_no,
       'issued_on' => date('Y-m-d H:i:s', $dao->issued_on),
+      'location_issued' => $dao->location_issued,
       'contact_id' => $dao->contact_id,
       'receipt_amount' => $dao->total_receipt,
       'is_duplicate' => $dao->is_duplicate,
@@ -206,10 +207,11 @@ function cdntaxreceipts_log($receipt) {
     9 => array( $receipt['issue_method'], 'String' ),
     10 => array( $receipt['receipt_status'], 'String' ),
     11 => array( $receipt['email_tracking_id'], 'String' ),
+    12 => array( $receipt['location_issued'], 'String' ),
   );
   $sql = "INSERT INTO cdntaxreceipts_log (receipt_no, issued_on, contact_id, receipt_amount,
-    is_duplicate, uid, ip, issue_type, issue_method, receipt_status, email_tracking_id)
-      VALUES (%1, %2, %3, %4, %5, %6, %7, %8, %9, %10, %11)";
+    is_duplicate, uid, ip, issue_type, issue_method, receipt_status, email_tracking_id, location_issued)
+      VALUES (%1, %2, %3, %4, %5, %6, %7, %8, %9, %10, %11, %12)";
   $result = CRM_Core_DAO::executeQuery($sql, $params);
   if (is_a($result, 'DB_Error')) {
     return FALSE;

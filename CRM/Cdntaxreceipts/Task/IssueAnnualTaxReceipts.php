@@ -24,6 +24,8 @@ class CRM_Cdntaxreceipts_Task_IssueAnnualTaxReceipts extends CRM_Contact_Form_Ta
       CRM_Core_Error::fatal(ts('You do not have permission to access this page', array('domain' => 'org.civicrm.cdntaxreceipts')));
     }
 
+    _cdntaxreceipts_check_requirements();
+
     parent::preProcess();
 
     $thisYear = date("Y");

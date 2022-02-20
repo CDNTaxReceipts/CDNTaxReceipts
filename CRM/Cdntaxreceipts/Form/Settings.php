@@ -62,7 +62,10 @@ class CRM_Cdntaxreceipts_Form_Settings extends CRM_Core_Form {
       $this->add('text', 'org_email', ts('Email', array('domain' => 'org.civicrm.cdntaxreceipts')));
       $this->add('text', 'org_web', ts('Website', array('domain' => 'org.civicrm.cdntaxreceipts')));
       $this->add('text', 'org_charitable_no', ts('Charitable Registration Number', array('domain' => 'org.civicrm.cdntaxreceipts')));
+      $this->add('text', 'receipt_location_issued', ts('Location Issued', array('domain' => 'org.civicrm.cdntaxreceipts')));
 
+      // @todo: Do we need to do this - can't we just use the `required` param in add() above?
+      // If we do need to do this, shouldn't the labels be ts'd?
       $this->addRule('org_name', 'Enter Organization Name', 'required');
       $this->addRule('org_address_line1', 'Enter Address Line 1', 'required');
       $this->addRule('org_address_line2', 'Enter Address Line 2', 'required');
@@ -70,6 +73,7 @@ class CRM_Cdntaxreceipts_Form_Settings extends CRM_Core_Form {
       $this->addRule('org_email', 'Enter Email', 'required');
       $this->addRule('org_web', 'Enter Website', 'required');
       $this->addRule('org_charitable_no', 'Enter Charitable Number', 'required');
+      $this->addRule('receipt_location_issued', 'Location Issued', 'required');
     }
     else if ( $mode == 'defaults' ) {
       $defaults = array(
@@ -85,6 +89,7 @@ class CRM_Cdntaxreceipts_Form_Settings extends CRM_Core_Form {
         'receipt_watermark' => Civi::settings()->get('receipt_watermark'),
         'receipt_pdftemplate' => Civi::settings()->get('receipt_pdftemplate'),
         'org_charitable_no' => Civi::settings()->get('org_charitable_no'),
+        'receipt_location_issued' => Civi::settings()->get('receipt_location_issued'),
       );
       return $defaults;
     }
@@ -98,6 +103,7 @@ class CRM_Cdntaxreceipts_Form_Settings extends CRM_Core_Form {
       Civi::settings()->set('org_email', $values['org_email']);
       Civi::settings()->set('org_web', $values['org_web']);
       Civi::settings()->set('org_charitable_no', $values['org_charitable_no']);
+      Civi::settings()->set('receipt_location_issued', $values['receipt_location_issued']);
     }
 
   }

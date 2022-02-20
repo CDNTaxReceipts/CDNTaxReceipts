@@ -24,6 +24,7 @@ class CRM_Cdntaxreceipts_Base extends \CiviUnitTestCase {
       'receipt_prefix' => 'C-',
       'receipt_serial' => 0,
       'receipt_authorized_signature_text' => 'Receet Sighnor',
+      'receipt_location_issued' => 'Toronto',
       'issue_inkind' => 0,
       'delivery_method' => CDNTAX_DELIVERY_DATA_ONLY,
       'attach_to_workflows' => 0,

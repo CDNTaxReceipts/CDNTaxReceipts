@@ -16,6 +16,7 @@ class CustomTemplateTest extends CdntaxreceiptsBase {
     parent::setUp();
     $this->createUserAndLogIn();
     $this->contact = $this->createContact();
+    \Civi::settings()->set('receipt_location_issued', 'Calgary');
   }
 
   public function testCustomTemplate() {

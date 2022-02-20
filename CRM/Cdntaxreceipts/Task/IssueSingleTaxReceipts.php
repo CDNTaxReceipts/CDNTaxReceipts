@@ -25,6 +25,8 @@ class CRM_Cdntaxreceipts_Task_IssueSingleTaxReceipts extends CRM_Contribute_Form
       CRM_Core_Error::fatal(ts('You do not have permission to access this page', array('domain' => 'org.civicrm.cdntaxreceipts')));
     }
 
+    _cdntaxreceipts_check_requirements();
+
     parent::preProcess();
 
     $receipts = array( 'original'  => array('email' => 0, 'print' => 0, 'data' => 0),

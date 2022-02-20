@@ -263,6 +263,7 @@ function cdntaxreceipts_generateFormattedReceipt($receipt, &$collectedPdf = NULL
     "display_date" => $display_date,
     "display_year" => $display_year,
     "issued_on" => date('Y-m-d', $receipt['issued_on']),
+    "location_issued" => _cdntaxreceipts_get_location(),
     "issue_type" => $receipt['issue_type'],
     "receipt_number" => $receipt['receipt_no'],
     "displayname" => $displayname,
@@ -341,6 +342,7 @@ function _cdntaxreceipts_writePage(&$f, $pdf_variables, $receipt) {
 function _cdntaxreceipts_writeReceipt(&$pdf, $pdf_variables) {
 
   // Extract variables
+  // @todo Why do we do this?
   $mode = $pdf_variables["mode"];
   $mymargin_left = $pdf_variables["mymargin_left"];
   $mymargin_top = $pdf_variables["mymargin_top"];
@@ -351,6 +353,7 @@ function _cdntaxreceipts_writeReceipt(&$pdf, $pdf_variables) {
   $amount = $pdf_variables["amount"];
   $display_date = $pdf_variables["display_date"];
   $issued_on = $pdf_variables["issued_on"];
+  $location_issued = $pdf_variables["location_issued"];
   $receipt_number = $pdf_variables["receipt_number"];
   $displayname = $pdf_variables["displayname"];
   $address_line_1 = $pdf_variables["address_line_1"];
@@ -429,6 +432,8 @@ function _cdntaxreceipts_writeReceipt(&$pdf, $pdf_variables) {
   $pdf->Write(10, ts("Received on: %1", array(1 => $display_date, 'domain' => 'org.civicrm.cdntaxreceipts')));
   $pdf->SetXY($mymargin_left + $x_detailscolumn, $mymargin_top + $y_detailscolumnstart + 18);
   $pdf->Write(10, ts("Eligible Amount:  $%1", array(1 => number_format($amount, 2), 'domain' => 'org.civicrm.cdntaxreceipts')));
+  $pdf->SetXY($mymargin_left + $x_detailscolumn, $mymargin_top + $y_detailscolumnstart + 24);
+  $pdf->Write(10, ts("Location Issued: %1", array(1 => $location_issued, 'domain' => 'org.civicrm.cdntaxreceipts')));
   $pdf->SetXY($mymargin_left + $x_detailscolumn, $mymargin_top + $y_detailscolumnstart + 34);
 
   if ($issue_type == 'annual') {
@@ -740,6 +745,7 @@ function cdntaxreceipts_issueTaxReceipt($contribution, &$collectedPdf = NULL, $m
   $receipt = array(
     'receipt_no' => $receipt_no,
     'issued_on' => CRM_Cdntaxreceipts_Utils_Time::time(),
+    'location_issued' => _cdntaxreceipts_get_location(),
     'contact_id' => $contribution->contact_id,
     'receipt_amount' => cdntaxreceipts_eligibleAmount($contribution->id),
     'is_duplicate' => $is_duplicate,
@@ -924,6 +930,7 @@ function cdntaxreceipts_issueAnnualTaxReceipt( $contactId, $year, &$collectedPdf
       $method = 'print';
     }
     $receipt['issued_on'] = CRM_Cdntaxreceipts_Utils_Time::time();
+    $receipt['location_issued'] = _cdntaxreceipts_get_location();
     $receipt['is_duplicate'] = 1;
     $receipt['receive_date'] = $year;
     $receipt['issue_method'] = $method;
@@ -956,6 +963,7 @@ function cdntaxreceipts_issueAnnualTaxReceipt( $contactId, $year, &$collectedPdf
     $receipt = array(
       'receipt_no' => $receiptNo,
       'issued_on' => CRM_Cdntaxreceipts_Utils_Time::time(),
+      'location_issued' => _cdntaxreceipts_get_location(),
       'contact_id' => $contactId,
       'receipt_amount' => $totalReceipt,
       'is_duplicate' => 0,
@@ -1031,6 +1039,7 @@ function cdntaxreceipts_issueAggregateTaxReceipt($contactId, $year, $contributio
       $method = 'print';
     }
     $receipt['issued_on'] = CRM_Cdntaxreceipts_Utils_Time::time();
+    $receipt['location_issued'] = _cdntaxreceipts_get_location();
     $receipt['is_duplicate'] = 1;
     $receipt['issue_method'] = $method;
     $receipt['receive_date'] = $year;
@@ -1056,6 +1065,7 @@ function cdntaxreceipts_issueAggregateTaxReceipt($contactId, $year, $contributio
     $receipt = array(
       'receipt_no' => $receiptNo,
       'issued_on' => CRM_Cdntaxreceipts_Utils_Time::time(),
+      'location_issued' => _cdntaxreceipts_get_location(),
       'contact_id' => $contactId,
       'receipt_amount' => $totalReceipt,
       'is_duplicate' => 0,
@@ -1374,4 +1384,29 @@ function _cdntaxreceipts_custom_field_exists($custom_group_id, $field_label) {
   );
   $result = civicrm_api('custom_field', 'get', $params);
   return ($result['count'] != 0);
+}
+
+/**
+ * Get the issuing city, but bounce if not set.
+ * @return string
+ */
+function _cdntaxreceipts_get_location(): string {
+  $city = \Civi::settings()->get('receipt_location_issued');
+  if (empty($city)) {
+    CRM_Core_Error::statusBounce(
+      ts('Location Issued is not set. Please set it under Administer - CiviContribute - CDN Tax Receipts.', array('domain' => 'org.civicrm.cdntaxreceipts')),
+      CRM_Utils_System::url('civicrm/cdntaxreceipts/settings', 'reset=1')
+    );
+  }
+  return $city;
+}
+
+/**
+ * On upgrade, it may not always be possible to set a new setting to a sane
+ * value, or some similar issue. So on relevant pages we should call this to
+ * run some checks and statusBounce if not good to go.
+ */
+function _cdntaxreceipts_check_requirements(): void {
+  // At the moment this is all we do...
+  _cdntaxreceipts_get_location();
 }
