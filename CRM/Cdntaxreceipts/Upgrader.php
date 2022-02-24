@@ -83,6 +83,7 @@ issue_method varchar(16) NULL COMMENT 'The send method (email or print).',
 receipt_status varchar(10) DEFAULT 'issued' COMMENT 'The status of the receipt (issued or cancelled)',
 email_tracking_id varchar(64) NULL COMMENT 'A unique id to track email opens.',
 email_opened datetime NULL COMMENT 'Timestamp an email open event was detected.',
+location_issued varchar(32) NOT NULL DEFAULT '' COMMENT 'City where receipt was issued.',
 PRIMARY KEY (id),
 INDEX contact_id (contact_id),
 INDEX receipt_no (receipt_no)
@@ -180,6 +181,16 @@ AND COLUMN_NAME = 'receipt_status'");
         Civi::settings()->set($fileSettingName, basename($path));
       }
     }
+    return TRUE;
+  }
+
+  /**
+   * Add location issued column
+   */
+  public function upgrade_1412() {
+    $this->ctx->log->info('Applying update 1412: add location issued column');
+    // We don't extend the incremental base class, so we can't add a task and need to call directly.
+    CRM_Upgrade_Incremental_Base::addColumn($this->ctx, 'cdntaxreceipts_log', 'location_issued', "varchar(32) NOT NULL DEFAULT '' COMMENT 'City where receipt was issued.'");
     return TRUE;
   }
 

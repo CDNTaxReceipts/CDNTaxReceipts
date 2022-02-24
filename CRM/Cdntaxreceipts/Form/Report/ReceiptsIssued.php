@@ -43,6 +43,7 @@ class CRM_Cdntaxreceipts_Form_Report_ReceiptsIssued extends CRM_Report_Form {
         'fields' =>
         array(
           'issued_on' => array('title' => 'Issued On', 'default' => TRUE,'type' => CRM_Utils_Type::T_TIMESTAMP,),
+          'location_issued' => array('title' => 'Location Issued', 'default' => FALSE,),
           'receipt_amount' => array('title' => 'Receipt Amount', 'default' => TRUE, 'type' => CRM_Utils_Type::T_MONEY,),
           'receipt_no' => array('title' => 'Receipt No.', 'default' => TRUE),
           'issue_type' => array('title' => 'Issue Type', 'default' => TRUE),
@@ -59,6 +60,11 @@ class CRM_Cdntaxreceipts_Form_Report_ReceiptsIssued extends CRM_Report_Form {
             'title' => 'Issued On',
             'type' => CRM_Utils_Type::T_TIMESTAMP,
             'operatorType' => CRM_Report_Form::OP_DATE),
+          'location_issued' =>
+          array(
+            'title' => 'Location Issued',
+            'type' => CRM_Utils_Type::T_STRING,
+          ),
           'issue_type' =>
             array(
               'title' => ts('Issue Type'),

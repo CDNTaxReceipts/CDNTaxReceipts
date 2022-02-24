@@ -44,6 +44,11 @@
         <td class="content">{$form.org_charitable_no.html}
           <p class="description">10000-000-RR0000</p></td>
       </tr>
+      <tr>
+        <td class="label">{$form.receipt_location_issued.label}</td>
+        <td class="content">{$form.receipt_location_issued.html}
+          <p class="description">Toronto</p></td>
+      </tr>
     </tbody>
   </table>
 

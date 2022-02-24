@@ -23,6 +23,9 @@ class CRM_Cdntaxreceipts_Form_ViewTaxReceipt extends CRM_Core_Form {
     if (!CRM_Core_Permission::check('access CiviContribute')) {
       CRM_Core_Error::fatal(ts('You do not have permission to access this page'));
     }
+
+    _cdntaxreceipts_check_requirements();
+
     parent::preProcess();
 
     $contributionId = CRM_Utils_Array::value('id', $_GET);

@@ -16,6 +16,7 @@ class AggregateTest extends CdntaxreceiptsBase {
     parent::setUp();
     $this->createUserAndLogIn();
     $this->contact = $this->createContact();
+    \Civi::settings()->set('receipt_location_issued', 'Toronto');
   }
 
   public function testAggregateTaxReceipt() {
@@ -68,6 +69,7 @@ class AggregateTest extends CdntaxreceiptsBase {
       0 => array(
         'id' => '1',
         'issued_on' => (string) strtotime($mock_time),
+        'location_issued' => 'Toronto',
         'receipt_no' => 'C-00000003',
         'contact_id' => (string) $contact2['id'],
         'receipt_amount' => '40.00',
@@ -79,6 +81,7 @@ class AggregateTest extends CdntaxreceiptsBase {
       1 => array(
         'id' => '2',
         'issued_on' => (string) strtotime($mock_time),
+        'location_issued' => 'Toronto',
         'receipt_no' => 'C-00000002',
         'contact_id' => (string) $this->contact['id'],
         'receipt_amount' => '30.00',
