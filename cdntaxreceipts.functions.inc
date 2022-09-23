@@ -573,18 +573,17 @@ function _cdntaxreceipts_writeReceipt(&$pdf, $pdf_variables) {
 function cdntaxreceipts_configure_inkind_fields() {
 
   // check if the In-kind contribution type exists.  if not, create it.
-  require_once 'CRM/Financial/DAO/FinancialType.php';
-  $dao = new CRM_Financial_DAO_FinancialType();
-  $dao->name = 'In-kind';
-
-  if ( ! $dao->find(true) ) {
-    $dao->name = 'In-kind';
-    $dao->is_deductible = TRUE;
-    $dao->is_active = TRUE;
-    $dao->save();
+  $inkind_financial_type = \Civi\Api4\FinancialType::get(FALSE)->addSelect('id')->addWhere('name', '=', 'In-kind')->execute()->first();
+  if (empty($inkind_financial_type)) {
+    $inkind_financial_type = \Civi\Api4\FinancialType::create(FALSE)
+      ->addValue('name', 'In-kind')
+      ->addValue('is_deductible', TRUE)
+      ->addValue('is_reserved', FALSE)
+      ->addValue('is_active', TRUE)
+      ->execute()->first();
   }
 
-  $contrib_type_id = $dao->id;
+  $contrib_type_id = $inkind_financial_type['id'];
 
   // check if the custom group exists.  if not, create it.
   $params = array(
