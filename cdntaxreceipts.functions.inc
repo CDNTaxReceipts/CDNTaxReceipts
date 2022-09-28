@@ -417,7 +417,7 @@ function _cdntaxreceipts_writeReceipt(&$pdf, $pdf_variables) {
   }
 
   // Right section
-  $x_detailscolumn = 120;
+  $x_detailscolumn = 116;
   $y_detailscolumnstart = 22;
   $pdf_template_file = _cdntaxreceipts_get_image_filepath('receipt_pdftemplate');
   if (empty($pdf_template_file)) {
@@ -435,28 +435,53 @@ function _cdntaxreceipts_writeReceipt(&$pdf, $pdf_variables) {
   $pdf->Write(10, ts("Eligible Amount:  $%1", array(1 => number_format($amount, 2), 'domain' => 'org.civicrm.cdntaxreceipts')));
   $pdf->SetXY($mymargin_left + $x_detailscolumn, $mymargin_top + $y_detailscolumnstart + 24);
   $pdf->Write(10, ts("Location Issued: %1", array(1 => $location_issued, 'domain' => 'org.civicrm.cdntaxreceipts')));
-  $pdf->SetXY($mymargin_left + $x_detailscolumn, $mymargin_top + $y_detailscolumnstart + 34);
+  $pdf->SetXY($mymargin_left + $x_detailscolumn, $mymargin_top + $y_detailscolumnstart + 30);
 
   if ($issue_type == 'annual') {
     $pdf->Write(10, ts("Thank you for giving in %1!", array( 1 => $display_year)));
-    // $pdf->Write(10, "Contribution(s): ");
-    // foreach ($receipt_contributions as $key => $value) {
-    //   $test = $receipt_contributions[$key]['contribution_id'];
-    //   $pdf->Write(10, $receipt_contributions[$key]['contribution_id'] . ' ');
-    // }
+  } else if ( !empty($inkind_values) ) {
+    // If this is an in-kind donation
+
+    $inkind_str = ts('Donation in-kind: %1', array(1 => $inkind_values[0], 'domain' => 'org.civicrm.cdntaxreceipts'));
+
+    if (!empty($inkind_values[3])) {
+      if ($inkind_values[3] < $amount) {
+          $inkind_str .= ' - ' . ts('Cost: %1', array(1 => $inkind_values[3], 'domain' => 'org.civicrm.cdntaxreceipts'));
+      }
+    }
+
+    $pdf->SetFont('Helvetica', 'B', 8);
+    $pdf->Write(10, $inkind_str, ' - ', 0, 'L', TRUE, 0, FALSE, FALSE, 0);
+
+    $appraiser = $inkind_values[1] . ' - '. $inkind_values[2];
+    $pdf->SetFont('Helvetica', 'B', 8);
+    $pdf->SetXY($mymargin_left + $x_detailscolumn, $mymargin_top + $y_detailscolumnstart + 36);
+
+    if (strlen($appraiser) < 42) {
+      $pdf->Write(10, ts("Appraiser: %1", array(1 => $appraiser, 'domain' => 'org.civicrm.cdntaxreceipts')));
+    }
+    else {
+      $appraiser_words = explode(" ", substr($appraiser, 0, 42));
+      $appraiser_lastbit = array_pop($appraiser_words);
+      $pdf->Write(10, ts("Appraiser: %1", array(1 => implode(" ", $appraiser_words), 'domain' => 'org.civicrm.cdntaxreceipts')));
+      $appraiser_count = count($appraiser_words);
+      $appraiser_nextline = array_splice(explode(" ", $appraiser), $appraiser_count);
+      $pdf->SetXY($mymargin_left + $x_detailscolumn + 16, $mymargin_top + $mymargin_top + $y_detailscolumnstart + 44);
+      $pdf->Write(10, implode(" ", $appraiser_nextline));
+    }
   }
-  else if (strlen($source_funds) < 36 && strlen($source_funds) > 0) {
+  else if (strlen($source_funds) < 42 && strlen($source_funds) > 0) {
     $pdf->Write(10, $source_funds);
   }
   else if (strlen($source_funds) > 0) {
-    $source_funds_words = explode(" ", substr($source_funds, 0, 36));
+    $source_funds_words = explode(" ", substr($source_funds, 0, 42));
     $source_funds_lastbit = array_pop($source_funds_words);
     $pdf->Write(10, implode(" ", $source_funds_words));
     $source_funds_count = count($source_funds_words);
     // $source_funds_nextline = array_splice(explode(" ", $source_funds), $source_funds_count);
     $exploded = explode(" ", $source_funds);
     $source_funds_nextline = array_splice($exploded, $source_funds_count);
-    $pdf->SetXY($mymargin_left + $x_detailscolumn + 16, $mymargin_top + $y_detailscolumnstart + 38);
+    $pdf->SetXY($mymargin_left + $x_detailscolumn + 16, $mymargin_top + $y_detailscolumnstart + 34);
     $pdf->Write(10, implode(" ", $source_funds_nextline));
   }
 
@@ -490,40 +515,6 @@ function _cdntaxreceipts_writeReceipt(&$pdf, $pdf_variables) {
     $pdf->Write(10, strtoupper($address_line_2), '', 0, 'L', TRUE, 0, FALSE, FALSE, 0);
     $pdf->SetXY($mymargin_left+10, $mymargin_top + $y_detailscolumnstart + 36);
     $pdf->Write(10, strtoupper($address_line_3), '', 0, 'L', TRUE, 0, FALSE, FALSE, 0);
-  }
-
-  // If this is an in-kind donation
-  if ( !empty($inkind_values) ) {
-
-    $inkind_str = ts('Donation in-kind: %1', array(1 => $inkind_values[0], 'domain' => 'org.civicrm.cdntaxreceipts'));
-
-    if (!empty($inkind_values[3])) {
-      if ($inkind_values[3] < $amount) {
-          $inkind_str .= ' - ' . ts('Cost: %1', array(1 => $inkind_values[3], 'domain' => 'org.civicrm.cdntaxreceipts'));
-      }
-    }
-
-    $pdf->SetFont('Helvetica', '', 8);
-    $pdf->SetY($mymargin_top + 68);
-    $pdf->Write(10, $inkind_str, ' - ', 0, 'L', TRUE, 0, FALSE, FALSE, 0);
-
-    $appraiser = $inkind_values[1] . ' - '. $inkind_values[2];
-    $pdf->SetFont('Helvetica', 'B', 8);
-    $pdf->SetXY($mymargin_left + $x_detailscolumn, $mymargin_top + $y_detailscolumnstart + 24);
-
-    if (strlen($appraiser) < 36) {
-      $pdf->Write(10, ts("Appraiser: %1", array(1 => $appraiser, 'domain' => 'org.civicrm.cdntaxreceipts')));
-    }
-    else {
-      $appraiser_words = explode(" ", substr($appraiser, 0, 36));
-      $appraiser_lastbit = array_pop($appraiser_words);
-      $pdf->Write(10, ts("Appraiser: %1", array(1 => implode(" ", $appraiser_words), 'domain' => 'org.civicrm.cdntaxreceipts')));
-      $appraiser_count = count($appraiser_words);
-      $appraiser_nextline = array_splice(explode(" ", $appraiser), $appraiser_count);
-      $pdf->SetXY($mymargin_left + $x_detailscolumn + 16, $mymargin_top + $y_detailscolumnstart + 28);
-      $pdf->Write(10, implode(" ", $appraiser_nextline));
-    }
-
   }
 
   // Bottom left section
