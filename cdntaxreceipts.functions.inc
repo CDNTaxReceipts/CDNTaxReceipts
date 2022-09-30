@@ -746,11 +746,8 @@ function cdntaxreceipts_issueTaxReceipt($contribution, &$collectedPdf = NULL, $m
     'inkind_values' => $inkind_values,
     'receipt_status' => ($is_duplicate && isset($receipt)) ? $receipt['receipt_status'] : 'issued',
     'email_tracking_id' => md5(uniqid(rand(), TRUE)),
+    'source' => _cdntaxreceipts_get_contribution_source($contribution),
   );
-
-  if ( $contribution->source != '' ) {
-    $receipt['source'] = 'Source: ' . $contribution->source;
-  }
 
   $receipt['contributions'] = array(
     array(
@@ -1400,4 +1397,34 @@ function _cdntaxreceipts_get_location(): string {
 function _cdntaxreceipts_check_requirements(): void {
   // At the moment this is all we do...
   _cdntaxreceipts_get_location();
+}
+
+/**
+ * Based on configuration, either return the source field, a custom field,
+ * or nothing. Fancier customization can be done in
+ * hook_cdntaxreceipts_alter_receipt.
+ * @param CRM_Core_DAO_Contribution $contribution
+ * @return string
+ */
+function _cdntaxreceipts_get_contribution_source($contribution): string {
+  $setting = \Civi::settings()->get('cdntaxreceipts_source_field') ?? '';
+  if ($setting === '') {
+    return '';
+  }
+  $source = '';
+
+  // @todo do we want to allow smarty and/or html
+  $tokenProcessor = new \Civi\Token\TokenProcessor(\Civi::dispatcher(), ['smarty' => FALSE, 'schema' => ['contactId', 'contributionId']]);
+  $tokenProcessor->addMessage('source', $setting, 'text/plain');
+  $tokenProcessor->addRow(['contactId' => $contribution->contact_id, 'contributionId' => $contribution->id]);
+  $tokenProcessor->evaluate();
+  foreach ($tokenProcessor->getRows() as $row) {
+    $source = $row->render('source');
+  }
+  if ($source === '') {
+    return '';
+  }
+  $source_label = \Civi::settings()->get('cdntaxreceipts_source_label_' . CRM_Core_I18n::getLocale()) ?? '';
+  // Note this requires putting the spacing into the setting, but I don't see how else to make translation-friendly, e.g. English is "Source: " but French puts a space before the colon.
+  return $source_label . $source;
 }
