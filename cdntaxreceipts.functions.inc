@@ -466,7 +466,7 @@ function _cdntaxreceipts_writeReceipt(&$pdf, $pdf_variables) {
       $pdf->Write(10, ts("Appraiser: %1", array(1 => implode(" ", $appraiser_words), 'domain' => 'org.civicrm.cdntaxreceipts')));
       $appraiser_count = count($appraiser_words);
       $appraiser_nextline = array_splice(explode(" ", $appraiser), $appraiser_count);
-      $pdf->SetXY($mymargin_left + $x_detailscolumn + 16, $mymargin_top + $mymargin_top + $y_detailscolumnstart + 44);
+      $pdf->SetXY($mymargin_left + $x_detailscolumn + 8, $mymargin_top + $y_detailscolumnstart + 42);
       $pdf->Write(10, implode(" ", $appraiser_nextline));
     }
   }
