@@ -111,9 +111,8 @@ class CRM_Cdntaxreceipts_MessageTemplateTest extends CRM_Cdntaxreceipts_Base {
     $this->assertStringContainsString('From: FIXME <info@EXAMPLE.ORG>', $msgs[1]);
     $this->assertStringContainsString('To: "Mr. Joe Miller II" <joe_miller@civicrm.org>', $msgs[1]);
     $this->assertStringContainsString('Subject: Receipt - Contribution - Mr. Joe Miller II', $msgs[1]);
-    // @todo - is this a bug in cdntax? Why does it start with forward '/'?
-    $this->assertStringContainsString("Content-Type: application/pdf;\n name=\"/Receipt-C-00000001.pdf\"", $msgs[1]);
-    $this->assertStringContainsString("Content-Disposition: attachment;\n filename=\"/Receipt-C-00000001.pdf\";", $msgs[1]);
+    $this->assertStringContainsString("Content-Type: application/pdf;\n name=\"Receipt-C-00000001.pdf\"", $msgs[1]);
+    $this->assertStringContainsString("Content-Disposition: attachment;\n filename=\"Receipt-C-00000001.pdf\";", $msgs[1]);
 
     \Civi::settings()->set('attach_to_workflows', FALSE);
   }
