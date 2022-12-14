@@ -237,7 +237,7 @@ function cdntaxreceipts_generateFormattedReceipt($receipt, &$collectedPdf = NULL
     $donor_or_org_name = '-' . CRM_Utils_File::makeFilenameWithUnicode($displayname);
   }
   if ($receipt['issue_method'] == 'email') {
-    $donor_or_org_name = '-' . Civi::settings()->get('org_name') . '-Donation';
+    $donor_or_org_name = '-' . CRM_Utils_File::makeFilenameWithUnicode(Civi::settings()->get('org_name')) . '-Donation';
   }
   $pdf_file = $config->uploadDir . 'Receipt-' . $receipt['receipt_no'] . $donor_or_org_name . '.pdf';
   $user_friendly = 'Receipt-' . $receipt['receipt_no'] . $donor_or_org_name . '.pdf';
