@@ -55,7 +55,7 @@ class CustomTemplateTest extends CdntaxreceiptsBase {
     $this->assertSession()->pageTextContains('Re-Issue Tax Receipt');
     $this->assertPageHasNoErrorMessages();
 
-    $this->assertExpectedPDF(__CLASS__, __FUNCTION__, 'Receipt-C-00000001.pdf');
+    $this->assertExpectedPDF(__CLASS__, __FUNCTION__, 'Receipt-C-00000001-Anthony_Anderson.pdf');
 
     \CRM_Cdntaxreceipts_Utils_Time::reset();
 

@@ -232,8 +232,15 @@ function cdntaxreceipts_generateFormattedReceipt($receipt, &$collectedPdf = NULL
   $line_1 = ts("This is your Official Receipt for income tax purposes.", array('domain' => 'org.civicrm.cdntaxreceipts'));
 
   $config = CRM_Core_Config::singleton();
-  $pdf_file = $config->uploadDir . 'Receipt-' . $receipt['receipt_no'] . '.pdf';
-  $user_friendly = 'Receipt-' . $receipt['receipt_no'] . '.pdf';
+  $donor_or_org_name = '';
+  if ($receipt['issue_method'] == 'print') {
+    $donor_or_org_name = '-' . CRM_Utils_File::makeFilenameWithUnicode($displayname);
+  }
+  if ($receipt['issue_method'] == 'email') {
+    $donor_or_org_name = '-' . CRM_Utils_File::makeFilenameWithUnicode(Civi::settings()->get('org_name')) . '-Donation';
+  }
+  $pdf_file = $config->uploadDir . 'Receipt-' . $receipt['receipt_no'] . $donor_or_org_name . '.pdf';
+  $user_friendly = 'Receipt-' . $receipt['receipt_no'] . $donor_or_org_name . '.pdf';
 
   if (!defined('PDF_PAGE_FORMAT')) {
     define('PDF_PAGE_FORMAT', 'USLETTER'); // orig: 'A4'
