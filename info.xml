@@ -28,5 +28,14 @@
   </comments>
   <civix>
     <namespace>CRM/Cdntaxreceipts</namespace>
+    <format>22.12.1</format>
   </civix>
+  <mixins>
+    <mixin>menu-xml@1.0.0</mixin>
+    <mixin>mgd-php@1.0.0</mixin>
+  </mixins>
+  <classloader>
+    <psr0 prefix="CRM_" path="."/>
+  </classloader>
+  <upgrader>CRM_Cdntaxreceipts_Upgrader</upgrader>
 </extension>
