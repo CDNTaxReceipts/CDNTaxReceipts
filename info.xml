@@ -16,7 +16,7 @@
   <version>1.7.0</version>
   <develStage>stable</develStage>
   <compatibility>
-    <ver>5.45</ver>
+    <ver>5.51</ver>
   </compatibility>
   <urls>
     <url desc="documentation">https://lab.civicrm.org/extensions/cdntaxreceipts/blob/master/README.md</url>
@@ -28,5 +28,14 @@
   </comments>
   <civix>
     <namespace>CRM/Cdntaxreceipts</namespace>
+    <format>22.12.1</format>
   </civix>
+  <mixins>
+    <mixin>menu-xml@1.0.0</mixin>
+    <mixin>mgd-php@1.0.0</mixin>
+  </mixins>
+  <classloader>
+    <psr0 prefix="CRM_" path="."/>
+  </classloader>
+  <upgrader>CRM_Cdntaxreceipts_Upgrader</upgrader>
 </extension>
